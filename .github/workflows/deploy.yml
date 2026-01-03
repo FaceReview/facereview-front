@@ -1,0 +1,48 @@
+name: Deploy Frontend (Yarn Berry)
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn' # yarn 캐싱 사용
+
+      # Yarn Berry 활성화 (Corepack 사용)
+      - name: Enable Corepack
+        run: corepack enable
+
+      # 의존성 설치 (Yarn Berry는 ci 대신 install --immutable 권장)
+      - name: Install Dependencies
+        run: yarn install --immutable
+
+      # 빌드 (Vite 빌드 -> dist 폴더 생성)
+      - name: Build
+        run: yarn build
+
+      # 서버로 파일 전송 (SCP)
+      - name: Deploy to Server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }} # winterholic 일 가능성이 높음
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          # 로컬의 dist 폴더 내용을 -> 서버의 지정된 경로로 복사
+          source: "dist/*"
+          target: "/home/winterholic/projects/services/new-facereview-front"
+          # dist 폴더 껍데기를 벗기고 내부 파일만 전송하기 위해 1레벨 제거
+          strip_components: 1
+          # 덮어쓰기 전 기존 파일 삭제 여부 (선택사항, 깔끔한 배포를 위해 true 추천)
+          rm: true
