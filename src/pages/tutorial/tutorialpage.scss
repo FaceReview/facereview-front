@@ -1,4 +1,4 @@
-@import "assets/css/index.scss";
+@use "assets/css/index.scss";
 
 .tutorial-container {
   width: 100vw;
@@ -7,7 +7,7 @@
   flex-direction: row;
   justify-content: center;
 
-  @include desktop {
+  @include index.desktop {
     align-items: center;
   }
 
@@ -20,7 +20,7 @@
       .visual-wrapper {
         width: 460px;
         height: 460px;
-        background: $gray-50;
+        background: index.$gray-50;
         border-radius: 12px;
       }
     }
@@ -28,7 +28,7 @@
     .tutorial-right-container {
       width: 352px;
 
-      @include mobile {
+      @include index.mobile {
         width: calc(100vw - 32px);
         display: flex;
         flex-direction: column;
@@ -36,7 +36,7 @@
         .visual-wrapper {
           width: calc(100vw - 32px);
           height: calc(100vw - 64px);
-          background: $gray-50;
+          background: index.$gray-50;
           border-radius: 12px;
           margin-bottom: 34px;
         }
@@ -52,19 +52,19 @@
         font-size: 20px;
         line-height: 24px;
         font-weight: 700;
-        color: $primary-basic;
+        color: index.$primary-basic;
         margin-bottom: 24px;
 
-        @include mobile {
+        @include index.mobile {
           margin-top: 34px;
         }
-        @include desktop {
+        @include index.desktop {
           margin-top: 55px;
         }
       }
 
       .tutorial-text {
-        color: $gray-900;
+        color: index.$gray-900;
         margin-bottom: 60px;
         word-break: keep-all;
       }
@@ -73,7 +73,7 @@
         display: flex;
         width: 100%;
 
-        @include mobile {
+        @include index.mobile {
           position: absolute;
           padding: 4px 16px 8px 16px;
           left: 0px;

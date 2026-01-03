@@ -1,4 +1,4 @@
-@import "assets/css/index.scss";
+@use "assets/css/index.scss";
 
 .main-page-modal-title {
   text-align: center;
@@ -32,7 +32,7 @@
     width: 380px;
     height: 214px;
     min-height: 214px;
-    background: $gray-200;
+    background: index.$gray-200;
     border-radius: 12px;
 
     .main-page-modal-thumbnail-empty-image {

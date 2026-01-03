@@ -1,4 +1,4 @@
-@import 'assets/css/index.scss';
+@use 'assets/css/index.scss';
 
 .emotion-badge-container {
   display: flex;
@@ -20,23 +20,23 @@
   }
 
   &.happy {
-    background: $category-joyful-tinted;
+    background: index.$category-joyful-tinted;
   }
 
   &.surprise {
-    background: $category-surprised-tinted;
+    background: index.$category-surprised-tinted;
   }
 
   &.sad {
-    background: $category-sad-tinted;
+    background: index.$category-sad-tinted;
   }
 
   &.angry {
-    background: $category-angry-tinted;
+    background: index.$category-angry-tinted;
   }
 
   &.neutral {
-    background: $category-neutral-tinted;
+    background: index.$category-neutral-tinted;
   }
 
   .emotion-emoji {

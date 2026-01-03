@@ -1,16 +1,17 @@
-import WatchPage from "pages/watch/WatchPage";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-import AuthPage from "../pages/auth/AuthPage";
-import MainPage from "../pages/main/MainPage";
-import ScreenContainer from "./ScreenContainer/ScreenContainer";
-import MyPage from "../pages/my/MyPage";
-import EditPage from "../pages/edit/EditPage";
-import TutorialPage from "pages/tutorial/TutorialPage";
-import AdminPage from "pages/admin/AdminPage";
+import WatchPage from 'pages/watch/WatchPage';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import AuthPage from '../pages/auth/AuthPage';
+import MainPage from '../pages/main/MainPage';
+import ScreenContainer from './ScreenContainer/ScreenContainer';
+import MyPage from '../pages/my/MyPage';
+import EditPage from '../pages/edit/EditPage';
+import TutorialPage from 'pages/tutorial/TutorialPage';
+import AdminPage from 'pages/admin/AdminPage';
 
 const Router = () => {
   return (
-    <BrowserRouter>
+    <BrowserRouter
+      future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <Routes>
         <Route element={<ScreenContainer headerShown={true} />}>
           <Route path="/main" element={<MainPage />} />

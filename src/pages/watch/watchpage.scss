@@ -1,16 +1,16 @@
-@import "assets/css/index.scss";
+@use "assets/css/index.scss";
 
 .watch-page-container {
   display: flex;
   padding-bottom: 98px;
 
-  @include mobile {
+  @include index.mobile {
     flex-direction: column;
     margin-left: 16px;
     margin-right: 16px;
     padding-top: 92px;
   }
-  @include desktop {
+  @include index.desktop {
     padding-top: 126px;
   }
 
@@ -20,9 +20,9 @@
 
     .video-container {
       position: relative;
-      @include mobile {
+      @include index.mobile {
       }
-      @include desktop {
+      @include index.desktop {
         margin-bottom: 20px;
       }
 
@@ -37,8 +37,8 @@
         height: 32px;
         padding-top: 4px;
         padding-bottom: 4px;
-        color: $gray-900;
-        background: $system-dim-black;
+        color: index.$gray-900;
+        background: index.$system-dim-black;
         opacity: 0;
         transition: all 0.2s;
         pointer-events: none;
@@ -49,23 +49,23 @@
       display: flex;
       justify-content: space-between;
 
-      @include mobile {
+      @include index.mobile {
         padding: 20px 16px 20px 16px;
       }
-      @include desktop {
+      @include index.desktop {
       }
 
       .title {
-        color: $gray-900;
+        color: index.$gray-900;
         word-break: keep-all;
-        @include mobile {
+        @include index.mobile {
           white-space: nowrap;
           overflow: hidden;
           max-width: calc(100vw - 112px);
           height: 24px;
           text-overflow: ellipsis;
         }
-        @include desktop {
+        @include index.desktop {
           margin-bottom: 60px;
         }
       }
@@ -75,33 +75,33 @@
         justify-content: flex-end;
         align-items: center;
 
-        @include mobile {
+        @include index.mobile {
           width: 80px;
           flex-direction: column;
         }
-        @include desktop {
+        @include index.desktop {
           width: 180px;
           height: 32px;
           flex-wrap: wrap;
         }
 
         .video-hits-text {
-          color: $gray-700;
+          color: index.$gray-700;
 
-          @include mobile {
+          @include index.mobile {
             margin-top: 8px;
           }
-          @include desktop {
+          @include index.desktop {
             margin-left: 16px;
           }
         }
       }
     }
 
-    @include mobile {
+    @include index.mobile {
       .video-fixed-container {
         position: fixed;
-        background: $bg;
+        background: index.$bg;
         width: 100vw;
         left: 0;
         top: 44px;
@@ -126,7 +126,7 @@
             display: flex;
 
             .emotion-title {
-              color: $gray-900;
+              color: index.$gray-900;
               margin-right: 8px;
             }
           }
@@ -139,7 +139,7 @@
             .graph-tooltip-container {
               width: 80px;
               height: 50px;
-              background: $gray-700;
+              background: index.$gray-700;
             }
           }
 
@@ -164,7 +164,7 @@
             display: flex;
 
             .others-emotion-title {
-              color: $gray-900;
+              color: index.$gray-900;
               margin-right: 8px;
             }
           }
@@ -173,7 +173,7 @@
     }
 
     .comment-container {
-      @include mobile {
+      @include index.mobile {
         padding-top: 24px;
         padding-bottom: 24px;
       }
@@ -188,7 +188,7 @@
       }
 
       .comment-info-text {
-        color: $gray-900;
+        color: index.$gray-900;
         margin-bottom: 32px;
       }
 
@@ -207,11 +207,11 @@
               margin-bottom: 4px;
 
               .comment-modifying-nickname {
-                color: $gray-500;
+                color: index.$gray-500;
                 margin-right: 4px;
               }
               .comment-modifying-time-text {
-                color: $gray-300;
+                color: index.$gray-300;
               }
             }
 
@@ -220,19 +220,19 @@
               justify-content: flex-end;
 
               .comment-modifying-cancel {
-                color: $gray-500;
+                color: index.$gray-500;
                 cursor: pointer;
                 &:hover {
-                  color: $gray-900;
+                  color: index.$gray-900;
                 }
               }
 
               .comment-modifying-save {
-                color: $gray-500;
+                color: index.$gray-500;
                 margin-left: 16px;
                 &:hover {
                   cursor: pointer;
-                  color: $gray-900;
+                  color: index.$gray-900;
                 }
               }
             }
@@ -253,18 +253,18 @@
                 margin-bottom: 4px;
 
                 .comment-nickname {
-                  color: $gray-500;
+                  color: index.$gray-500;
                   margin-right: 4px;
                 }
 
                 .comment-time-text {
-                  color: $gray-300;
+                  color: index.$gray-300;
                 }
               }
             }
 
             .comment-text {
-              color: $gray-900;
+              color: index.$gray-900;
               word-break: keep-all;
             }
 
@@ -279,7 +279,7 @@
                 margin-left: 12px;
                 position: absolute;
                 margin-left: 12px;
-                background: $gray-50;
+                background: index.$gray-50;
                 border-radius: 8px;
                 z-index: 997;
 
@@ -291,7 +291,7 @@
                   position: relative;
                   height: 40px;
                   padding: 12px 16px 12px 16px;
-                  border-bottom: $gray-100 solid 1px;
+                  border-bottom: index.$gray-100 solid 1px;
                   .comment-modify-dim {
                     display: none;
                     position: absolute;
@@ -332,7 +332,7 @@
         }
 
         .no-comments-text {
-          color: $gray-600;
+          color: index.$gray-600;
         }
       }
     }
@@ -348,7 +348,7 @@
         display: flex;
 
         .emotion-title {
-          color: $gray-900;
+          color: index.$gray-900;
           margin-right: 8px;
         }
       }
@@ -361,7 +361,7 @@
         .graph-tooltip-container {
           width: 80px;
           height: 50px;
-          background: $gray-700;
+          background: index.$gray-700;
         }
       }
 
@@ -379,27 +379,27 @@
 
           &.active .emotion-text,
           &.active .emotion-percentage {
-            color: $primary-basic;
+            color: index.$primary-basic;
           }
 
           .emotion-text {
-            color: $gray-800;
+            color: index.$gray-800;
             margin: 6px 0 6px 0;
           }
 
           .emotion-percentage {
-            color: $gray-800;
+            color: index.$gray-800;
           }
         }
       }
     }
 
     .recommend-container {
-      @include mobile {
+      @include index.mobile {
         width: 100%;
       }
       .recommend-title {
-        color: $gray-900;
+        color: index.$gray-900;
         margin-bottom: 32px;
       }
 
@@ -411,6 +411,6 @@
 
 .custom-tooltip {
   .custom-tooltip-text {
-    color: $gray-900;
+    color: index.$gray-900;
   }
 }

@@ -1,7 +1,6 @@
 {
   "compilerOptions": {
-    "baseUrl": "src",
-    "target": "es5",
+    "target": "ESNext",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
@@ -11,20 +10,13 @@
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "paths": {
-      "assets/*": ["assets/*"],
-      "api/*": ["api/*"],
-      "components/*": ["components/*"],
-      "pages/*": ["pages/*"],
-      "socket/*": ["socket/*"],
-      "types/*": ["types/*"],
-      "utils/*": ["utils/*"]
-    }
+    "baseUrl": "src",
+    "types": ["vite/client", "node", "jest", "@testing-library/jest-dom"]
   },
   "include": ["src"]
 }

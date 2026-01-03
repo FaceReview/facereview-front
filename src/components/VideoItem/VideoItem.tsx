@@ -1,13 +1,13 @@
-import { ReactElement, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import YouTube, { YouTubeEvent } from "react-youtube";
-import { EmotionType } from "types";
-import { emojiOfEmotion, labelOfEmotion } from "utils";
-import { Options, YouTubePlayer } from "youtube-player/dist/types";
-import "./videoitem.scss";
+import { ReactElement, useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
+import YouTube, { YouTubeEvent } from 'react-youtube';
+import { EmotionType } from 'types';
+import { emojiOfEmotion, labelOfEmotion } from 'utils';
+import { Options, YouTubePlayer } from 'youtube-player/dist/types';
+import './videoitem.scss';
 
 type VideoItemPropsType = {
-  type: "small-emoji" | "big-emoji";
+  type: 'small-emoji' | 'big-emoji';
   videoId: string;
   videoTitle: string;
   videoMostEmotion: EmotionType;
@@ -29,18 +29,22 @@ const VideoItem = ({
 }: VideoItemPropsType): ReactElement => {
   const navigation = useNavigate();
   const height = width ? width * (9 / 16) : null;
-  const opts: Options = {
-    width: width ? width : 280,
-    height: height ? height : 158,
-    playerVars: {
-      autoplay: 1,
-      color: "white",
-      controls: 0,
-      disablekb: 0,
-      fs: 0,
-      rel: 0,
-    },
-  };
+  const opts: Options = useMemo(
+    () => ({
+      width: width ? width : 280,
+      height: height ? height : 158,
+      playerVars: {
+        autoplay: 1,
+        color: 'white',
+        controls: 0,
+        disablekb: 0,
+        fs: 0,
+        rel: 0,
+        origin: window.location.origin,
+      },
+    }),
+    [width, height]
+  );
   const [video, setVideo] = useState<YouTubePlayer | null>(null);
 
   const loadedVideoMostEmotion: string = videoMostEmotion as string;
@@ -49,7 +53,7 @@ const VideoItem = ({
     navigation(`/watch/${videoId}`);
   };
 
-  const handleVideoReady = (e: YouTubeEvent<any>) => {
+  const handleVideoReady = (e: YouTubeEvent<YouTubePlayer>) => {
     e.target.mute();
     setVideo(e.target);
   };
@@ -73,14 +77,12 @@ const VideoItem = ({
       style={{ ...style, width: `${width ? width : 280}px` }}
       onClick={handleClick}
       onMouseOver={handleMouseHover}
-      onMouseOut={handleMouseOut}
-    >
+      onMouseOut={handleMouseOut}>
       <div
         className="thumbnail-wrapper"
-        style={{ width: width ? width : 280, height: height ? height : 158 }}
-      >
+        style={{ width: width ? width : 280, height: height ? height : 158 }}>
         <img
-          className={`video-thumbnail ${hoverToPlay ? null : "fix"}`}
+          className={`video-thumbnail ${hoverToPlay ? null : 'fix'}`}
           style={{ width: width ? width : 280, height: height ? height : 158 }}
           src={`http://img.youtube.com/vi/${videoId}/mqdefault.jpg`}
           alt=""
@@ -90,7 +92,7 @@ const VideoItem = ({
             videoId={videoId}
             // id={string} // defaults -> ''
             // className={string} // defaults -> ''
-            iframeClassName={"youtube-item"} // defaults -> ''
+            iframeClassName={'youtube-item'} // defaults -> ''
             // style={object} // defaults -> {}
             // title={string} // defaults -> ''
             // loading={string} // defaults -> undefined
@@ -108,7 +110,7 @@ const VideoItem = ({
       </div>
       <div className="video-info-container">
         <h3 className="video-title font-label-large">{videoTitle}</h3>
-        {loadedVideoMostEmotion === "None" ||
+        {loadedVideoMostEmotion === 'None' ||
         videoMostEmotionPercentage === 0 ? (
           <h3 className="video-emotion-data-empty font-body-medium">
             아직 시청기록이 없어요.
@@ -116,13 +118,12 @@ const VideoItem = ({
         ) : (
           <div className="video-emotion-container">
             <div
-              className={`video-emoji-container ${type} ${videoMostEmotion}`}
-            >
+              className={`video-emoji-container ${type} ${videoMostEmotion}`}>
               {emojiOfEmotion[videoMostEmotion]}
             </div>
             <h3 className="video-emotion-data font-body-medium">
               {labelOfEmotion[videoMostEmotion]}
-              {type === "big-emoji" ? <br /> : ` `}
+              {type === 'big-emoji' ? <br /> : ` `}
               {videoMostEmotionPercentage}%
             </h3>
           </div>

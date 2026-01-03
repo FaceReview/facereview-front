@@ -1,4 +1,4 @@
-@import "assets/css/index.scss";
+@use "assets/css/index.scss";
 
 .edit-page-container {
   display: flex;
@@ -6,11 +6,11 @@
   align-items: center;
   padding-bottom: 102px;
 
-  @include mobile {
+  @include index.mobile {
     padding-top: 82px;
   }
 
-  @include desktop {
+  @include index.desktop {
     padding-top: 148px;
   }
 
@@ -19,12 +19,12 @@
     flex-direction: column;
     align-items: center;
 
-    @include mobile {
+    @include index.mobile {
       width: calc(100vw - 32px);
       margin-top: 60px;
     }
 
-    @include desktop {
+    @include index.desktop {
       width: 380px;
       margin-top: 80px;
     }
@@ -46,7 +46,7 @@
       margin-bottom: 8px;
 
       .edit-page-input-label {
-        color: $gray-900;
+        color: index.$gray-900;
       }
     }
 
@@ -56,6 +56,6 @@
   }
 
   .edit-page-input-alert-message {
-    color: $system-error;
+    color: index.$system-error;
   }
 }

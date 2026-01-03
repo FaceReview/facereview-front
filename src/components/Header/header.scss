@@ -1,16 +1,16 @@
-@import "assets/css/index.scss";
+@use "assets/css/index.scss";
 
 .header-background {
-  background: $bg;
+  background: index.$bg;
   position: fixed;
   top: 0;
   width: 100vw;
   z-index: 998;
 
-  @include mobile {
+  @include index.mobile {
     height: 48px;
   }
-  @include desktop {
+  @include index.desktop {
     height: 92px;
     margin-left: calc(600px - 50vw);
     padding-left: calc(50vw - 600px);
@@ -19,7 +19,7 @@
 
 .header {
   display: flex;
-  background: $bg;
+  background: index.$bg;
   width: 1200px;
   justify-content: space-between;
   align-items: center;
@@ -28,7 +28,7 @@
   top: 0;
   z-index: 998;
 
-  @include mobile {
+  @include index.mobile {
     width: 100%;
     height: 48px;
     padding: 8px 16px 8px 16px;
@@ -39,7 +39,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: $gray-500;
+    color: index.$gray-500;
     height: 32px;
   }
 
