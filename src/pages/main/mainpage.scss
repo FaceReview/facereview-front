@@ -1,38 +1,38 @@
-@import "assets/css/index.scss";
+@use "assets/css/index.scss";
 
 .main-page-container {
   padding-bottom: 98px;
 
-  @include mobile {
+  @include index.mobile {
     padding-top: 76px;
     padding-left: 16px;
   }
-  @include desktop {
+  @include index.desktop {
     padding-top: 158px;
   }
 
   .title {
-    color: $gray-900;
+    color: index.$gray-900;
   }
 
   .subtitle {
-    color: $gray-400;
+    color: index.$gray-400;
     margin-top: 12px;
 
-    @include mobile {
+    @include index.mobile {
       margin-bottom: 40px;
     }
-    @include desktop {
+    @include index.desktop {
       margin-bottom: 48px;
     }
   }
 
   .personal-recommend-contents-container {
-    @include mobile {
+    @include index.mobile {
       width: 100%;
       margin-bottom: 100px;
     }
-    @include desktop {
+    @include index.desktop {
       width: calc(50vw + 600px);
       margin-bottom: 100px;
     }
@@ -43,9 +43,9 @@
       overflow-x: auto;
       overflow-y: hidden;
 
-      @include mobile {
+      @include index.mobile {
       }
-      @include desktop {
+      @include index.desktop {
         height: 282px;
       }
     }
@@ -56,9 +56,9 @@
       padding-left: 20px;
       padding-bottom: 20px;
 
-      @include mobile {
+      @include index.mobile {
       }
-      @include desktop {
+      @include index.desktop {
         padding-right: calc(50vw - 660px);
         padding-top: 16px;
       }
@@ -72,11 +72,11 @@
   }
 
   .genre-contents-container {
-    @include mobile {
+    @include index.mobile {
       width: 100%;
       margin-bottom: 100px;
     }
-    @include desktop {
+    @include index.desktop {
       width: calc(50vw + 600px);
       margin-bottom: 100px;
     }
@@ -87,9 +87,9 @@
       overflow-x: auto;
       overflow-y: hidden;
 
-      @include mobile {
+      @include index.mobile {
       }
-      @include desktop {
+      @include index.desktop {
         height: 282px;
       }
     }
@@ -100,9 +100,9 @@
       padding-left: 20px;
       padding-bottom: 20px;
 
-      @include mobile {
+      @include index.mobile {
       }
-      @include desktop {
+      @include index.desktop {
         padding-right: calc(50vw - 660px);
         padding-top: 16px;
       }
@@ -133,11 +133,11 @@
           white-space: nowrap;
           padding-left: 20px;
 
-          @include mobile {
+          @include index.mobile {
             padding-top: 24px;
             padding-bottom: 32px;
           }
-          @include desktop {
+          @include index.desktop {
             padding-top: 16px;
             padding-bottom: 56px;
           }
@@ -151,7 +151,7 @@
       }
 
       .video-wrapper {
-        @include desktop {
+        @include index.desktop {
           width: 1300px;
         }
         display: flex;

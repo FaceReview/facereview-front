@@ -1,7 +1,7 @@
-import axios from "axios";
+import axios from 'axios';
 
 const api = axios.create({
-  baseURL: "http://15.164.167.42",
+  baseURL: import.meta.env.VITE_API_URL || 'http://15.164.167.42',
   timeout: 30000,
 });
 
@@ -24,13 +24,14 @@ api.interceptors.response.use(
   (error) => {
     // console.log("🧨 [Res ERROR]", error, "\n");
     if (error.status === 408) {
+      // noop
     }
     return Promise.reject(error);
   }
 );
 
 export const youtubeApi = axios.create({
-  baseURL: "https://www.googleapis.com/",
+  baseURL: 'https://www.googleapis.com/',
   timeout: 30000,
 });
 
@@ -53,6 +54,7 @@ youtubeApi.interceptors.response.use(
   (error) => {
     // console.log("🧨 [Res ERROR]", error, "\n");
     if (error.status === 408) {
+      // noop
     }
     return Promise.reject(error);
   }

@@ -1,4 +1,4 @@
-@import "assets/css/index.scss";
+@use "assets/css/index.scss";
 
 .some-icon {
   cursor: pointer;
@@ -20,7 +20,7 @@
     height: 24px;
 
     &:hover {
-      background: $system-dim-white;
+      background: index.$system-dim-white;
     }
   }
 }

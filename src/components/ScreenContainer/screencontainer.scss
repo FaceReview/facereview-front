@@ -1,4 +1,4 @@
-@import "assets/css/index.scss";
+@use "assets/css/index.scss";
 
 .screen-container {
   overflow-x: visible;
@@ -8,7 +8,7 @@
   margin-right: auto;
 }
 
-@include mobile {
+@include index.mobile {
   .screen-container {
     max-width: 100%;
     width: 100%;

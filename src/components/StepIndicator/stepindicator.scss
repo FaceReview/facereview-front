@@ -1,4 +1,4 @@
-@import "assets/css/index.scss";
+@use "assets/css/index.scss";
 
 .indicator-container {
     display: flex;
@@ -7,9 +7,9 @@
 .indicator-container .indicator {
     width: 50px;
     height: 4px;
-    background: $gray-100;
+    background: index.$gray-100;
     background-repeat: no-repeat;
-    background-image: linear-gradient($gray-600 0%, $gray-600 100%);
+    background-image: linear-gradient(index.$gray-600 0%, index.$gray-600 100%);
     background-size: 0% 100%;
 
     transition: background-size .4s ease;

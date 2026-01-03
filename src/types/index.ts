@@ -1,23 +1,23 @@
 export type CategoryType =
-  | "sports"
-  | "game"
-  | "news"
-  | "travel"
-  | "cook"
-  | "comedy"
-  | "fear"
-  | "drama"
-  | "review"
-  | "fancam"
-  | "talking"
-  | "information"
-  | "music"
-  | "show"
-  | "eating"
-  | "comic"
-  | "health"
-  | "vlog";
-export type EmotionType = "happy" | "surprise" | "sad" | "angry" | "neutral";
+  | 'sports'
+  | 'game'
+  | 'news'
+  | 'travel'
+  | 'cook'
+  | 'comedy'
+  | 'fear'
+  | 'drama'
+  | 'review'
+  | 'fancam'
+  | 'talking'
+  | 'information'
+  | 'music'
+  | 'show'
+  | 'eating'
+  | 'comic'
+  | 'health'
+  | 'vlog';
+export type EmotionType = 'happy' | 'surprise' | 'sad' | 'angry' | 'neutral';
 export type UserInfoType = {
   user_role: boolean;
   user_name: string;
@@ -49,14 +49,14 @@ export type VideoWatchedType = {
   youtube_url: string;
   most_emotion: EmotionType;
   most_emotion_per: number;
-  distribution_data: any;
-  // distribution_data: {
-  //   graph_data: { id: EmotionType; data: { x: number; y: number }[] }[];
-  // };
+  distribution_data: {
+    graph_data: GraphDistributionDataType[];
+  };
 };
 export type VideoDistributionDataType = {
   [key in EmotionType]: { x: string; y: number }[];
 };
+
 export type GraphDistributionDataType = {
   id: EmotionType;
   data: { x: string; y: number }[];

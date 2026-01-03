@@ -1,15 +1,15 @@
-@import "assets/css/index.scss";
+@use "assets/css/index.scss";
 
 .admin-page-container {
   padding-top: 158px;
   padding-bottom: 98px;
 
   .title {
-    color: $gray-900;
+    color: index.$gray-900;
   }
 
   .subtitle {
-    color: $gray-400;
+    color: index.$gray-400;
     margin-top: 12px;
     margin-bottom: 25px;
   }
@@ -40,19 +40,19 @@
       padding: 4px;
       margin-right: 8px;
       margin-bottom: 8px;
-      border: 1px solid $primary-basic;
+      border: 1px solid index.$primary-basic;
       border-radius: 4px;
       transition: ease all 0.2s;
 
       &:hover {
-        color: $gray-50;
-        background-color: $primary-basic;
+        color: index.$gray-50;
+        background-color: index.$primary-basic;
         cursor: pointer;
       }
 
       &.active {
-        color: $gray-50;
-        background-color: $primary-basic;
+        color: index.$gray-50;
+        background-color: index.$primary-basic;
         cursor: pointer;
       }
     }

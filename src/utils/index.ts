@@ -1,32 +1,32 @@
-import { EmotionType, VideoDistributionDataType } from "types/index";
+import { EmotionType, VideoDistributionDataType } from 'types/index';
 
 export const labelOfEmotion = {
-  happy: "즐거운",
-  surprise: "놀라운",
-  sad: "슬픈",
-  angry: "화나는",
-  neutral: "평온한",
+  happy: '즐거운',
+  surprise: '놀라운',
+  sad: '슬픈',
+  angry: '화나는',
+  neutral: '평온한',
 };
 
 export const emojiOfEmotion = {
-  happy: "😄",
-  surprise: "😲",
-  sad: "😥",
-  angry: "😠",
-  neutral: "😐",
+  happy: '😄',
+  surprise: '😲',
+  sad: '😥',
+  angry: '😠',
+  neutral: '😐',
 };
 
 export const mapEmotionToNumber = (prop: EmotionType) => {
   switch (prop) {
-    case "neutral":
+    case 'neutral':
       return 0;
-    case "happy":
+    case 'happy':
       return 1;
-    case "surprise":
+    case 'surprise':
       return 2;
-    case "sad":
+    case 'sad':
       return 3;
-    case "angry":
+    case 'angry':
       return 4;
     default:
       return 0;
@@ -36,23 +36,23 @@ export const mapEmotionToNumber = (prop: EmotionType) => {
 export const mapNumberToEmotion = (prop: number) => {
   switch (prop) {
     case 0:
-      return "neutral";
+      return 'neutral';
     case 1:
-      return "happy";
+      return 'happy';
     case 2:
-      return "surprise";
+      return 'surprise';
     case 3:
-      return "sad";
+      return 'sad';
     case 4:
-      return "angry";
+      return 'angry';
     default:
-      return "neutral";
+      return 'neutral';
   }
 };
 
 export const getTimeToString = (time: string) => {
   const currentDate = new Date();
-  const date = new Date(time + "Z");
+  const date = new Date(time + 'Z');
 
   const timeDiff = currentDate.getTime() - date.getTime();
   const timeDiffSec = timeDiff / 1000;
@@ -67,18 +67,18 @@ export const getTimeToString = (time: string) => {
   const minuteDiff = Math.floor(timeDiffSec / 60);
 
   if (yearDiff) {
-    return yearDiff + "년 전";
+    return yearDiff + '년 전';
   }
   if (monthDiff) {
-    return monthDiff + "달 전";
+    return monthDiff + '달 전';
   }
   if (dateDiff) {
-    return dateDiff + "일 전";
+    return dateDiff + '일 전';
   }
   if (hourDiff) {
-    return hourDiff + "시간 전";
+    return hourDiff + '시간 전';
   }
-  return minuteDiff + "분 전";
+  return minuteDiff + '분 전';
 };
 
 export const getTimeArrFromDuration = (duration: string) => {
@@ -87,13 +87,13 @@ export const getTimeArrFromDuration = (duration: string) => {
     minute = 0,
     second = 0;
 
-  const hourSplit = temp.split("H");
+  const hourSplit = temp.split('H');
   if (hourSplit.length !== 1) {
     hour = +hourSplit[0];
     temp = hourSplit[1];
   }
 
-  const minuteSplit = temp.split("M");
+  const minuteSplit = temp.split('M');
   if (minuteSplit.length !== 1) {
     minute = +minuteSplit[0];
     temp = minuteSplit[1];
@@ -105,8 +105,8 @@ export const getTimeArrFromDuration = (duration: string) => {
 };
 
 export const getDistributionToGraphData = (dist: VideoDistributionDataType) => {
-  console.log("getDistributionToGraphData", dist);
-  let temp: { [key in EmotionType]: { x: string; y: number }[] } = {
+  console.log('getDistributionToGraphData', dist);
+  const temp: { [key in EmotionType]: { x: string; y: number }[] } = {
     neutral: [],
     happy: [],
     sad: [],
@@ -116,19 +116,19 @@ export const getDistributionToGraphData = (dist: VideoDistributionDataType) => {
 
   for (let i = 1; i < dist.happy.length; i += 2) {
     temp.happy.push({
-      x: dist.happy[i].x + "",
+      x: dist.happy[i].x + '',
       y: (dist.happy[i].y + dist.happy[i - 1].y) / 2,
     });
     temp.sad.push({
-      x: dist.sad[i].x + "",
+      x: dist.sad[i].x + '',
       y: (dist.sad[i].y + dist.sad[i - 1].y) / 2,
     });
     temp.surprise.push({
-      x: dist.surprise[i].x + "",
+      x: dist.surprise[i].x + '',
       y: (dist.surprise[i].y + dist.surprise[i - 1].y) / 2,
     });
     temp.angry.push({
-      x: dist.angry[i].x + "",
+      x: dist.angry[i].x + '',
       y: (dist.angry[i].y + dist.angry[i - 1].y) / 2,
     });
   }
@@ -159,23 +159,23 @@ export const getDistributionToGraphData = (dist: VideoDistributionDataType) => {
   // console.log(res);
   const res = [
     {
-      id: "happy",
+      id: 'happy',
       data: dist.happy,
     },
     {
-      id: "sad",
+      id: 'sad',
       data: dist.sad,
     },
     {
-      id: "surprise",
+      id: 'surprise',
       data: dist.surprise,
     },
     {
-      id: "angry",
+      id: 'angry',
       data: dist.angry,
     },
     {
-      id: "neutral",
+      id: 'neutral',
       data: dist.neutral,
     },
   ];

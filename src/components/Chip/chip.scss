@@ -1,10 +1,10 @@
-@import "assets/css/index.scss";
+@use "assets/css/index.scss";
 
 .chip {
   position: relative;
 
-  color: $gray-900;
-  background: $gray-50;
+  color: index.$gray-900;
+  background: index.$gray-50;
   border-radius: 8px;
   cursor: pointer;
   overflow: hidden;
@@ -24,69 +24,69 @@
     transform: scale(1.2);
 
     &.all {
-      color: $gray-50;
-      background: $gray-900;
+      color: index.$gray-50;
+      background: index.$gray-900;
     }
 
     &.happy {
-      background: $category-joyful-tinted;
-      color: $gray-900;
+      background: index.$category-joyful-tinted;
+      color: index.$gray-900;
     }
 
     &.surprise {
-      background: $category-surprised-tinted;
-      color: $gray-900;
+      background: index.$category-surprised-tinted;
+      color: index.$gray-900;
     }
 
     &.sad {
-      background: $category-sad-tinted;
-      color: $gray-900;
+      background: index.$category-sad-tinted;
+      color: index.$gray-900;
     }
 
     &.angry {
-      background: $category-angry-tinted;
-      color: $gray-900;
+      background: index.$category-angry-tinted;
+      color: index.$gray-900;
     }
 
     &.plus {
-      background: $gray-100;
+      background: index.$gray-100;
     }
   }
 
   &.selected {
     &.all {
-      color: $gray-50;
-      background: $gray-900;
+      color: index.$gray-50;
+      background: index.$gray-900;
     }
 
     &.happy {
-      background: $category-joyful-basic;
-      color: $gray-900;
+      background: index.$category-joyful-basic;
+      color: index.$gray-900;
     }
 
     &.surprise {
-      background: $category-surprised-basic;
-      color: $gray-900;
+      background: index.$category-surprised-basic;
+      color: index.$gray-900;
     }
 
     &.sad {
-      background: $category-sad-basic;
-      color: $gray-900;
+      background: index.$category-sad-basic;
+      color: index.$gray-900;
     }
 
     &.angry {
-      background: $category-angry-basic;
-      color: $gray-900;
+      background: index.$category-angry-basic;
+      color: index.$gray-900;
     }
   }
 }
 
 .plus-icon {
-  @include desktop {
+  @include index.desktop {
     width: 20px;
     height: 20px;
   }
-  @include mobile {
+  @include index.mobile {
     width: 15px;
     height: 15px;
   }

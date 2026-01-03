@@ -1,4 +1,4 @@
-@import "assets/css/index.scss";
+@use "assets/css/index.scss";
 
 .profile-icon {
   display: flex;
@@ -6,14 +6,14 @@
   align-items: flex-end;
   border-radius: 100%;
   position: relative;
-  border: 1px solid $gray-50;
+  border: 1px solid index.$gray-50;
 
   .profile-icon-dim {
     display: none;
     position: absolute;
     top: 0px;
     left: 0px;
-    background: $state-04;
+    background: index.$state-04;
     width: 100%;
     height: 100%;
     border-radius: 100%;
@@ -44,23 +44,23 @@
   }
 
   &.neutral {
-    background: $category-neutral-tinted;
+    background: index.$category-neutral-tinted;
   }
 
   &.happy {
-    background: $category-joyful-tinted;
+    background: index.$category-joyful-tinted;
   }
 
   &.surprise {
-    background: $category-surprised-tinted;
+    background: index.$category-surprised-tinted;
   }
 
   &.sad {
-    background: $category-sad-tinted;
+    background: index.$category-sad-tinted;
   }
 
   &.angry {
-    background: $category-angry-tinted;
+    background: index.$category-angry-tinted;
   }
 }
 

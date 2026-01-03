@@ -1,4 +1,4 @@
-@import "assets/css/index.scss";
+@use "assets/css/index.scss";
 
 .animated-logo-container {
   display: flex;
@@ -26,19 +26,19 @@
 
       &.animated-bar-1 {
         width: 100%;
-        background-color: $brand-red;
+        background-color: index.$brand-red;
         animation-name: spring-1;
       }
 
       &.animated-bar-2 {
         width: 75%;
-        background-color: $brand-yellow;
+        background-color: index.$brand-yellow;
         animation-name: spring-2;
       }
 
       &.animated-bar-3 {
         width: 37%;
-        background-color: $brand-blue;
+        background-color: index.$brand-blue;
         animation-name: spring-3;
       }
     }

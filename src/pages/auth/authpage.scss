@@ -1,4 +1,4 @@
-@import "assets/css/index.scss";
+@use "assets/css/index.scss";
 
 .auth-container {
   display: flex;
@@ -7,7 +7,7 @@
   margin-top: 128px;
   padding-bottom: 98px;
 
-  @include mobile {
+  @include index.mobile {
     margin-top: 64px;
   }
 }
@@ -16,7 +16,7 @@
   margin-top: 84px;
   margin-bottom: 108px;
 
-  @include mobile {
+  @include index.mobile {
     margin-top: 30px;
     margin-bottom: 96px;
   }
@@ -27,7 +27,7 @@
   flex-direction: column;
   width: 380px;
 
-  @include mobile {
+  @include index.mobile {
     width: 358px;
   }
 
@@ -38,12 +38,12 @@
     margin-bottom: 24px;
 
     .input-label {
-      color: $gray-900;
+      color: index.$gray-900;
       margin-bottom: 16px;
     }
 
     .input-alert-message {
-      color: $system-error;
+      color: index.$system-error;
       margin-top: 8px;
     }
   }

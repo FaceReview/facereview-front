@@ -1,5 +1,5 @@
-import create from "zustand";
-import { devtools, persist } from "zustand/middleware";
+import { create } from 'zustand';
+import { devtools, persist } from 'zustand/middleware';
 
 interface AuthState {
   is_sign_in: boolean;
@@ -54,20 +54,21 @@ export const useAuthStorage = create<AuthState>()(
       (set) => ({
         is_admin: false,
         is_sign_in: false,
-        user_name: "",
+        user_name: '',
         user_profile: 0,
         user_tutorial: 0,
         user_announced: false,
         user_favorite_genres: [],
-        access_token: "",
-        refresh_token: "",
+        access_token: '',
+        refresh_token: '',
         setToken: ({ access_token, refresh_token }) =>
-          set((state) => ({
+          set(() => ({
             access_token: access_token,
             refresh_token: refresh_token,
           })),
         setUserInfo: ({
           is_admin,
+
           is_sign_in,
           access_token,
           refresh_token,
@@ -76,7 +77,7 @@ export const useAuthStorage = create<AuthState>()(
           user_tutorial,
           user_favorite_genres,
         }) =>
-          set((state) => ({
+          set(() => ({
             is_admin: is_admin,
             is_sign_in: true,
             access_token,
@@ -87,26 +88,26 @@ export const useAuthStorage = create<AuthState>()(
             user_favorite_genres,
           })),
         setUserAnnounced: ({ user_announced }) =>
-          set((state) => ({
+          set(() => ({
             user_announced,
           })),
         setUserName: ({ user_name }) =>
-          set((state) => ({
+          set(() => ({
             user_name,
           })),
         setUserProfile: ({ user_profile }) =>
-          set((state) => ({
+          set(() => ({
             user_profile,
           })),
         setUserFavoriteGenres: ({ user_favorite_genres }) =>
-          set((state) => ({
+          set(() => ({
             user_favorite_genres,
           })),
         setTempToken: ({ access_token }) =>
-          set((state) => ({
+          set(() => ({
             is_admin: false,
             is_sign_in: false,
-            user_name: "",
+            user_name: '',
             user_profile: 0,
             user_tutorial: 0,
             access_token: access_token,
@@ -114,7 +115,7 @@ export const useAuthStorage = create<AuthState>()(
       }),
 
       {
-        name: "auth-storage",
+        name: 'auth-storage',
       }
     )
   )

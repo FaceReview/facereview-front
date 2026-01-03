@@ -1,4 +1,4 @@
-@import 'assets/css/variables.scss';
+@use 'assets/css/variables.scss';
 
 .upload-button {
   position: relative;
@@ -19,7 +19,7 @@
     position: absolute;
     top: 0px;
     left: 0px;
-    background: $state-04;
+    background: variables.$state-04;
     width: 100%;
     height: 100%;
   }

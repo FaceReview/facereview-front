@@ -1,10 +1,10 @@
-@import "assets/css/index.scss";
+@use "assets/css/index.scss";
 
 .button {
   position: relative;
   width: fit-content;
-  color: $gray-50;
-  background: $primary-basic;
+  color: index.$gray-50;
+  background: index.$primary-basic;
   padding: 16px 20px 16px 20px;
   border-radius: 8px;
   cursor: pointer;
@@ -15,7 +15,7 @@
     position: absolute;
     top: 0px;
     left: 0px;
-    background: $state-04;
+    background: index.$state-04;
     width: 100%;
     height: 100%;
   }
@@ -25,7 +25,7 @@
   }
 
   &.disabled {
-    background: $gray-200 !important;
+    background: index.$gray-200 !important;
     cursor: not-allowed;
 
     &:hover .dim {
@@ -41,8 +41,8 @@
     padding: 18px 20px 18px 20px;
 
     &-secondary {
-      background: $gray-100;
-      color: $gray-900;
+      background: index.$gray-100;
+      color: index.$gray-900;
 
       &:hover {
         background: #2b2b35;
@@ -56,8 +56,8 @@
     &-outline {
       padding: 14px 20px 14px 20px;
       background: transparent;
-      color: $gray-900;
-      border: 1px solid $gray-700;
+      color: index.$gray-900;
+      border: 1px solid index.$gray-700;
     }
   }
 
@@ -78,8 +78,8 @@
     &-secondary {
       width: 100%;
       padding: 18px 20px 18px 20px;
-      background: $gray-100;
-      color: $gray-900;
+      background: index.$gray-100;
+      color: index.$gray-900;
     }
   }
 
@@ -90,7 +90,7 @@
     width: 48px;
     height: 48px;
     border-radius: 100%;
-    background: $gray-200;
+    background: index.$gray-200;
 
     .button-add-img {
       width: 20px;
