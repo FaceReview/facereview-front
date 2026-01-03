@@ -1,48 +1,63 @@
-name: Deploy Frontend (Yarn Berry)
+name: Deploy Frontend (Docker 5002:80)
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
+  workflow_dispatch:
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'yarn' # yarn 캐싱 사용
+      # 1. .env 생성 (Vite 빌드용)
+      - name: Create .env file
+        run: |
+          echo "VITE_API_URL=${{ secrets.VITE_API_URL }}" >> .env
+          # echo "VITE_OTHER_KEY=${{ secrets.VITE_OTHER_KEY }}" >> .env
 
-      # Yarn Berry 활성화 (Corepack 사용)
-      - name: Enable Corepack
-        run: corepack enable
-
-      # 의존성 설치 (Yarn Berry는 ci 대신 install --immutable 권장)
-      - name: Install Dependencies
-        run: yarn install --immutable
-
-      # 빌드 (Vite 빌드 -> dist 폴더 생성)
-      - name: Build
-        run: yarn build
-
-      # 서버로 파일 전송 (SCP)
-      - name: Deploy to Server
+      # 2. 파일 전송
+      - name: Copy files to Server
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }} # winterholic 일 가능성이 높음
+          username: ${{ secrets.USERNAME }}
           key: ${{ secrets.KEY }}
           port: ${{ secrets.PORT }}
-          # 로컬의 dist 폴더 내용을 -> 서버의 지정된 경로로 복사
-          source: "dist/*"
-          target: "/home/winterholic/projects/services/new-facereview-front"
-          # dist 폴더 껍데기를 벗기고 내부 파일만 전송하기 위해 1레벨 제거
-          strip_components: 1
-          # 덮어쓰기 전 기존 파일 삭제 여부 (선택사항, 깔끔한 배포를 위해 true 추천)
+          source: '.'
+          target: '/home/winterholic/projects/services/new-facereview-front'
           rm: true
+
+      # 3. Docker 배포 및 정리
+      - name: SSH & Docker Deploy
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          script: |
+            cd /home/winterholic/projects/services/new-facereview-front
+
+            echo "=== 1. 기존 리소스 정리 ==="
+            docker stop frontend-app || true
+            docker rm frontend-app || true
+            docker rmi frontend-image || true
+
+            echo "=== 2. Docker 이미지 빌드 (No Cache) ==="
+            docker build --no-cache -t frontend-image .
+
+            echo "=== 3. 컨테이너 실행 (Port Mapping) ==="
+            # [핵심 변경] 호스트(5002) : 컨테이너(80) 연결
+            docker run -d \
+              --name frontend-app \
+              -p 5002:80 \
+              --restart always \
+              frontend-image
+
+            echo "=== 4. 찌꺼기 청소 ==="
+            docker image prune -f
+            docker builder prune -f
