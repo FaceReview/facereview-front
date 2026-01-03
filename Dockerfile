@@ -1,22 +1,21 @@
 # 1. Build Stage
-FROM node:20-alpine AS builder
+# [변경 1] alpine -> slim (Debian 기반으로 변경하여 호환성 문제 해결)
+FROM node:20-slim AS builder
 WORKDIR /app
 
-# [핵심 1] Alpine에서 Vite(esbuild) 구동을 위한 필수 라이브러리 설치
-# 이게 없으면 PnP 환경에서 바이너리 실행이 실패할 수 있습니다.
-RUN apk add --no-cache libc6-compat
+# slim 이미지는 libc6-compat 설치가 필요 없습니다. (삭제함)
 
 # Yarn Berry 활성화
 RUN corepack enable
 
-# 의존성 복사 및 설치 (PnP 모드 유지!)
+# 의존성 복사 및 설치
 COPY package.json yarn.lock ./
 RUN yarn install --immutable
 
-# [핵심 2] Vite만 압축 해제 (Unplug)
-# PnP Zip 파일 내부에서 경로를 못 찾는 문제를 해결하기 위해
-# Vite 패키지만 물리적인 폴더로 뺍니다.
-RUN yarn unplug vite
+# [변경 2] vite 뿐만 아니라 rollup도 같이 압축 해제
+# @rollup/plugin-commonjs 등 관련 플러그인이 있다면 추가해야 할 수도 있지만,
+# 일단 에러가 난 rollup을 추가합니다.
+RUN yarn unplug vite rollup
 
 # 소스 코드 복사
 COPY . .
@@ -25,6 +24,8 @@ COPY . .
 RUN yarn build
 
 # 2. Run Stage
+# 실행 환경도 slim 기반 nginx 권장 (혹은 호환성 위해 nginx:alpine 유지 가능하나 통일성 위해 변경 추천)
+# 여기서는 용량을 위해 nginx:alpine을 유지해도 무방합니다.
 FROM nginx:alpine
 
 COPY nginx.conf /etc/nginx/conf.d/default.conf
