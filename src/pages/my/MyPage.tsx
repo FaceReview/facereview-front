@@ -252,7 +252,8 @@ const MyPage = () => {
                       key={`videoItem${v.youtube_url}${v.most_emotion_per}`}
                       width={isMobile ? window.innerWidth - 32 : 360}
                       videoId={v.youtube_url}
-                      videoTitle={v.youtube_title}
+                      videoUuid={v.video_id}
+                      videoTitle={v.title}
                       videoMostEmotion={v.most_emotion}
                       videoMostEmotionPercentage={v.most_emotion_per}
                       style={

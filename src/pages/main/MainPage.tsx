@@ -48,8 +48,7 @@ const MainPage = (): ReactElement => {
     Array.from({ length: 9 }, () => [])
   );
   const filteredVideos = allVideo.filter(
-    (v) =>
-      selectedEmotion === 'all' || v.youtube_most_emotion === selectedEmotion
+    (v) => selectedEmotion === 'all' || v.dominant_emotion === selectedEmotion
   );
   const [genreCurrentIndex, setGenreCurrentIndex] = useState<number>(0);
   const [genreChangeTerm, setGenreChangeTerm] = useState<number | null>(6000);
@@ -105,7 +104,7 @@ const MainPage = (): ReactElement => {
   const handleRegisterButtonClick = () => {
     if (registeredVideoIds.length > 0) {
       registeredVideoIds.map((videoId) =>
-        updateRequestVideoList({ youtube_url_id: videoId })
+        updateRequestVideoList({ youtube_url: videoId })
           .then(() => {})
           .catch((error) => {
             console.log(error);
@@ -170,24 +169,26 @@ const MainPage = (): ReactElement => {
     }
   }, [is_sign_in, location, extractVideoId]);
   useEffect(() => {
-    getAllVideo()
+    getAllVideo({ page: 1, size: 50, emotion: 'all' })
       .then((data) => {
+        console.log('All Video Data:', data);
+        if (data.length > 0) {
+          console.log('First Video Item:', data[0]);
+        }
         setAllVideo(data);
       })
       .catch((err) => console.log(err));
 
-    const userCategorization = is_sign_in ? 'user' : 'non-user';
-
     const videoRequests = [
-      getSportsVideo({ user_categorization: userCategorization }),
-      getGameVideo({ user_categorization: userCategorization }),
-      getFearVideo({ user_categorization: userCategorization }),
-      getInformationVideo({ user_categorization: userCategorization }),
-      getShowVideo({ user_categorization: userCategorization }),
-      getCookVideo({ user_categorization: userCategorization }),
-      getTravelVideo({ user_categorization: userCategorization }),
-      getEatingVideo({ user_categorization: userCategorization }),
-      getDramaVideo({ user_categorization: userCategorization }),
+      getSportsVideo(),
+      getGameVideo(),
+      getFearVideo(),
+      getInformationVideo(),
+      getShowVideo(),
+      getCookVideo(),
+      getTravelVideo(),
+      getEatingVideo(),
+      getDramaVideo(),
     ];
 
     Promise.all(videoRequests)
@@ -248,9 +249,10 @@ const MainPage = (): ReactElement => {
                     key={v.youtube_url || i}
                     width={isMobile ? window.innerWidth - 48 : 280}
                     videoId={v.youtube_url}
-                    videoTitle={v.youtube_title}
-                    videoMostEmotion={v.youtube_most_emotion}
-                    videoMostEmotionPercentage={v.youtube_most_emotion_per}
+                    videoUuid={v.uuid ?? v.id ?? v.video_id}
+                    videoTitle={v.title}
+                    videoMostEmotion={v.dominant_emotion}
+                    videoMostEmotionPercentage={v.dominant_emotion_per}
                     style={
                       isMobile
                         ? {
@@ -313,9 +315,10 @@ const MainPage = (): ReactElement => {
                   key={uuidv4()}
                   width={isMobile ? window.innerWidth - 48 : 280}
                   videoId={v.youtube_url}
-                  videoTitle={v.youtube_title}
-                  videoMostEmotion={v.youtube_most_emotion}
-                  videoMostEmotionPercentage={v.youtube_most_emotion_per}
+                  videoUuid={v.uuid ?? v.id ?? v.video_id}
+                  videoTitle={v.title}
+                  videoMostEmotion={v.dominant_emotion}
+                  videoMostEmotionPercentage={v.dominant_emotion_per}
                   style={
                     isMobile
                       ? {
@@ -492,9 +495,10 @@ const MainPage = (): ReactElement => {
                 key={v.youtube_url || i}
                 width={isMobile ? window.innerWidth - 32 : 280}
                 videoId={v.youtube_url}
-                videoTitle={v.youtube_title}
-                videoMostEmotion={v.youtube_most_emotion}
-                videoMostEmotionPercentage={v.youtube_most_emotion_per}
+                videoUuid={v.uuid ?? v.id ?? v.video_id}
+                videoTitle={v.title}
+                videoMostEmotion={v.dominant_emotion}
+                videoMostEmotionPercentage={v.dominant_emotion_per}
                 style={
                   isMobile
                     ? { marginTop: '14px', marginBottom: '14px' }

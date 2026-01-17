@@ -1,30 +1,19 @@
-import { useLayoutEffect } from "react";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import Router from "./components/Router";
-import { useAuthStorage } from "store/authStore";
-import HeaderToken from "api/HeaderToken";
-import { getTempToken } from "api/auth";
-import { Helmet } from "react-helmet-async";
+import { useLayoutEffect } from 'react';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import Router from './components/Router';
+import { useAuthStorage } from 'store/authStore';
+import HeaderToken from 'api/HeaderToken';
+import { Helmet } from 'react-helmet-async';
 
 function App() {
-  const { access_token, setTempToken } = useAuthStorage();
+  const { access_token } = useAuthStorage();
   useLayoutEffect(() => {
     if (access_token) {
       HeaderToken.set(access_token);
       return;
     }
-    getTempToken()
-      .then((res) => {
-        console.log("temp token");
-        console.log(res);
-        setTempToken({ access_token: res.data.new_temp_token });
-      })
-      .catch((err) => {
-        console.log("temp token");
-        console.log(err);
-      });
-  }, [access_token, setTempToken]);
+  }, [access_token]);
   return (
     <div className="App">
       <Helmet>

@@ -1,10 +1,10 @@
-import { ReactElement, useLayoutEffect } from "react";
-import { Outlet, useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
-import { useAuthStorage } from "store/authStore";
-import Header from "../Header/Header";
+import { ReactElement, useLayoutEffect } from 'react';
+import { Outlet, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { useAuthStorage } from 'store/authStore';
+import Header from '../Header/Header';
 
-import "./screencontainer.scss";
+import './screencontainer.scss';
 
 const ScreenContainer = ({
   headerShown,
@@ -16,17 +16,16 @@ const ScreenContainer = ({
   isSignIn?: boolean;
 }): ReactElement => {
   const { is_sign_in, is_admin } = useAuthStorage();
-
   const navigate = useNavigate();
 
   useLayoutEffect(() => {
     if (isAdmin && !is_admin) {
-      toast.error("관리자 권한이 없어요", { toastId: "not admin" });
-      navigate("/");
+      toast.error('관리자 권한이 없어요', { toastId: 'not admin' });
+      navigate('/');
     }
     if (isSignIn && !is_sign_in) {
-      toast.error("로그인을 해주세요", { toastId: "need signin" });
-      navigate("/auth/1");
+      toast.error('로그인을 해주세요', { toastId: 'need signin' });
+      navigate('/auth/1');
     }
   });
 

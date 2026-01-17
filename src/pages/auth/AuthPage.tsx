@@ -6,7 +6,7 @@ import StepIndicator from 'components/StepIndicator/StepIndicator';
 import TextInput from 'components/TextInput/TextInput';
 
 import './authpage.scss';
-import { checkEmail, signIn, signUp } from 'api/auth';
+import { checkEmail, getUserName, signIn, signUp } from 'api/auth';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuthStorage } from 'store/authStore';
 import { CategoryType, UserInfoType } from 'types';
@@ -87,13 +87,16 @@ const AuthPage = () => {
   const handleSubmitButtonClick = () => {
     if (currentStep === 1) {
       if (email !== '' && emailAlertMessage === ' ') {
-        checkEmail({ email_id: email }).then((res) => {
-          if (res.status !== 200) {
+        checkEmail({ email: email }).then((res) => {
+          // V2 API: res.data.is_duplicate determines if user exists
+          const isRegistered = res.data.is_duplicate;
+
+          if (!isRegistered) {
             toast.info('회원가입을 도와드릴게요', {
               toastId: 'need signUp',
             });
           }
-          setIsSignIn(res.status === 200);
+          setIsSignIn(isRegistered);
           navigate('/auth/2');
         });
       }
@@ -102,33 +105,40 @@ const AuthPage = () => {
     if (currentStep === 2) {
       if (isSignIn) {
         if (password.length >= 8) {
-          signIn({ email_id: email, password: password })
-            .then(async (res: AxiosResponse<UserInfoType>) => {
+          signIn({ email: email, password: password })
+            .then(async (res) => {
+              // V2 API: signIn returns tokens only. Need to fetch user profile.
               if (res.status === 200) {
-                setIsSingInSuccess(true);
-                HeaderToken.set(res.data.access_token);
-                setUserInfo({
-                  is_admin: +res.data.user_role === 2,
-                  is_sign_in: true,
-                  user_name: res.data.user_name,
-                  user_profile: res.data.user_profile,
-                  user_tutorial: res.data.user_tutorial,
-                  access_token: res.data.access_token,
-                  refresh_token: res.data.refresh_token,
-                  user_favorite_genres: [
-                    res.data.user_favorite_genre_1,
-                    res.data.user_favorite_genre_2,
-                    res.data.user_favorite_genre_3,
-                  ],
-                });
+                const { access_token, refresh_token } = res.data;
+                HeaderToken.set(access_token);
 
-                setTimeout(() => {
-                  if (res.data.user_tutorial) {
-                    navigate('/');
-                    return;
-                  }
-                  navigate('/tutorial/1');
-                }, 400);
+                // Fetch User Info
+                const userRes = await getUserName();
+
+                if (userRes.status === 200) {
+                  const userData = userRes.data;
+                  setIsSingInSuccess(true);
+
+                  setUserInfo({
+                    is_admin: userData.role === 'ADMIN',
+                    is_sign_in: true,
+                    user_id: userData.user_id,
+                    user_name: userData.name,
+                    user_profile: userData.profile_image_id,
+                    user_tutorial: userData.is_tutorial_done ? 1 : 0, // Converting boolean to number if store expects number
+                    access_token: access_token,
+                    refresh_token: refresh_token,
+                    user_favorite_genres: userData.favorite_genres,
+                  });
+
+                  setTimeout(() => {
+                    if (userData.is_tutorial_done) {
+                      navigate('/');
+                      return;
+                    }
+                    navigate('/tutorial/1');
+                  }, 400);
+                }
               }
             })
             .catch(() => {
@@ -143,16 +153,14 @@ const AuthPage = () => {
     }
     if (currentStep === 3 && !isSignIn) {
       signUp({
-        email_id: email,
+        email: email,
         password: password,
-        user_name: nickname,
-        user_favorite_genre_1: categories[0],
-        user_favorite_genre_2: categories[1],
-        user_favorite_genre_3: categories[2],
+        name: nickname,
+        favorite_genres: [categories[0], categories[1], categories[2]], // Casting to match required array
       }).then((res) => {
-        if (res.status === 200) {
+        if (res.status === 201 || res.status === 200) {
           toast.success('가입되었어요', { toastId: 'signUp complete' });
-
+          // Auto login logic could be added here similar to signIn if desired
           navigate('/auth');
         }
       });

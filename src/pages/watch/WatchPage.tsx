@@ -22,6 +22,7 @@ import { ResponsiveBar } from '@nivo/bar';
 import {
   CommentType,
   EmotionType,
+  GraphDistributionDataType,
   VideoDetailType,
   VideoRelatedType,
 } from 'types';
@@ -30,12 +31,9 @@ import Devider from 'components/Devider/Devider';
 import { useAuthStorage } from 'store/authStore';
 import { toast } from 'react-toastify';
 import {
-  addHits,
   addLike,
   cancelLike,
-  checkLike,
   deleteComment,
-  getMainDistributionData,
   getVideoComments,
   modifyComment,
   sendNewComment,
@@ -81,7 +79,7 @@ const WatchPage = (): ReactElement => {
               origin: window.location.origin,
             },
           },
-    [isMobile]
+    [isMobile],
   );
   const emotionByEmotionText: { emotion: EmotionType; emotionText: string }[] =
     [
@@ -94,11 +92,15 @@ const WatchPage = (): ReactElement => {
   const {
     is_sign_in,
     access_token,
+    user_id, // Get user_id
     user_profile,
     user_announced,
     setUserAnnounced,
   } = useAuthStorage();
   const navigation = useNavigate();
+
+  const [isConnected, setIsConnected] = useState(socket.connected);
+  const [videoViewLogId] = useState<string>(uuidv4()); // Generate log ID once
 
   const webcamRef = useRef<Webcam>(null);
   const webcamOptions = isMobile
@@ -113,6 +115,7 @@ const WatchPage = (): ReactElement => {
 
   const [myGraphData, setMyGraphData] = useState([
     {
+      id: 'my-emotion', // Added ID for Nivo
       happy: 0,
       happyColor: '#FF4D8D',
       sad: 0,
@@ -127,6 +130,7 @@ const WatchPage = (): ReactElement => {
   ]);
   const [othersGraphData, setOthersGraphData] = useState([
     {
+      id: 'others-emotion', // Added ID for Nivo
       happy: 0,
       happyColor: '#FF4D8D',
       sad: 0,
@@ -139,43 +143,9 @@ const WatchPage = (): ReactElement => {
       neutralColor: '#393946',
     },
   ]);
-  const [videoGraphData, setVideoGraphData] = useState([
-    {
-      id: 'neutral',
-      data: [
-        { x: '1', y: 100 },
-        { x: '2', y: 100 },
-      ],
-    },
-    {
-      id: 'happy',
-      data: [
-        { x: '1', y: 0 },
-        { x: '2', y: 0 },
-      ],
-    },
-    {
-      id: 'sad',
-      data: [
-        { x: '1', y: 0 },
-        { x: '2', y: 0 },
-      ],
-    },
-    {
-      id: 'surprise',
-      data: [
-        { x: '1', y: 0 },
-        { x: '2', y: 0 },
-      ],
-    },
-    {
-      id: 'angry',
-      data: [
-        { x: '1', y: 0 },
-        { x: '2', y: 0 },
-      ],
-    },
-  ]);
+  const [videoGraphData, setVideoGraphData] = useState<
+    GraphDistributionDataType[]
+  >([]);
   const [video, setVideo] = useState<YouTubePlayer | null>(null);
   const [videoData, setVideoData] = useState<VideoDetailType>();
   const [isLikeVideo, setIsLikeVideo] = useState(false);
@@ -184,7 +154,7 @@ const WatchPage = (): ReactElement => {
   const [currentOthersEmotion, setCurrentOthersEmotion] =
     useState<EmotionType>('neutral');
   const [relatedVideoList, setRelatedVideoList] = useState<VideoRelatedType[]>(
-    []
+    [],
   );
   const [isModalOpen1, setIsModalOpen1] = useState<boolean>(false);
   const [isModalOpen2, setIsModalOpen2] = useState<boolean>(false);
@@ -192,8 +162,11 @@ const WatchPage = (): ReactElement => {
   const [commentList, setCommentList] = useState<CommentType[]>([]);
 
   const capture = React.useCallback(() => {
-    const imageSrc = webcamRef.current?.getScreenshot() || '';
-    return imageSrc?.split(',')[1];
+    const imageSrc = webcamRef.current?.getScreenshot();
+    if (imageSrc) {
+      return imageSrc.split(',')[1];
+    }
+    return '';
   }, [webcamRef]);
 
   const handleVideoReady = (e: YouTubeEvent<YouTubePlayer>) => {
@@ -222,11 +195,11 @@ const WatchPage = (): ReactElement => {
     if (is_sign_in) {
       if (comment.length > 0) {
         sendNewComment({
-          comment_contents: comment,
-          youtube_url: id || '',
+          content: comment,
+          video_id: id || '',
         })
           .then(() => {
-            getVideoComments({ youtube_url: id || '' })
+            getVideoComments({ video_id: id || '' })
               .then((response) => {
                 setCommentList(response);
               })
@@ -242,7 +215,7 @@ const WatchPage = (): ReactElement => {
       return;
     }
     toast.warn('로그인이 필요합니다', { toastId: 'need sign in' });
-    navigation('/auth/1');
+    navigate('/auth/1');
   };
 
   useEffect(() => {
@@ -270,39 +243,17 @@ const WatchPage = (): ReactElement => {
 
   const handleLikeClick = () => {
     if (is_sign_in) {
-      if (isLikeVideo) {
-        cancelLike({ youtube_url: id || '' })
-          .then(() => {
-            checkLike({ youtube_url: id || '' })
-              .then((res) => {
-                setIsLikeVideo(!!res.like_flag);
-              })
-              .catch((err) => {
-                console.log(err);
-              });
-            getVideoDetail({ youtube_url: id || '' })
-              .then((res) => {
-                setVideoData(res);
-              })
-              .catch(() => {});
-          })
-          .catch(() => {});
-      } else {
-        addLike({ youtube_url: id || '' })
-          .then(() => {
-            checkLike({ youtube_url: id || '' })
-              .then((res) => {
-                setIsLikeVideo(!!res.like_flag);
-              })
-              .catch(() => {});
-            getVideoDetail({ youtube_url: id || '' })
-              .then((res) => {
-                setVideoData(res);
-              })
-              .catch(() => {});
-          })
-          .catch(() => {});
-      }
+      const action = isLikeVideo ? cancelLike : addLike;
+      action({ video_id: id || '' })
+        .then(() => {
+          getVideoDetail({ video_id: id || '' })
+            .then((res) => {
+              setVideoData(res);
+              setIsLikeVideo(res.user_is_liked);
+            })
+            .catch(() => {});
+        })
+        .catch(() => {});
       return;
     }
     navigate('/auth/1');
@@ -310,9 +261,13 @@ const WatchPage = (): ReactElement => {
 
   useLayoutEffect(() => {
     window.scrollTo(0, 0);
-    getVideoDetail({ youtube_url: id || '' })
+    getVideoDetail({ video_id: id || '' })
       .then((res) => {
         setVideoData(res);
+        setIsLikeVideo(res.user_is_liked);
+        if (res.timeline_data && Object.keys(res.timeline_data).length > 0) {
+          setVideoGraphData(getDistributionToGraphData(res.timeline_data));
+        }
       })
       .catch(() => {});
   }, [id]);
@@ -326,39 +281,73 @@ const WatchPage = (): ReactElement => {
 
   useEffect(() => {
     socket.connect();
-    addHits({
-      youtube_url: id || '',
-      user_categorization: is_sign_in ? 'user' : 'non-user',
-    })
-      .then(() => {})
-      .catch((err) => console.log(err));
-    getRelatedVideo({ youtube_url: id || '' })
+
+    // Socket Debug Listeners
+    const onConnect = () => {
+      console.log('✅ Socket connected:', socket.id);
+      setIsConnected(true);
+    };
+    const onDisconnect = () => {
+      console.log('❌ Socket disconnected');
+      setIsConnected(false);
+    };
+    const onConnectError = (err: any) =>
+      console.error('⚠️ Socket connection error:', err);
+
+    socket.on('connect', onConnect);
+    socket.on('disconnect', onDisconnect);
+    socket.on('connect_error', onConnectError);
+
+    // Catch-all listener for debugging
+    socket.onAny((event, ...args) => {
+      console.log(`📩 Socket received event: ${event}`, args);
+    });
+
+    // addHits removed as it's likely handled by GET video details in v2
+
+    getRelatedVideo({ video_id: id || '' })
       .then((res) => {
         setRelatedVideoList(res);
       })
-      .catch(() => {});
-    getVideoComments({ youtube_url: id || '' })
+      .catch((err) => console.error('Failed to get related videos:', err));
+    getVideoComments({ video_id: id || '' })
       .then((res) => {
         setCommentList(res);
       })
-      .catch(() => {});
+      .catch((err) => console.error('Failed to get comments:', err));
 
-    getMainDistributionData({ youtube_url: id || '' })
-      .then((res) => {
-        setVideoGraphData(getDistributionToGraphData(res));
-      })
-      .catch((err) => console.log(err));
-    checkLike({ youtube_url: id || '' })
-      .then((res) => {
-        setIsLikeVideo(!!res.like_flag);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    // Main distribution data is now part of video detail (timeline_data)
+
     return () => {
+      socket.off('connect', onConnect);
+      socket.off('disconnect', onDisconnect);
+      socket.off('connect_error', onConnectError);
+      socket.offAny(); // Clean up
       socket.disconnect();
     };
   }, [id, is_sign_in]);
+
+  // Init Watching
+  useEffect(() => {
+    if (isConnected && is_sign_in && videoData && user_id) {
+      console.log('Emitting init_watching');
+      socket.emit(
+        'init_watching',
+        {
+          video_view_log_id: videoViewLogId,
+          user_id: user_id,
+          video_id: videoData.video_id, // Internal UUID
+          duration: videoData.duration || 0,
+        },
+        (response: any) => {
+          console.log('[Socket] Init watching response:', response);
+          if (response?.status !== 'success') {
+            console.error('[Socket] Init watching failed:', response);
+          }
+        },
+      );
+    }
+  }, [is_sign_in, videoData, user_id, videoViewLogId, isConnected]);
 
   useEffect(() => {
     const captureInterval = setInterval(() => {
@@ -366,69 +355,85 @@ const WatchPage = (): ReactElement => {
     }, 200);
 
     const frameDataInterval = setInterval(async () => {
-      const capturedImage = await capture();
+      // Only emit if signed in and video is playing/ready
+      if (!is_sign_in || !video || !videoData) return;
+
+      const capturedImage = capture();
       const currentTime = await video?.getCurrentTime();
-      const formattedCurrentTime = getCurrentTimeString(currentTime || 0);
+      // const formattedCurrentTime = getCurrentTimeString(currentTime || 0); // Not needed for payload, strictly
+
+      console.log(`[Socket] Sending watch_frame (time: ${currentTime})`, {
+        video_view_log_id: videoViewLogId,
+        youtube_running_time: parseFloat((currentTime || 0).toFixed(2)),
+        image_length: capturedImage?.length,
+      });
 
       socket.emit(
-        'client_message',
+        'watch_frame',
         {
-          cur_access_token: access_token,
-          youtube_running_time: formattedCurrentTime,
-          string_frame_data: capturedImage,
-          youtube_index: videoData?.youtube_index,
+          video_view_log_id: videoViewLogId,
+          youtube_running_time: parseFloat((currentTime || 0).toFixed(2)), // Numeric, seconds
+          frame_data: capturedImage,
+          duration: videoData.duration || 0,
         },
-        (response: {
-          happy: number;
-          sad: number;
-          surprise: number;
-          angry: number;
-          neutral: number;
-          most_emotion: EmotionType;
-          youtube_emotion_data: EmotionType;
-          youtube_emotion_neutral_per: number;
-          youtube_emotion_angry_per: number;
-          youtube_emotion_happy_per: number;
-          youtube_emotion_surprise_per: number;
-          youtube_emotion_sad_per: number;
-        }) => {
-          setCurrentMyEmotion(response.most_emotion);
-          setMyGraphData([
-            {
-              ...myGraphData[0],
-              happy: response.happy,
-              sad: response.sad,
-              surprise: response.surprise,
-              angry: response.angry,
-              neutral: response.neutral,
-            },
-          ]);
-          setCurrentOthersEmotion(response.youtube_emotion_data);
-          setOthersGraphData([
-            {
-              ...othersGraphData[0],
-              happy: response.youtube_emotion_happy_per,
-              sad: response.youtube_emotion_sad_per,
-              surprise: response.youtube_emotion_surprise_per,
-              angry: response.youtube_emotion_angry_per,
-              neutral: response.youtube_emotion_neutral_per,
-            },
-          ]);
-        }
+        (response: any) => {
+          console.log('[Socket] watch_frame response:', response);
+          if (response?.status === 'success' && response?.response) {
+            console.log(
+              '[Socket] Updating graph data with:',
+              response.response,
+            );
+            const { user_emotion, average_emotion } = response.response;
+
+            setCurrentMyEmotion(user_emotion.most_emotion);
+            setMyGraphData((prev) => [
+              {
+                ...prev[0],
+                happy: user_emotion.happy,
+                sad: user_emotion.sad,
+                surprise: user_emotion.surprise,
+                angry: user_emotion.angry,
+                neutral: user_emotion.neutral,
+              },
+            ]);
+            setCurrentOthersEmotion(average_emotion.most_emotion);
+            setOthersGraphData((prev) => [
+              {
+                ...prev[0],
+                happy: average_emotion.happy,
+                sad: average_emotion.sad,
+                surprise: average_emotion.surprise,
+                angry: average_emotion.angry,
+                neutral: average_emotion.neutral,
+              },
+            ]);
+          }
+        },
       );
     }, 1000);
 
     return () => {
       clearInterval(frameDataInterval);
       clearInterval(captureInterval);
+      // End Watching on unmount or dep change
+      if (is_sign_in) {
+        socket.emit('end_watching', {
+          video_view_log_id: videoViewLogId,
+          duration: videoData?.duration || 0,
+          client_info: {
+            browser: navigator.userAgent,
+          },
+        });
+      }
     };
   }, [
     access_token,
     capture,
-    myGraphData,
-    othersGraphData,
     video,
-    videoData?.youtube_index,
+    videoData,
+    is_sign_in,
+    user_id,
+    videoViewLogId,
   ]);
 
   const GraphDetailDataItem = ({
@@ -458,27 +463,27 @@ const WatchPage = (): ReactElement => {
     );
   };
 
-  const [hoveredComment, setHoveredComment] = useState<number | null>(null);
-  const [isEditVisible, setIsEditVisible] = useState<number | null>(null);
-  const [editingcommentindex, setEditingcommentindex] = useState<number | null>(
-    null
+  const [hoveredComment, setHoveredComment] = useState<string | null>(null);
+  const [isEditVisible, setIsEditVisible] = useState<string | null>(null);
+  const [editingcommentindex, setEditingcommentindex] = useState<string | null>(
+    null,
   );
 
   const CommentItem = ({
     user_name,
-    comment_date,
-    comment_contents,
-    user_profile,
-    modify_check,
-    identify,
-    comment_index,
+    created_at,
+    content,
+    user_profile_image_id,
+    is_modified,
+    is_mine,
+    comment_id,
   }: CommentType): ReactElement => {
     return (
       <div
         className="comment-item-container"
         onMouseEnter={() => {
-          if (identify === 1) {
-            setHoveredComment(comment_index);
+          if (is_mine) {
+            setHoveredComment(comment_id as any); // Temporarily casting to any/number or needs state update
           }
         }}
         onMouseLeave={() => {
@@ -487,7 +492,7 @@ const WatchPage = (): ReactElement => {
         }}>
         <ProfileIcon
           type={'icon-small'}
-          color={mapNumberToEmotion(user_profile)}
+          color={mapNumberToEmotion(user_profile_image_id)}
           style={{ marginRight: '12px' }}
         />
         <div className="comment-right-container">
@@ -497,31 +502,29 @@ const WatchPage = (): ReactElement => {
                 {user_name}
               </div>
               <div className="comment-time-text font-label-small">
-                {comment_date}
-                {modify_check ? <>(수정됨)</> : null}
+                {created_at}
+                {is_modified ? <>(수정됨)</> : null}
               </div>
             </div>
-            <div className="comment-text font-body-medium">
-              {comment_contents}
-            </div>
+            <div className="comment-text font-body-medium">{content}</div>
           </div>
 
           <div className="comment-icon-container">
-            {hoveredComment === comment_index && (
+            {hoveredComment === comment_id && (
               <SomeIcon
                 type={'more'}
-                onClick={() => setIsEditVisible(comment_index)}
+                onClick={() => setIsEditVisible(comment_id)}
               />
             )}
             <div
               className={`comment-edit-container ${
-                isEditVisible === comment_index && 'visible'
+                isEditVisible === comment_id && 'visible'
               }`}>
               <div
                 className="comment-modify-text"
                 onClick={() => {
                   setIsEditVisible(null);
-                  setEditingcommentindex(comment_index);
+                  setEditingcommentindex(comment_id);
                 }}>
                 <div className="comment-modify-dim"></div>
                 수정
@@ -547,8 +550,8 @@ const WatchPage = (): ReactElement => {
     if (editingcommentindex !== null) {
       commentList.map(
         (item, i) =>
-          item.comment_index === editingcommentindex &&
-          setModifyingComment(commentList[i].comment_contents)
+          item.comment_id === editingcommentindex &&
+          setModifyingComment(commentList[i].content),
       );
     }
   }, [editingcommentindex, commentList]);
@@ -574,7 +577,7 @@ const WatchPage = (): ReactElement => {
             <ResponsiveBar
               data={myGraphData}
               keys={['happy', 'sad', 'surprise', 'angry', 'neutral']}
-              indexBy="country"
+              indexBy="id"
               padding={0.3}
               layout="horizontal"
               valueScale={{ type: 'linear' }}
@@ -630,7 +633,7 @@ const WatchPage = (): ReactElement => {
             <ResponsiveBar
               data={othersGraphData}
               keys={['happy', 'sad', 'surprise', 'angry', 'neutral']}
-              indexBy="country"
+              indexBy="id"
               padding={0.3}
               layout="horizontal"
               valueScale={{ type: 'linear' }}
@@ -703,79 +706,46 @@ const WatchPage = (): ReactElement => {
       <div className="main-container">
         <div className="video-fixed-container">
           <div className="video-container">
-            <YouTube
-              videoId={id}
-              style={{ marginBottom: '4px' }} // defaults -> {}
-              opts={opts} // defaults -> {}
-              onReady={handleVideoReady} // defaults -> noop
-            />
-            <div className="video-graph-container">
-              <ResponsiveLine
-                data={videoGraphData}
-                colors={['#393946', '#FF4D8D', '#479CFF', '#92C624', '#FF6B4B']}
-                margin={{ top: 2, right: 0, bottom: 2, left: 0 }}
-                xScale={{ type: 'point' }}
-                yScale={{
-                  type: 'linear',
-                  min: 0,
-                  max: 100,
-                  reverse: false,
-                }}
-                curve={'natural'}
-                yFormat=" >-.2f"
-                axisTop={null}
-                axisRight={null}
-                enableGridX={false}
-                enableGridY={false}
-                axisBottom={{
-                  tickSize: 5,
-                  tickPadding: 5,
-                  tickRotation: 0,
-                  legend: 'transportation',
-                  legendOffset: 36,
-                  legendPosition: 'middle',
-                }}
-                axisLeft={{
-                  tickSize: 5,
-                  tickPadding: 5,
-                  tickRotation: 0,
-                  legend: 'count',
-                  legendOffset: -40,
-                  legendPosition: 'middle',
-                }}
-                pointSize={0}
-                pointColor={{ theme: 'background' }}
-                pointBorderWidth={0}
-                pointBorderColor={{ from: 'serieColor' }}
-                pointLabelYOffset={-12}
-                useMesh={true}
-                legends={[
-                  {
-                    anchor: 'bottom-right',
-                    direction: 'column',
-                    justify: false,
-                    translateX: 100,
-                    translateY: 0,
-                    itemsSpacing: 0,
-                    itemDirection: 'left-to-right',
-                    itemWidth: 80,
-                    itemHeight: 20,
-                    itemOpacity: 0.75,
-                    symbolSize: 12,
-                    symbolShape: 'circle',
-                    symbolBorderColor: 'rgba(0, 0, 0, .5)',
-                    effects: [
-                      {
-                        on: 'hover',
-                        style: {
-                          itemBackground: 'rgba(0, 0, 0, .03)',
-                          itemOpacity: 1,
-                        },
-                      },
-                    ],
-                  },
-                ]}
+            {videoData?.youtube_url && (
+              <YouTube
+                videoId={videoData.youtube_url}
+                style={{ marginBottom: '4px' }} // defaults -> {}
+                opts={opts} // defaults -> {}
+                onReady={handleVideoReady} // defaults -> noop
               />
+            )}
+            <div className="video-graph-container">
+              {videoGraphData &&
+                videoGraphData.filter((d) => d.data.length > 0).length > 0 && (
+                  <ResponsiveLine
+                    data={videoGraphData.filter((d) => d.data.length > 0)}
+                    colors={[
+                      '#393946',
+                      '#FF4D8D',
+                      '#479CFF',
+                      '#92C624',
+                      '#FF6B4B',
+                    ]}
+                    margin={{ top: 2, right: 2, bottom: 2, left: 2 }}
+                    xScale={{ type: 'linear' }}
+                    yScale={{
+                      type: 'linear',
+                      min: 0,
+                      max: 100,
+                      stacked: false,
+                      reverse: false,
+                    }}
+                    curve="monotoneX"
+                    axisTop={null}
+                    axisRight={null}
+                    axisBottom={null}
+                    axisLeft={null}
+                    enablePoints={false}
+                    useMesh={true}
+                    enableSlices={false}
+                    legends={[]}
+                  />
+                )}
             </div>
           </div>
 
@@ -784,16 +754,16 @@ const WatchPage = (): ReactElement => {
               className={
                 isMobile ? 'title font-title-small' : 'title font-title-medium'
               }>
-              {videoData?.youtube_title}
+              {videoData?.title}
             </div>
             <div className="right-side">
               <LikeButton
-                label={(videoData?.youtube_like || 0) + ''}
+                label={(videoData?.like_count || 0) + ''}
                 isActive={isLikeVideo}
                 onClick={handleLikeClick}
               />
               <p className="video-hits-text font-label-small">
-                조회수 {videoData?.youtube_hits || 0}회
+                조회수 {videoData?.view_count || 0}회
               </p>
             </div>
           </div>
@@ -839,7 +809,7 @@ const WatchPage = (): ReactElement => {
           <div className="comment-list-container">
             {commentList.length > 0 ? (
               commentList.map((comment, idx) =>
-                comment.comment_index === editingcommentindex ? (
+                comment.comment_id === editingcommentindex ? (
                   <div className="comment-modifying-container">
                     <ProfileIcon
                       type={'icon-small'}
@@ -852,7 +822,7 @@ const WatchPage = (): ReactElement => {
                           {comment.user_name}
                         </div>
                         <div className="comment-modifying-time-text font-label-small">
-                          {getTimeToString(comment.comment_date)}
+                          {getTimeToString(comment.created_at)}
                         </div>
                       </div>
                       <TextInput
@@ -874,11 +844,11 @@ const WatchPage = (): ReactElement => {
                           className="comment-modifying-save font-label-small"
                           onClick={() => {
                             modifyComment({
-                              comment_index: editingcommentindex,
-                              new_comment_contents: modifyingComment,
+                              comment_id: editingcommentindex,
+                              content: modifyingComment,
                             })
                               .then(() => {
-                                getVideoComments({ youtube_url: id || '' })
+                                getVideoComments({ video_id: id || '' })
                                   .then((res) => {
                                     setCommentList(res);
                                   })
@@ -899,14 +869,15 @@ const WatchPage = (): ReactElement => {
                 ) : (
                   <>
                     <CommentItem
-                      key={`comment-${comment.comment_contents}-${idx}`}
+                      key={`comment-${comment.content}-${idx}`}
                       user_name={comment.user_name}
-                      comment_date={getTimeToString(comment.comment_date)}
-                      comment_contents={comment.comment_contents}
-                      user_profile={comment.user_profile}
-                      comment_index={comment.comment_index}
-                      modify_check={comment.modify_check}
-                      identify={comment.identify}
+                      created_at={getTimeToString(comment.created_at)}
+                      content={comment.content}
+                      user_profile_image_id={comment.user_profile_image_id}
+                      comment_id={comment.comment_id}
+                      is_modified={comment.is_modified}
+                      is_mine={comment.is_mine}
+                      user_id={comment.user_id}
                     />
                     <ModalDialog
                       type={'two-button'}
@@ -914,23 +885,21 @@ const WatchPage = (): ReactElement => {
                       isOpen={isModalOpen2}
                       onClose={closeModal2}
                       onCheck={() => {
-                        deleteComment({ comment_index: comment.comment_index })
+                        deleteComment({ comment_id: comment.comment_id })
                           .then(() => {
-                            getVideoComments({ youtube_url: id || '' })
+                            getVideoComments({ video_id: id || '' })
                               .then((res) => {
                                 setCommentList(res);
                                 closeModal2();
                               })
                               .catch(() => {});
                           })
-                          .catch(() => {
-                            // console.log(error); // Removed unused error var
-                          });
+                          .catch(() => {});
                       }}>
                       <h2>댓글을 삭제하시겠어요?</h2>
                     </ModalDialog>
                   </>
-                )
+                ),
               )
             ) : (
               <p className="no-comments-text font-label-large">
@@ -966,7 +935,7 @@ const WatchPage = (): ReactElement => {
                 <ResponsiveBar
                   data={myGraphData}
                   keys={['happy', 'sad', 'surprise', 'angry', 'neutral']}
-                  indexBy="country"
+                  indexBy="id"
                   padding={0.3}
                   layout="horizontal"
                   valueScale={{ type: 'linear' }}
@@ -1030,7 +999,7 @@ const WatchPage = (): ReactElement => {
                 <ResponsiveBar
                   data={othersGraphData}
                   keys={['happy', 'sad', 'surprise', 'angry', 'neutral']}
-                  indexBy="country"
+                  indexBy="id"
                   padding={0.3}
                   layout="horizontal"
                   valueScale={{ type: 'linear' }}
@@ -1092,12 +1061,13 @@ const WatchPage = (): ReactElement => {
           <div className="recommend-video-container">
             {relatedVideoList.map((v, index) => (
               <VideoItem
-                key={v.youtube_url || index}
+                key={v.video_id || index}
                 width={isMobile ? window.innerWidth - 32 : 320}
-                videoId={v.youtube_url}
-                videoTitle={v.youtube_title}
-                videoMostEmotion={v.most_emotion}
-                videoMostEmotionPercentage={v.emotion_per}
+                videoId={v.youtube_url} // Corrected: use youtube_url for thumbnail
+                videoUuid={v.uuid ?? v.id ?? v.video_id}
+                videoTitle={v.title}
+                videoMostEmotion={v.dominant_emotion}
+                videoMostEmotionPercentage={v.dominant_emotion_per}
                 style={{ marginBottom: '24px' }}
                 type={'small-emoji'}
               />

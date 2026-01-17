@@ -1,4 +1,8 @@
-import { EmotionType, VideoDistributionDataType } from 'types/index';
+import {
+  EmotionType,
+  GraphDistributionDataType,
+  VideoDistributionDataType,
+} from 'types/index';
 
 export const labelOfEmotion = {
   happy: '즐거운',
@@ -106,7 +110,15 @@ export const getTimeArrFromDuration = (duration: string) => {
 
 export const getDistributionToGraphData = (dist: VideoDistributionDataType) => {
   console.log('getDistributionToGraphData', dist);
-  const temp: { [key in EmotionType]: { x: string; y: number }[] } = {
+  if (!dist) return [];
+  const emotions: EmotionType[] = [
+    'happy',
+    'sad',
+    'surprise',
+    'angry',
+    'neutral',
+  ];
+  const temp: { [key in EmotionType]: { x: string | number; y: number }[] } = {
     neutral: [],
     happy: [],
     sad: [],
@@ -114,24 +126,27 @@ export const getDistributionToGraphData = (dist: VideoDistributionDataType) => {
     angry: [],
   };
 
-  for (let i = 1; i < dist.happy.length; i += 2) {
-    temp.happy.push({
-      x: dist.happy[i].x + '',
-      y: (dist.happy[i].y + dist.happy[i - 1].y) / 2,
-    });
-    temp.sad.push({
-      x: dist.sad[i].x + '',
-      y: (dist.sad[i].y + dist.sad[i - 1].y) / 2,
-    });
-    temp.surprise.push({
-      x: dist.surprise[i].x + '',
-      y: (dist.surprise[i].y + dist.surprise[i - 1].y) / 2,
-    });
-    temp.angry.push({
-      x: dist.angry[i].x + '',
-      y: (dist.angry[i].y + dist.angry[i - 1].y) / 2,
-    });
-  }
+  emotions.forEach((emotion) => {
+    if (dist[emotion] && Array.isArray(dist[emotion])) {
+      for (let i = 1; i < dist[emotion].length; i += 2) {
+        const curr = dist[emotion][i];
+        const prev = dist[emotion][i - 1];
+        if (curr && prev) {
+          const xVal =
+            curr.x !== undefined && curr.x !== null ? Number(curr.x) : null;
+          const y1 = typeof curr.y === 'number' ? curr.y : 0;
+          const y2 = typeof prev.y === 'number' ? prev.y : 0;
+
+          if (xVal !== null && !isNaN(xVal)) {
+            temp[emotion].push({
+              x: xVal,
+              y: (y1 + y2) / 2 || 0, // Prevent NaN
+            });
+          }
+        }
+      }
+    }
+  });
   console.log(temp);
 
   // const res = [
@@ -157,26 +172,26 @@ export const getDistributionToGraphData = (dist: VideoDistributionDataType) => {
   //   },
   // ];
   // console.log(res);
-  const res = [
+  const res: GraphDistributionDataType[] = [
     {
       id: 'happy',
-      data: dist.happy,
+      data: temp.happy,
     },
     {
       id: 'sad',
-      data: dist.sad,
+      data: temp.sad,
     },
     {
       id: 'surprise',
-      data: dist.surprise,
+      data: temp.surprise,
     },
     {
       id: 'angry',
-      data: dist.angry,
+      data: temp.angry,
     },
     {
       id: 'neutral',
-      data: dist.neutral,
+      data: temp.neutral,
     },
   ];
   console.log(res);

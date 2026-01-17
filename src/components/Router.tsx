@@ -16,11 +16,8 @@ const Router = () => {
         <Route element={<ScreenContainer headerShown={true} />}>
           <Route path="/main" element={<MainPage />} />
           <Route path="/watch/:id" element={<WatchPage />} />
-          <Route path="*" element={<MainPage />} />
         </Route>
-        <Route element={<ScreenContainer headerShown={false} />}>
-          <Route path="/auth/:step" element={<AuthPage />} />
-        </Route>
+        <Route path="/auth/:step" element={<AuthPage />} />
         <Route element={<ScreenContainer isAdmin={true} headerShown={true} />}>
           <Route path="/admin" element={<AdminPage />} />
         </Route>
@@ -29,6 +26,9 @@ const Router = () => {
           <Route path="/edit" element={<EditPage />} />
         </Route>
         <Route path="/tutorial/:step" element={<TutorialPage />} />
+        <Route element={<ScreenContainer headerShown={true} />}>
+          <Route path="*" element={<MainPage />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   );

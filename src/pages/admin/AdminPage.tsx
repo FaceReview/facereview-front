@@ -1,7 +1,7 @@
 import { ReactElement, useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import YouTube from 'react-youtube';
-import { submitNewVideo } from 'api/admin';
+import { approveVideoRequest } from 'api/admin';
 import { getRequestedVideoList } from 'api/request';
 import { getDataFromYoutube } from 'api/youtube';
 import Button from 'components/Button/Button';
@@ -33,25 +33,42 @@ const MainPage = (): ReactElement => {
   const [currentSelectedUrl, setCurrentSelectedUrl] = useState('');
   const [currentVideoData, setCurrentVideoData] =
     useState<RegisterVideoDataType>({
-      youtube_url: '',
-      youtube_title: '',
-      youtube_channel: '',
-      youtube_length_hour: 0,
-      youtube_length_minute: 0,
-      youtube_length_second: 0,
-      youtube_category: '',
+      video_url: '',
+      title: '',
+      channel_name: '',
+      length_hour: 0,
+      length_minute: 0,
+      length_second: 0,
+      category: '',
     });
   const [currentVideoCategoryList, setCurrentVideoCategoryList] = useState<
     CategoryType[]
   >([]);
 
   const handleSubmitClick = () => {
-    submitNewVideo(currentVideoData)
+    // Find the request ID associated with the current URL
+    const selectedRequest = draftRequestedVideoList.find(
+      (d) => d.youtube_url === currentSelectedUrl
+    );
+
+    if (!selectedRequest) {
+      console.error('Request not found');
+      return;
+    }
+
+    approveVideoRequest({
+      request_id: selectedRequest.request_id,
+      category: currentVideoCategoryList[0],
+    })
       .then(() => {
         getRequestedVideoList()
           .then((res) => {
             setCurrentVideoCategoryList([]);
-            setCurrentSelectedUrl(res[0].url);
+            if (res.length > 0) {
+              setCurrentSelectedUrl(res[0].youtube_url);
+            } else {
+              setCurrentSelectedUrl('');
+            }
             setDraftRequestedVideoList(res);
           })
           .catch((err) => {
@@ -64,19 +81,23 @@ const MainPage = (): ReactElement => {
   };
 
   useEffect(() => {
+    if (!currentSelectedUrl) return;
+
     getDataFromYoutube({ youtube_url: currentSelectedUrl })
       .then((res) => {
+        if (!res.items || res.items.length === 0) return;
+
         const [hour, minute, second] = getTimeArrFromDuration(
           res.items[0].contentDetails.duration
         );
         const temp = {
-          youtube_url: res.items[0].id,
-          youtube_title: res.items[0].snippet.title,
-          youtube_channel: res.items[0].snippet.channelTitle,
-          youtube_length_hour: hour,
-          youtube_length_minute: minute,
-          youtube_length_second: second,
-          youtube_category: '',
+          video_url: res.items[0].id,
+          title: res.items[0].snippet.title,
+          channel_name: res.items[0].snippet.channelTitle,
+          length_hour: hour,
+          length_minute: minute,
+          length_second: second,
+          category: '',
         };
         setCurrentVideoData(temp);
       })
@@ -87,7 +108,7 @@ const MainPage = (): ReactElement => {
     setCurrentVideoCategoryList(newCategories);
     setCurrentVideoData((prev) => ({
       ...prev,
-      youtube_category: newCategories[0] || '',
+      category: newCategories[0] || '',
     }));
   };
 
@@ -95,6 +116,9 @@ const MainPage = (): ReactElement => {
     getRequestedVideoList()
       .then((res) => {
         setDraftRequestedVideoList(res);
+        if (res.length > 0) {
+          setCurrentSelectedUrl(res[0].youtube_url);
+        }
       })
       .catch((err) => {
         console.log(err);
@@ -110,11 +134,25 @@ const MainPage = (): ReactElement => {
         </h4>
         <div className="selected-video-container">
           <div className="left-container">
-            <YouTube
-              videoId={currentSelectedUrl}
-              style={{ marginBottom: '20px' }} // defaults -> {}
-              opts={opts} // defaults -> {}
-            />
+            {currentSelectedUrl ? (
+              <YouTube
+                videoId={currentSelectedUrl}
+                style={{ marginBottom: '20px' }} // defaults -> {}
+                opts={opts} // defaults -> {}
+              />
+            ) : (
+              <div
+                style={{
+                  width: '560px',
+                  height: '316px',
+                  backgroundColor: '#eee',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}>
+                <p>영상을 선택해주세요</p>
+              </div>
+            )}
           </div>
           <div className="right-container">
             <div className="input-container">
@@ -129,8 +167,7 @@ const MainPage = (): ReactElement => {
               type={'cta-full'}
               onClick={handleSubmitClick}
               isDisabled={
-                !currentVideoData.youtube_url ||
-                !currentVideoCategoryList.length
+                !currentVideoData.video_url || !currentVideoCategoryList.length
               }
               style={{ marginTop: '24px' }}
             />
@@ -141,10 +178,12 @@ const MainPage = (): ReactElement => {
             <div
               key={uuidv4()}
               className={`draft-url-item ${
-                d.url === currentSelectedUrl ? 'active' : null
+                d.youtube_url === currentSelectedUrl ? 'active' : null
               }`}
-              onClick={() => setCurrentSelectedUrl(d.url)}>
-              <p className="font-label-medium draft-url-text">{d.url}</p>
+              onClick={() => setCurrentSelectedUrl(d.youtube_url)}>
+              <p className="font-label-medium draft-url-text">
+                {d.youtube_url}
+              </p>
             </div>
           ))}
         </div>
