@@ -329,6 +329,14 @@ const WatchPage = (): ReactElement => {
 
   // Init Watching
   useEffect(() => {
+    // Debug prerequisites
+    console.log('[Socket] Init Watch Check:', {
+      isConnected,
+      is_sign_in,
+      hasVideoData: !!videoData,
+      user_id,
+    });
+
     if (isConnected && is_sign_in && videoData && user_id) {
       console.log('Emitting init_watching');
       socket.emit(
