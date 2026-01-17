@@ -12,9 +12,12 @@ import api, { youtubeApi } from './index';
 const getVideoList = async (category: string) => {
   try {
     const url = `/v2/home/category`;
-    const { data } = await api.get<
-      { category_name: string; videos: VideoDataType[] }[]
-    >(url);
+    const { data } =
+      await api.get<{ category_name: string; videos: VideoDataType[] }[]>(url);
+    if (!Array.isArray(data)) {
+      console.warn('getVideoList: Expected array but got:', data);
+      return [];
+    }
     const categoryData = data.find((c) => c.category_name === category);
     return categoryData ? categoryData.videos : [];
   } catch (error) {
@@ -43,6 +46,14 @@ export const getAllVideo = async (props: {
     const { data } = await api.get<{ videos: VideoDataType[] }>(url, {
       params: props,
     });
+
+    if (!data || !data.videos) {
+      console.warn(
+        'getAllVideo: Expected object with videos array but got:',
+        data,
+      );
+      return [];
+    }
 
     return data.videos;
   } catch (error) {
