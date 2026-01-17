@@ -8,7 +8,7 @@ import ProfileIcon from 'components/ProfileIcon/ProfileIcon';
 import ModalDialog from 'components/ModalDialog/ModalDialog';
 import { CategoryType, EmotionType } from 'types';
 import { useAuthStorage } from 'store/authStore';
-import { changeFavoriteGenre, changeName, changeProfilePhoto } from 'api/auth';
+import { updateProfile } from 'api/auth';
 import { mapEmotionToNumber, mapNumberToEmotion } from 'utils/index';
 import CategoryList from 'components/CategoryList/CategoryList';
 import useMediaQuery from 'utils/useMediaQuery';
@@ -55,11 +55,15 @@ const EditPage = () => {
   const handleModalCheck = () => {
     setProfileColor(selectedColor);
 
-    changeProfilePhoto({ new_profile: mapEmotionToNumber(profileColor) })
+    updateProfile({
+      name: nickName,
+      profile_image_id: mapEmotionToNumber(selectedColor),
+      favorite_genres: selectedCategories as string[], // Ensure string[] type
+    })
       .then((res) => {
         setLocalProfileColor(selectedColor);
         if (res.status === 200) {
-          setUserProfile({ user_profile: mapEmotionToNumber(profileColor) });
+          setUserProfile({ user_profile: mapEmotionToNumber(selectedColor) });
           toast.success('프로필사진이 변경되었어요', {
             toastId: 'success change profile image',
           });
@@ -73,29 +77,19 @@ const EditPage = () => {
   };
 
   const handleEditButtonClick = () => {
-    changeName({ new_name: nickName })
-      .then((res) => {
-        if (res.status === 200) {
-          setUserName({ user_name: nickName });
-
-          navigate('/my');
-        }
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-
-    changeFavoriteGenre({
-      user_favorite_genre_1: selectedCategories[0],
-      user_favorite_genre_2: selectedCategories[1],
-      user_favorite_genre_3: selectedCategories[2],
+    updateProfile({
+      name: nickName,
+      profile_image_id: mapEmotionToNumber(profileColor), // Use current profile color
+      favorite_genres: selectedCategories as string[],
     })
       .then((res) => {
         if (res.status === 200) {
+          setUserName({ user_name: nickName });
           setUserFavoriteGenres({ user_favorite_genres: selectedCategories });
           toast.success('회원정보가 수정되었어요', {
             toastId: 'success change info',
           });
+          navigate('/my');
         }
       })
       .catch((error) => {

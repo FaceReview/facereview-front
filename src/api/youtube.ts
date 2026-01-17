@@ -6,49 +6,45 @@ import {
   VideoRelatedType,
   VideoWatchedType,
   YoutubeVideoDataType,
-} from "types";
-import api, { youtubeApi } from "./index";
+} from 'types';
+import api, { youtubeApi } from './index';
 
-const getVideoList = async (
-  category: string,
-  props: { user_categorization: string }
-) => {
+const getVideoList = async (category: string) => {
   try {
-    const url = `/home/${category}-list`;
-    const { data } = await api.post(url, props);
-
-    return data;
+    const url = `/v2/home/category`;
+    const { data } = await api.get<
+      { category_name: string; videos: VideoDataType[] }[]
+    >(url);
+    const categoryData = data.find((c) => c.category_name === category);
+    return categoryData ? categoryData.videos : [];
   } catch (error) {
     console.error(error);
     throw error;
   }
 };
 
-export const getSportsVideo = (props: { user_categorization: string }) =>
-  getVideoList("sports", props);
-export const getGameVideo = (props: { user_categorization: string }) =>
-  getVideoList("game", props);
-export const getFearVideo = (props: { user_categorization: string }) =>
-  getVideoList("fear", props);
-export const getInformationVideo = (props: { user_categorization: string }) =>
-  getVideoList("information", props);
-export const getShowVideo = (props: { user_categorization: string }) =>
-  getVideoList("show", props);
-export const getCookVideo = (props: { user_categorization: string }) =>
-  getVideoList("cook", props);
-export const getTravelVideo = (props: { user_categorization: string }) =>
-  getVideoList("travel", props);
-export const getEatingVideo = (props: { user_categorization: string }) =>
-  getVideoList("eating", props);
-export const getDramaVideo = (props: { user_categorization: string }) =>
-  getVideoList("drama", props);
+export const getSportsVideo = () => getVideoList('sports');
+export const getGameVideo = () => getVideoList('game');
+export const getFearVideo = () => getVideoList('fear');
+export const getInformationVideo = () => getVideoList('information');
+export const getShowVideo = () => getVideoList('show');
+export const getCookVideo = () => getVideoList('cook');
+export const getTravelVideo = () => getVideoList('travel');
+export const getEatingVideo = () => getVideoList('eating');
+export const getDramaVideo = () => getVideoList('drama');
 
-export const getAllVideo = async () => {
+export const getAllVideo = async (props: {
+  page: number;
+  size: number;
+  emotion: string;
+}) => {
   try {
-    const url = "/home/all-list";
-    const { data } = await api.get<VideoDataType[]>(url);
+    const url = '/v2/home/video/all';
+    const { data } = await api.get<{ videos: VideoDataType[] }>(url, {
+      params: props,
+    });
 
-    return data;
+    return data.videos;
   } catch (error) {
     console.log(error);
     throw error;
@@ -57,7 +53,7 @@ export const getAllVideo = async () => {
 
 export const getPersonalRecommendedVideo = async () => {
   try {
-    const url = "/home/user-customized-list";
+    const url = '/v2/home/personalized';
     const { data } = await api.get<VideoDataType[]>(url);
 
     return data;
@@ -67,10 +63,10 @@ export const getPersonalRecommendedVideo = async () => {
   }
 };
 
-export const getVideoDetail = async (props: { youtube_url: string }) => {
+export const getVideoDetail = async (props: { video_id: string }) => {
   try {
-    const url = "/watch/main-youtube";
-    const { data } = await api.post<VideoDetailType>(url, props);
+    const url = '/v2/watch/video';
+    const { data } = await api.get<VideoDetailType>(url, { params: props });
 
     return data;
   } catch (error) {
@@ -79,12 +75,18 @@ export const getVideoDetail = async (props: { youtube_url: string }) => {
   }
 };
 
-export const getRecentVideo = async () => {
+export const getRecentVideo = async (props?: {
+  page?: number;
+  size?: number;
+  emotion?: string;
+}) => {
   try {
-    const url = "/mypage/recent-video";
-    const { data } = await api.get<VideoWatchedType[]>(url);
+    const url = '/v2/mypage/videos/recent';
+    const { data } = await api.get<{ videos: VideoWatchedType[] }>(url, {
+      params: props,
+    });
 
-    return data;
+    return data.videos;
   } catch (error) {
     console.log(error);
     throw error;
@@ -93,7 +95,7 @@ export const getRecentVideo = async () => {
 
 export const getDounutGraphData = async () => {
   try {
-    const url = "/mypage/donut-data";
+    const url = '/mypage/donut-data';
     const { data } = await api.get<DonutGraphDataType>(url);
 
     return data;
@@ -105,7 +107,7 @@ export const getDounutGraphData = async () => {
 
 export const getAllEmotionTimeData = async () => {
   try {
-    const url = "/mypage/all-emotion-num";
+    const url = '/mypage/all-emotion-num';
     const { data } = await api.get<{ [key in EmotionType]: number }>(url);
 
     return data;
@@ -115,12 +117,14 @@ export const getAllEmotionTimeData = async () => {
   }
 };
 
-export const getRelatedVideo = async (props: { youtube_url: string }) => {
+export const getRelatedVideo = async (props: { video_id: string }) => {
   try {
-    const url = "/watch/sub-youtube";
-    const { data } = await api.post<VideoRelatedType[]>(url, props);
+    const url = '/v2/watch/recommended';
+    const { data } = await api.get<{ videos: VideoRelatedType[] }>(url, {
+      params: props,
+    });
 
-    return data;
+    return data.videos;
   } catch (error) {
     console.log(error);
     throw error;

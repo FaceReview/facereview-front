@@ -8,7 +8,8 @@ import './videoitem.scss';
 
 type VideoItemPropsType = {
   type: 'small-emoji' | 'big-emoji';
-  videoId: string;
+  videoId: string; // This is the YouTube ID
+  videoUuid: string; // This is the internal UUID for navigation
   videoTitle: string;
   videoMostEmotion: EmotionType;
   videoMostEmotionPercentage: number;
@@ -20,6 +21,7 @@ type VideoItemPropsType = {
 const VideoItem = ({
   type,
   videoId,
+  videoUuid,
   videoTitle,
   videoMostEmotion,
   videoMostEmotionPercentage,
@@ -50,7 +52,7 @@ const VideoItem = ({
   const loadedVideoMostEmotion: string = videoMostEmotion as string;
 
   const handleClick = () => {
-    navigation(`/watch/${videoId}`);
+    navigation(`/watch/${videoUuid}`);
   };
 
   const handleVideoReady = (e: YouTubeEvent<YouTubePlayer>) => {

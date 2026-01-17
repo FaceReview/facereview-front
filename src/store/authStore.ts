@@ -4,6 +4,7 @@ import { devtools, persist } from 'zustand/middleware';
 interface AuthState {
   is_sign_in: boolean;
   is_admin: boolean;
+  user_id: string;
   user_name: string;
   user_profile: number;
   user_tutorial: number;
@@ -23,6 +24,7 @@ interface AuthState {
     is_sign_in,
     access_token,
     refresh_token,
+    user_id,
     user_name,
     user_profile,
     user_tutorial,
@@ -32,6 +34,7 @@ interface AuthState {
     is_sign_in: boolean;
     access_token: string;
     refresh_token: string;
+    user_id: string;
     user_name: string;
     user_profile: number;
     user_tutorial: number;
@@ -54,6 +57,7 @@ export const useAuthStorage = create<AuthState>()(
       (set) => ({
         is_admin: false,
         is_sign_in: false,
+        user_id: '',
         user_name: '',
         user_profile: 0,
         user_tutorial: 0,
@@ -72,6 +76,7 @@ export const useAuthStorage = create<AuthState>()(
           is_sign_in,
           access_token,
           refresh_token,
+          user_id,
           user_name,
           user_profile,
           user_tutorial,
@@ -82,6 +87,7 @@ export const useAuthStorage = create<AuthState>()(
             is_sign_in: true,
             access_token,
             refresh_token,
+            user_id,
             user_name,
             user_profile,
             user_tutorial,
@@ -107,6 +113,7 @@ export const useAuthStorage = create<AuthState>()(
           set(() => ({
             is_admin: false,
             is_sign_in: false,
+            user_id: '',
             user_name: '',
             user_profile: 0,
             user_tutorial: 0,

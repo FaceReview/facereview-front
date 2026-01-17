@@ -1,10 +1,10 @@
-import { CommentType, VideoDetailType, VideoDistributionDataType } from "types";
-import api from "./index";
+import { CommentType } from 'types';
+import api from './index';
 
-export const getVideoComments = async (props: { youtube_url: string }) => {
+export const getVideoComments = async (props: { video_id: string }) => {
   try {
-    const url = "/watch/comment-list";
-    const { data } = await api.post<CommentType[]>(url, props);
+    const url = '/v2/watch/comments';
+    const { data } = await api.get<CommentType[]>(url, { params: props });
 
     return data;
   } catch (error) {
@@ -14,12 +14,15 @@ export const getVideoComments = async (props: { youtube_url: string }) => {
 };
 
 export const sendNewComment = async (props: {
-  comment_contents: string;
-  youtube_url: string;
+  content: string;
+  video_id: string;
 }) => {
   try {
-    const url = "/watch/add-comment";
-    const { data } = await api.post<VideoDetailType>(url, props);
+    const url = '/v2/watch/comments';
+    const { data } = await api.post<{
+      comment_id: string;
+      message: string;
+    }>(url, props);
 
     return data;
   } catch (error) {
@@ -28,11 +31,9 @@ export const sendNewComment = async (props: {
   }
 };
 
-export const sendFinishVideo = async (props: {
-  watching_data_index: number;
-}) => {
+export const addLike = async (props: { video_id: string }) => {
   try {
-    const url = "/finish-watch";
+    const url = '/v2/watch/like';
     const { data } = await api.post(url, props);
 
     return data;
@@ -42,63 +43,10 @@ export const sendFinishVideo = async (props: {
   }
 };
 
-export const getMainDistributionData = async (props: {
-  youtube_url: string;
-}) => {
+export const cancelLike = async (props: { video_id: string }) => {
   try {
-    const url = "/watch/main-distribution-data";
-    const { data } = await api.post<VideoDistributionDataType>(url, props);
-
-    return data;
-  } catch (error) {
-    console.log(error);
-    throw error;
-  }
-};
-
-export const addHits = async (props: {
-  youtube_url: string;
-  user_categorization: string;
-}) => {
-  try {
-    const url = "/watch/update-hits";
+    const url = '/v2/watch/like';
     const { data } = await api.post(url, props);
-
-    return data;
-  } catch (error) {
-    console.log(error);
-    throw error;
-  }
-};
-
-export const addLike = async (props: { youtube_url: string }) => {
-  try {
-    const url = "/watch/add-like";
-    const { data } = await api.post(url, props);
-
-    return data;
-  } catch (error) {
-    console.log(error);
-    throw error;
-  }
-};
-
-export const cancelLike = async (props: { youtube_url: string }) => {
-  try {
-    const url = "/watch/cancel-like";
-    const { data } = await api.post(url, props);
-
-    return data;
-  } catch (error) {
-    console.log(error);
-    throw error;
-  }
-};
-
-export const checkLike = async (props: { youtube_url: string }) => {
-  try {
-    const url = "/watch/check-like";
-    const { data } = await api.post<{ like_flag: number }>(url, props);
 
     return data;
   } catch (error) {
@@ -108,12 +56,12 @@ export const checkLike = async (props: { youtube_url: string }) => {
 };
 
 export const modifyComment = async (props: {
-  comment_index: number;
-  new_comment_contents: string;
+  comment_id: string;
+  content: string;
 }) => {
   try {
-    const url = "/watch/modify-comment";
-    const { data } = await api.post(url, props);
+    const url = '/v2/watch/comments';
+    const { data } = await api.patch(url, props);
 
     return data;
   } catch (error) {
@@ -122,10 +70,10 @@ export const modifyComment = async (props: {
   }
 };
 
-export const deleteComment = async (props: { comment_index: number }) => {
+export const deleteComment = async (props: { comment_id: string }) => {
   try {
-    const url = "/watch/delete-comment";
-    const { data } = await api.post(url, props);
+    const url = '/v2/watch/comments';
+    const { data } = await api.delete(url, { params: props });
 
     return data;
   } catch (error) {

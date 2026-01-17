@@ -1,10 +1,16 @@
-import api from "./index";
+import {
+  EmailCheckResponse,
+  LoginResponse,
+  UpdateProfileRequest,
+  UserResponse,
+} from 'types';
+import api from './index';
 
-export const checkEmail = async (props: { email_id: string }) => {
+export const checkEmail = async (props: { email: string }) => {
   try {
-    const url = "/gate/email-verify";
-    const res = await api.post(url, {
-      email_id: props.email_id,
+    const url = '/v2/auth/check-email';
+    const res = await api.post<EmailCheckResponse>(url, {
+      email: props.email,
     });
 
     return res;
@@ -14,10 +20,13 @@ export const checkEmail = async (props: { email_id: string }) => {
   }
 };
 
-export const signIn = async (props: { email_id: string; password: string }) => {
+export const signIn = async (props: { email: string; password: string }) => {
   try {
-    const url = "/gate/login";
-    const res = await api.post(url, props);
+    const url = '/v2/auth/login';
+    const res = await api.post<LoginResponse>(url, {
+      email: props.email,
+      password: props.password,
+    });
 
     return res;
   } catch (error) {
@@ -27,16 +36,14 @@ export const signIn = async (props: { email_id: string; password: string }) => {
 };
 
 export const signUp = async (props: {
-  email_id: string;
+  email: string;
   password: string;
-  user_name: string;
-  user_favorite_genre_1: string;
-  user_favorite_genre_2: string;
-  user_favorite_genre_3: string;
+  name: string;
+  favorite_genres: string[];
 }) => {
   try {
-    const url = "/gate/signup";
-    const res = await api.post(url, props);
+    const url = '/v2/auth/signup';
+    const res = await api.post<LoginResponse>(url, props);
 
     return res;
   } catch (error) {
@@ -45,21 +52,10 @@ export const signUp = async (props: {
   }
 };
 
-export const getTempToken = async () => {
-  try {
-    const url = "/gate/temp-token";
-    const res = await api.get(url);
-
-    return res;
-  } catch (error) {
-    console.log(error);
-    throw error;
-  }
-};
 export const checkTutorial = async () => {
   try {
-    const url = "/gate/before-tutorial";
-    const res = await api.post(url);
+    const url = '/v2/auth/tutorial';
+    const res = await api.patch(url);
 
     return res;
   } catch (error) {
@@ -70,8 +66,8 @@ export const checkTutorial = async () => {
 
 export const tutorialComplete = async () => {
   try {
-    const url = "/gate/after-tutorial";
-    const res = await api.post(url);
+    const url = '/v2/auth/tutorial';
+    const res = await api.patch(url);
 
     return res;
   } catch (error) {
@@ -82,8 +78,8 @@ export const tutorialComplete = async () => {
 
 export const getUserName = async () => {
   try {
-    const url = "/mypage/user-name";
-    const res = await api.get(url);
+    const url = '/v2/auth/me';
+    const res = await api.get<UserResponse>(url);
 
     return res;
   } catch (error) {
@@ -92,38 +88,10 @@ export const getUserName = async () => {
   }
 };
 
-export const changeName = async (prop: { new_name: string }) => {
+export const updateProfile = async (props: UpdateProfileRequest) => {
   try {
-    const url = "/mypage/change-name";
-    const res = await api.post(url, prop);
-
-    return res;
-  } catch (error) {
-    console.log(error);
-    throw error;
-  }
-};
-
-export const changeProfilePhoto = async (prop: { new_profile: number }) => {
-  try {
-    const url = "/mypage/change-profilephoto";
-    const res = await api.post(url, prop);
-
-    return res;
-  } catch (error) {
-    console.log(error);
-    throw error;
-  }
-};
-
-export const changeFavoriteGenre = async (prop: {
-  user_favorite_genre_1: string;
-  user_favorite_genre_2: string;
-  user_favorite_genre_3: string;
-}) => {
-  try {
-    const url = "/mypage/change-favorite-genre";
-    const res = await api.post(url, prop);
+    const url = '/v2/mypage/profile';
+    const res = await api.patch(url, props);
 
     return res;
   } catch (error) {

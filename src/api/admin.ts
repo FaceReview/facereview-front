@@ -1,10 +1,12 @@
-import { RegisterVideoDataType } from "types/index";
-import api from "./index";
+import api from './index';
 
-export const submitNewVideo = async (props: RegisterVideoDataType) => {
+export const approveVideoRequest = async (props: {
+  request_id: string;
+  category: string;
+}) => {
   try {
-    const url = "/admin/add-new-youtube-video";
-    const { data } = await api.post(url, props);
+    const url = `/v2/admin/video-requests/${props.request_id}/approve`;
+    const { data } = await api.post(url, { category: props.category });
 
     return data;
   } catch (error) {
