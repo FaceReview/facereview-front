@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: import.meta.env.VITE_API_URL || '/api',
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
@@ -16,7 +16,7 @@ api.interceptors.request.use(
   (error) => {
     // console.log("🧨 [Req ERROR]", error, "\n");
     return Promise.reject(error);
-  }
+  },
 );
 
 api.interceptors.response.use(
@@ -30,7 +30,7 @@ api.interceptors.response.use(
       // noop
     }
     return Promise.reject(error);
-  }
+  },
 );
 
 export const youtubeApi = axios.create({
@@ -46,7 +46,7 @@ youtubeApi.interceptors.request.use(
   (error) => {
     // console.log("🧨 [Req ERROR]", error, "\n");
     return Promise.reject(error);
-  }
+  },
 );
 
 youtubeApi.interceptors.response.use(
@@ -60,7 +60,7 @@ youtubeApi.interceptors.response.use(
       // noop
     }
     return Promise.reject(error);
-  }
+  },
 );
 
 export default api;

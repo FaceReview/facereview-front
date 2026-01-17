@@ -33,7 +33,7 @@ const MainPage = (): ReactElement => {
 
   const { is_sign_in, user_name } = useAuthStorage();
   const [selectedEmotion, setSelectedEmotion] = useState<'all' | EmotionType>(
-    'all'
+    'all',
   );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [registerInput, setRegisterInput] = useState('');
@@ -45,10 +45,10 @@ const MainPage = (): ReactElement => {
     VideoDataType[]
   >([]);
   const [genreVideos, setGenreVideos] = useState<Array<VideoDataType>[]>(
-    Array.from({ length: 9 }, () => [])
+    Array.from({ length: 9 }, () => []),
   );
   const filteredVideos = allVideo.filter(
-    (v) => selectedEmotion === 'all' || v.dominant_emotion === selectedEmotion
+    (v) => selectedEmotion === 'all' || v.dominant_emotion === selectedEmotion,
   );
   const [genreCurrentIndex, setGenreCurrentIndex] = useState<number>(0);
   const [genreChangeTerm, setGenreChangeTerm] = useState<number | null>(6000);
@@ -89,7 +89,7 @@ const MainPage = (): ReactElement => {
     (input?: string) => {
       const target = input || registerInput;
       const match = target.match(
-        /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?/\s]{11})/
+        /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?/\s]{11})/,
       );
 
       if (match && match[1]) {
@@ -99,7 +99,7 @@ const MainPage = (): ReactElement => {
         setIsRegisterMatched(false);
       }
     },
-    [registerInput]
+    [registerInput],
   );
   const handleRegisterButtonClick = () => {
     if (registeredVideoIds.length > 0) {
@@ -108,22 +108,22 @@ const MainPage = (): ReactElement => {
           .then(() => {})
           .catch((error) => {
             console.log(error);
-          })
+          }),
       );
     }
   };
 
   const timeoutTimer = useRef<ReturnType<typeof setTimeout> | undefined>(
-    undefined
+    undefined,
   );
   const intervalTimer = useRef<ReturnType<typeof setInterval> | undefined>(
-    undefined
+    undefined,
   );
 
   const useInterval = (
     callback: () => void,
     delay: number | null,
-    index: number
+    index: number,
   ) => {
     const savedCallback = useRef<(() => void) | undefined>(undefined);
 
@@ -157,7 +157,7 @@ const MainPage = (): ReactElement => {
       setGenreCurrentIndex((prevIndex) => (prevIndex + 1) % genreVideos.length);
     },
     genreChangeTerm,
-    genreCurrentIndex
+    genreCurrentIndex,
   );
 
   const location = useLocation();
@@ -172,10 +172,10 @@ const MainPage = (): ReactElement => {
     getAllVideo({ page: 1, size: 50, emotion: 'all' })
       .then((data) => {
         console.log('All Video Data:', data);
-        if (data.length > 0) {
+        if (data && data.length > 0) {
           console.log('First Video Item:', data[0]);
         }
-        setAllVideo(data);
+        setAllVideo(data || []);
       })
       .catch((err) => console.log(err));
 
@@ -209,7 +209,7 @@ const MainPage = (): ReactElement => {
         .catch((err) => {
           console.log(
             'ERROR /home/user-customized-list ----------------------',
-            err
+            err,
           );
         });
     }
