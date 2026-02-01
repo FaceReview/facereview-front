@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
+import HeaderToken from 'api/HeaderToken';
 
 interface AuthState {
   is_sign_in: boolean;
@@ -123,7 +124,12 @@ export const useAuthStorage = create<AuthState>()(
 
       {
         name: 'auth-storage',
-      }
-    )
-  )
+        onRehydrateStorage: () => (state) => {
+          if (state?.access_token) {
+            HeaderToken.set(state.access_token);
+          }
+        },
+      },
+    ),
+  ),
 );

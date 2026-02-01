@@ -11,8 +11,18 @@ function App() {
   useLayoutEffect(() => {
     if (access_token) {
       HeaderToken.set(access_token);
-      return;
     }
+
+    const handleUnauthorized = () => {
+      HeaderToken.set('');
+      useAuthStorage.getState().setTempToken({ access_token: '' });
+      // window.location.href = '/auth/1'; // Removed redirect to allow guest access
+    };
+
+    window.addEventListener('auth:unauthorized', handleUnauthorized);
+    return () => {
+      window.removeEventListener('auth:unauthorized', handleUnauthorized);
+    };
   }, [access_token]);
   return (
     <div className="App">

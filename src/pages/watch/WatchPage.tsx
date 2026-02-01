@@ -280,28 +280,30 @@ const WatchPage = (): ReactElement => {
   }, [user_announced]);
 
   useEffect(() => {
-    socket.connect();
+    if (is_sign_in) {
+      socket.connect();
 
-    // Socket Debug Listeners
-    const onConnect = () => {
-      console.log('✅ Socket connected:', socket.id);
-      setIsConnected(true);
-    };
-    const onDisconnect = () => {
-      console.log('❌ Socket disconnected');
-      setIsConnected(false);
-    };
-    const onConnectError = (err: any) =>
-      console.error('⚠️ Socket connection error:', err);
+      // Socket Debug Listeners
+      const onConnect = () => {
+        console.log('✅ Socket connected:', socket.id);
+        setIsConnected(true);
+      };
+      const onDisconnect = () => {
+        console.log('❌ Socket disconnected');
+        setIsConnected(false);
+      };
+      const onConnectError = (err: any) =>
+        console.error('⚠️ Socket connection error:', err);
 
-    socket.on('connect', onConnect);
-    socket.on('disconnect', onDisconnect);
-    socket.on('connect_error', onConnectError);
+      socket.on('connect', onConnect);
+      socket.on('disconnect', onDisconnect);
+      socket.on('connect_error', onConnectError);
 
-    // Catch-all listener for debugging
-    socket.onAny((event, ...args) => {
-      console.log(`📩 Socket received event: ${event}`, args);
-    });
+      // Catch-all listener for debugging
+      socket.onAny((event, ...args) => {
+        console.log(`📩 Socket received event: ${event}`, args);
+      });
+    }
 
     // addHits removed as it's likely handled by GET video details in v2
 
@@ -319,11 +321,13 @@ const WatchPage = (): ReactElement => {
     // Main distribution data is now part of video detail (timeline_data)
 
     return () => {
-      socket.off('connect', onConnect);
-      socket.off('disconnect', onDisconnect);
-      socket.off('connect_error', onConnectError);
-      socket.offAny(); // Clean up
-      socket.disconnect();
+      if (is_sign_in) {
+        socket.off('connect');
+        socket.off('disconnect');
+        socket.off('connect_error');
+        socket.offAny(); // Clean up
+        socket.disconnect();
+      }
     };
   }, [id, is_sign_in]);
 

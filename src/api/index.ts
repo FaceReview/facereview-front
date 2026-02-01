@@ -10,22 +10,21 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-    // console.log("🔮 [Req config]", config, "\n");
     return config;
   },
   (error) => {
-    // console.log("🧨 [Req ERROR]", error, "\n");
     return Promise.reject(error);
   },
 );
 
 api.interceptors.response.use(
   (response) => {
-    // console.log("🔮 [Res]", response, "\n");
     return response;
   },
   (error) => {
-    // console.log("🧨 [Res ERROR]", error, "\n");
+    if (error.response?.status === 401) {
+      window.dispatchEvent(new Event('auth:unauthorized'));
+    }
     if (error.status === 408) {
       // noop
     }
