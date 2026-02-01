@@ -12,11 +12,11 @@ const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement,
 );
 root.render(
-  // <React.StrictMode> removed to fix YouTube Iframe double-mount issues
-  <QueryClientProvider client={queryClient}>
-    <HelmetProvider>
-      <App />
-    </HelmetProvider>
-  </QueryClientProvider>,
-  // </React.StrictMode>
+  <React.StrictMode>
+    <QueryClientProvider client={queryClient}>
+      <HelmetProvider>
+        <App />
+      </HelmetProvider>
+    </QueryClientProvider>
+  </React.StrictMode>,
 );
