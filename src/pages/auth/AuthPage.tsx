@@ -7,7 +7,7 @@ import TextInput from 'components/TextInput/TextInput';
 
 import './authpage.scss';
 import { checkEmail, getUserName, signIn, signUp } from 'api/auth';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useAuthStorage } from 'store/authStore';
 import { CategoryType, UserInfoType } from 'types';
 import { AxiosResponse } from 'axios';
@@ -43,7 +43,7 @@ const AuthPage = () => {
 
   const validateEmail = (email: string) => {
     return email.match(
-      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
     );
   };
 
@@ -215,12 +215,14 @@ const AuthPage = () => {
         <StepIndicator step={isSingInSuccess ? 3 : currentStep} maxStep={3} />
 
         <div className="logo-wrapper">
-          <AnimatedLogo
-            animationType="once"
-            animatedWrapperWidth={73}
-            gap={7}
-            style={{ height: '84px' }}
-          />
+          <Link to="/">
+            <AnimatedLogo
+              animationType="once"
+              animatedWrapperWidth={73}
+              gap={7}
+              style={{ height: '84px' }}
+            />
+          </Link>
         </div>
 
         <div className="input-container">
