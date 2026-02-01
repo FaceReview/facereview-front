@@ -1,22 +1,20 @@
 export type CategoryType =
-  | 'sports'
-  | 'game'
-  | 'news'
+  | 'drama'
+  | 'eating'
   | 'travel'
   | 'cook'
-  | 'comedy'
-  | 'fear'
-  | 'drama'
-  | 'review'
-  | 'fancam'
-  | 'talking'
-  | 'information'
-  | 'music'
   | 'show'
-  | 'eating'
-  | 'comic'
-  | 'health'
-  | 'vlog';
+  | 'information'
+  | 'game'
+  | 'sports'
+  | 'music'
+  | 'animal'
+  | 'beauty'
+  | 'comedy'
+  | 'horror'
+  | 'exercise'
+  | 'vlog'
+  | 'etc';
 export type EmotionType = 'happy' | 'surprise' | 'sad' | 'angry' | 'neutral';
 export type UserInfoType = {
   user_role: boolean;

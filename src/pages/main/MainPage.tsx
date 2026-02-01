@@ -1,20 +1,13 @@
 import { ReactElement, useEffect, useRef, useState, useCallback } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuthStorage } from 'store/authStore';
 import VideoItem from 'components/VideoItem/VideoItem';
 import './mainpage.scss';
 import { v4 as uuidv4 } from 'uuid';
 import {
   getAllVideo,
-  getCookVideo,
-  getDramaVideo,
-  getEatingVideo,
-  getFearVideo,
-  getGameVideo,
-  getInformationVideo,
+  getVideoList,
   getPersonalRecommendedVideo,
-  getSportsVideo,
-  getTravelVideo,
-  getShowVideo,
 } from 'api/youtube';
 import { EmotionType, VideoDataType } from 'types';
 
@@ -27,6 +20,8 @@ import Button from 'components/Button/Button';
 import SomeIcon from 'components/SomeIcon/SomeIcon';
 import { updateRequestVideoList } from 'api/request';
 import useMediaQuery from 'utils/useMediaQuery';
+import useIntersectionObserver from 'utils/useIntersectionObserver';
+import { CATEGORIES, CATEGORY_ITEMS } from 'constants/index';
 
 const MainPage = (): ReactElement => {
   const isMobile = useMediaQuery('(max-width: 1200px)');
@@ -40,36 +35,54 @@ const MainPage = (): ReactElement => {
   const [registeringVideoId, setRegisteringVideoId] = useState('');
   const [registeredVideoIds, setRegisteredVideoIds] = useState<string[]>([]);
   const [isRegisterMatched, setIsRegisterMatched] = useState(false);
+
+  // Infinite Scroll items
   const [allVideo, setAllVideo] = useState<VideoDataType[]>([]);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+
   const [personalRecommendedVideo, serPersonalRecommendedVideo] = useState<
     VideoDataType[]
   >([]);
-  const [genreVideos, setGenreVideos] = useState<Array<VideoDataType>[]>(
-    Array.from({ length: 9 }, () => []),
-  );
-  const filteredVideos = allVideo.filter(
-    (v) => selectedEmotion === 'all' || v.dominant_emotion === selectedEmotion,
-  );
+
+  // React Query Integration
+  const queryClient = useQueryClient();
   const [genreCurrentIndex, setGenreCurrentIndex] = useState<number>(0);
+  const currentCategory = CATEGORIES[genreCurrentIndex];
+
+  // Fetch current category data
+  const { data: currentGenreVideos = [] } = useQuery({
+    queryKey: ['videos', currentCategory],
+    queryFn: () => getVideoList(currentCategory),
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+
+  // Pre-fetch next genre
+  useEffect(() => {
+    const nextIndex = (genreCurrentIndex + 1) % CATEGORIES.length;
+    const nextCategory = CATEGORIES[nextIndex];
+    queryClient.prefetchQuery({
+      queryKey: ['videos', nextCategory],
+      queryFn: () => getVideoList(nextCategory),
+      staleTime: 1000 * 60 * 5,
+    });
+  }, [genreCurrentIndex, queryClient]);
+
   const [genreChangeTerm, setGenreChangeTerm] = useState<number | null>(6000);
   const [genreChangeOpacity, setGenreChangeOpacity] = useState<number>(1);
-  const genreTitle: Array<string> = [
-    '스포츠',
-    '게임',
-    '공포',
-    '정보전달',
-    '예능',
-    '요리',
-    '여행',
-    '먹방',
-    '드라마',
-  ];
+  const genreTitle: Array<string> = CATEGORY_ITEMS.map((item) => item.label);
 
   const getThumbnailUrl = (videoId: string) =>
     `http://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
 
   const handleChipClick = (emotion: 'all' | EmotionType) => {
-    setSelectedEmotion(emotion);
+    if (selectedEmotion !== emotion) {
+      setSelectedEmotion(emotion);
+      setPage(1);
+      setAllVideo([]);
+      setHasMore(true);
+    }
   };
 
   const openModal = () => {
@@ -154,7 +167,7 @@ const MainPage = (): ReactElement => {
 
   useInterval(
     () => {
-      setGenreCurrentIndex((prevIndex) => (prevIndex + 1) % genreVideos.length);
+      setGenreCurrentIndex((prevIndex) => (prevIndex + 1) % CATEGORIES.length);
     },
     genreChangeTerm,
     genreCurrentIndex,
@@ -168,39 +181,55 @@ const MainPage = (): ReactElement => {
       extractVideoId(code);
     }
   }, [is_sign_in, location, extractVideoId]);
+
+  // Infinite Scroll Effect
   useEffect(() => {
-    getAllVideo({ page: 1, size: 50, emotion: 'all' })
-      .then((data) => {
-        console.log('All Video Data:', data);
-        if (data && data.length > 0) {
-          console.log('First Video Item:', data[0]);
+    const fetchVideos = async () => {
+      setIsLoading(true);
+      try {
+        const SIZE = 20;
+        const data = await getAllVideo({
+          page,
+          size: SIZE,
+          emotion: selectedEmotion,
+        });
+
+        if (data.length < SIZE) {
+          setHasMore(false);
         }
-        setAllVideo(data || []);
-      })
-      .catch((err) => console.log(err));
 
-    const videoRequests = [
-      getSportsVideo(),
-      getGameVideo(),
-      getFearVideo(),
-      getInformationVideo(),
-      getShowVideo(),
-      getCookVideo(),
-      getTravelVideo(),
-      getEatingVideo(),
-      getDramaVideo(),
-    ];
-
-    Promise.all(videoRequests)
-      .then((dataArray) => {
-        console.log(dataArray);
-        const updatedGenreVideo = dataArray.map((data) => data);
-        setGenreVideos(updatedGenreVideo);
-      })
-      .catch((err) => {
+        setAllVideo((prev) => {
+          if (page === 1) return data;
+          return [...prev, ...data];
+        });
+      } catch (err) {
         console.error(err);
-      });
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
+    fetchVideos();
+  }, [page, selectedEmotion]);
+
+  // Intersection Observer
+  const onIntersect: IntersectionObserverCallback = useCallback(
+    ([entry]) => {
+      if (entry.isIntersecting && hasMore && !isLoading) {
+        setPage((prev) => prev + 1);
+      }
+    },
+    [hasMore, isLoading],
+  );
+
+  const { targetRef } = useIntersectionObserver({
+    onIntersect,
+  });
+
+  // Removed manual fetching logic (fetchingRef, fetchGenreVideoObj, initial load effects) replaced by React Query above
+
+  /* Removed original Promise.all effect */
+  useEffect(() => {
     if (is_sign_in) {
       getPersonalRecommendedVideo()
         .then((res) => {
@@ -221,6 +250,7 @@ const MainPage = (): ReactElement => {
 
   return (
     <div className="main-page-container">
+      {/* ... Personal Rec ... */}
       {is_sign_in ? (
         <div className="personal-recommend-contents-container">
           <h2
@@ -271,6 +301,7 @@ const MainPage = (): ReactElement => {
         </div>
       ) : null}
 
+      {/* ... Genre ... */}
       <div className="genre-contents-container">
         <h2
           className={
@@ -309,7 +340,7 @@ const MainPage = (): ReactElement => {
           className="genre-video-container">
           <div className="main-page-genre-video-container">
             <div className="main-page-genre-video-wrapper">
-              {genreVideos[genreCurrentIndex].map((v) => (
+              {currentGenreVideos.map((v) => (
                 <VideoItem
                   type="small-emoji"
                   key={uuidv4()}
@@ -489,7 +520,7 @@ const MainPage = (): ReactElement => {
           </ModalDialog>
 
           <div className="video-wrapper">
-            {filteredVideos.map((v, i) => (
+            {allVideo.map((v, i) => (
               <VideoItem
                 type="small-emoji"
                 key={v.youtube_url || i}
@@ -506,6 +537,7 @@ const MainPage = (): ReactElement => {
                 }
               />
             ))}
+            <div ref={targetRef} style={{ width: '100%', height: '20px' }} />
           </div>
         </div>
       </div>
