@@ -24,6 +24,24 @@ export const getVideoList = async (category: string) => {
   }
 };
 
+export const searchVideos = async (props: {
+  page: number;
+  size: number;
+  keyword_type: string;
+  keyword: string;
+}) => {
+  try {
+    const url = '/v2/home/search';
+    const { data } = await api.get<import('types').SearchVideoResponse>(url, {
+      params: props,
+    });
+    return data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
 export const getAllVideo = async (props: {
   page: number;
   size: number;

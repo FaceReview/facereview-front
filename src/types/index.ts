@@ -152,3 +152,10 @@ export type UserResponse = {
   created_at: string;
   favorite_genres: string[];
 };
+export type SearchVideoResponse = {
+  videos: VideoDataType[];
+  total: number;
+  page: number;
+  size: number;
+  has_next: boolean;
+};

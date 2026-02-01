@@ -1,18 +1,32 @@
-@use "styles/abstracts" as variables;
+@use 'styles/abstracts' as variables;
 
 .main-page-container {
   padding-bottom: 98px;
 
   @include variables.mobile {
-    padding-top: 76px;
+    padding-top: 70px;
     padding-left: 16px;
   }
   @include variables.desktop {
-    padding-top: 158px;
+    padding-top: 110px;
   }
 
   .title {
     color: variables.$gray-900;
+  }
+
+  .search-results-container {
+    .video-container {
+      margin-left: -20px;
+      .video-wrapper {
+        @include variables.desktop {
+          width: 1300px;
+        }
+        display: flex;
+        flex-wrap: wrap;
+        padding-left: 20px;
+      }
+    }
   }
 
   .subtitle {
