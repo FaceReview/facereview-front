@@ -1,11 +1,10 @@
-@use 'assets/css/variables.scss';
+@use 'styles/abstracts' as variables;
 
 .emotion-badge-container {
   display: flex;
   justify-content: center;
   align-items: center;
   border-radius: 100%;
-
 
   &.big {
     width: 24px;
