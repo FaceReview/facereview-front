@@ -1,37 +1,34 @@
-@use 'assets/css/variables.scss';
+@use 'styles/abstracts' as variables;
 
 .text-input {
-    width: 100%;
-    transition: border .2s;
+  width: 100%;
+  transition: border 0.2s;
 
+  &.default {
+    color: variables.$gray-900;
+    background-color: variables.$gray-100;
+    padding: 16px 14px 16px 14px;
+    border: 1px solid variables.$gray-100;
+    border-radius: 4px;
+    outline: none;
 
-    &.default {
-        color: variables.$gray-900;
-        background-color: variables.$gray-100;
-        padding: 16px 14px 16px 14px;
-        border: 1px solid variables.$gray-100;
-        border-radius: 4px;
-        outline: none;
+    &:focus {
+      border: 1px solid variables.$gray-700;
+    }
+  }
 
+  &.underline {
+    color: variables.$gray-900;
+    background: transparent;
+    border-bottom: 1px solid variables.$gray-300;
+    outline: none;
 
-
-        &:focus {
-            border: 1px solid variables.$gray-700;
-        }
+    &::placeholder {
+      color: variables.$gray-300;
     }
 
-    &.underline {
-        color: variables.$gray-900;
-        background: transparent;
-        border-bottom: 1px solid variables.$gray-300;
-        outline: none;
-
-        &::placeholder {
-            color: variables.$gray-300;
-        }
-
-        &:focus {
-            border-bottom: 1px solid variables.$gray-900;
-        }
+    &:focus {
+      border-bottom: 1px solid variables.$gray-900;
     }
+  }
 }

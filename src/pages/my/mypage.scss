@@ -1,17 +1,17 @@
-@use "assets/css/index.scss";
+@use "styles/abstracts" as variables;
 
 .my-page-container {
   display: flex;
   flex-direction: column;
   padding-bottom: 148px;
 
-  @include index.mobile {
+  @include variables.mobile {
     width: 100vw;
     padding-top: 61px;
     padding-left: 16px;
   }
 
-  @include index.desktop {
+  @include variables.desktop {
     padding-top: 126px;
     width: calc(50vw + 600px);
   }
@@ -20,11 +20,11 @@
     display: flex;
     flex-direction: column;
 
-    @include index.mobile {
+    @include variables.mobile {
       width: calc(100vw - 32px);
     }
 
-    @include index.desktop {
+    @include variables.desktop {
       width: 1200px;
       flex-direction: column;
     }
@@ -32,11 +32,11 @@
     .my-page-user-info-container {
       display: flex;
 
-      @include index.mobile {
+      @include variables.mobile {
         margin-bottom: 44px;
       }
 
-      @include index.desktop {
+      @include variables.desktop {
         flex-direction: column;
         margin-bottom: 56px;
       }
@@ -45,11 +45,11 @@
         display: flex;
         justify-content: space-between;
 
-        @include index.mobile {
+        @include variables.mobile {
           margin-left: 12px;
         }
 
-        @include index.desktop {
+        @include variables.desktop {
           margin-top: 20px;
         }
 
@@ -71,11 +71,11 @@
     overflow: hidden;
     margin-left: -20px;
 
-    @include index.mobile {
+    @include variables.mobile {
       margin-top: 40px;
     }
 
-    @include index.desktop {
+    @include variables.desktop {
       margin-top: 56px;
     }
 
@@ -98,12 +98,12 @@
           white-space: nowrap;
           padding-left: 20px;
 
-          @include index.mobile {
+          @include variables.mobile {
             padding-top: 24px;
             padding-bottom: 18px;
           }
 
-          @include index.desktop {
+          @include variables.desktop {
             padding-top: 32px;
             padding-bottom: 16px;
           }
@@ -127,9 +127,9 @@
       padding-left: 20px;
       margin-bottom: 88px;
 
-      @include index.mobile {}
+      @include variables.mobile {}
 
-      @include index.desktop {
+      @include variables.desktop {
         height: 453px;
       }
     }
@@ -137,11 +137,11 @@
     .my-page-video-wrapper {
       display: flex;
 
-      @include index.mobile {
+      @include variables.mobile {
         flex-direction: column;
       }
 
-      @include index.desktop {
+      @include variables.desktop {
         height: 100%;
         padding-right: calc(50vw - 660px);
         padding-top: 16px;
@@ -152,7 +152,7 @@
           width: 360px;
           height: 60px;
           padding: 4px;
-          background: index.$gray-50;
+          background: variables.$gray-50;
           border-radius: 8px;
           margin-top: 8px;
         }
@@ -164,23 +164,23 @@
         align-items: center;
         justify-content: center;
 
-        @include index.mobile {
+        @include variables.mobile {
           width: calc(100vw - 16px);
         }
 
-        @include index.desktop {
+        @include variables.desktop {
           width: 1200px;
         }
 
         .my-page-video-empty-img {
-          @include index.mobile {
+          @include variables.mobile {
             width: 66px;
             height: 66px;
             margin-top: 20px;
             margin-bottom: 8px;
           }
 
-          @include index.desktop {
+          @include variables.desktop {
             width: 100px;
             height: 100px;
             margin-top: 30px;
@@ -231,23 +231,23 @@
             margin-right: 8px;
 
             &.happy {
-              background: index.$category-joyful-basic;
+              background: variables.$category-joyful-basic;
             }
 
             &.sad {
-              background: index.$category-sad-basic;
+              background: variables.$category-sad-basic;
             }
 
             &.surprise {
-              background: index.$category-surprised-basic;
+              background: variables.$category-surprised-basic;
             }
 
             &.angry {
-              background: index.$category-angry-basic;
+              background: variables.$category-angry-basic;
             }
 
             &.neutral {
-              background: index.$category-neutral-basic;
+              background: variables.$category-neutral-basic;
             }
           }
         }
@@ -260,7 +260,7 @@
 
 
       .emotion-time-title {
-        color: index.$gray-900;
+        color: variables.$gray-900;
         margin-right: 60px;
       }
 
@@ -268,36 +268,36 @@
         font-size: 24px;
         line-height: 32px;
         font-weight: 700;
-        color: index.$gray-900;
+        color: variables.$gray-900;
         margin-bottom: 28px;
 
         .happy {
-          color: index.$category-joyful-basic;
+          color: variables.$category-joyful-basic;
         }
 
         .sad {
-          color: index.$category-sad-basic;
+          color: variables.$category-sad-basic;
         }
 
         .angry {
-          color: index.$category-angry-basic;
+          color: variables.$category-angry-basic;
         }
 
         .surprise {
-          color: index.$category-surprised-basic;
+          color: variables.$category-surprised-basic;
         }
 
         .neutral {
-          color: index.$category-neutral-basic;
+          color: variables.$category-neutral-basic;
 
         }
       }
     }
 
 
-    @include index.mobile {}
+    @include variables.mobile {}
 
-    @include index.desktop {
+    @include variables.desktop {
       width: 1200px;
       height: 291px;
     }

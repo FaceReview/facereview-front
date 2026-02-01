@@ -9,32 +9,38 @@ import {
 } from 'types';
 import api, { youtubeApi } from './index';
 
-const getVideoList = async (category: string) => {
+export const getVideoList = async (category: string) => {
   try {
     const url = `/v2/home/category`;
-    const { data } =
-      await api.get<{ category_name: string; videos: VideoDataType[] }[]>(url);
-    if (!Array.isArray(data)) {
-      console.warn('getVideoList: Expected array but got:', data);
-      return [];
-    }
-    const categoryData = data.find((c) => c.category_name === category);
-    return categoryData ? categoryData.videos : [];
+    const { data } = await api.get<{
+      category_name: string;
+      videos: VideoDataType[];
+    }>(url, { params: { category_name: category } });
+
+    return data?.videos || [];
   } catch (error) {
     console.error(error);
     throw error;
   }
 };
 
-export const getSportsVideo = () => getVideoList('sports');
-export const getGameVideo = () => getVideoList('game');
-export const getFearVideo = () => getVideoList('fear');
-export const getInformationVideo = () => getVideoList('information');
-export const getShowVideo = () => getVideoList('show');
-export const getCookVideo = () => getVideoList('cook');
-export const getTravelVideo = () => getVideoList('travel');
-export const getEatingVideo = () => getVideoList('eating');
-export const getDramaVideo = () => getVideoList('drama');
+export const searchVideos = async (props: {
+  page: number;
+  size: number;
+  keyword_type: string;
+  keyword: string;
+}) => {
+  try {
+    const url = '/v2/home/search';
+    const { data } = await api.get<import('types').SearchVideoResponse>(url, {
+      params: props,
+    });
+    return data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
 
 export const getAllVideo = async (props: {
   page: number;

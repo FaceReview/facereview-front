@@ -1,4 +1,4 @@
-@use "assets/css/index.scss";
+@use "styles/abstracts" as variables;
 
 .some-icon {
   cursor: pointer;
@@ -20,7 +20,7 @@
     height: 24px;
 
     &:hover {
-      background: index.$system-dim-white;
+      background: variables.$system-dim-white;
     }
   }
 }

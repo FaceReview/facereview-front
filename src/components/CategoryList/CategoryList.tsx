@@ -1,6 +1,7 @@
 import { ReactElement } from 'react';
 import { CategoryType } from 'types/index';
 import './categorylist.scss';
+import { CATEGORY_ITEMS } from 'constants/index';
 
 type CategoryListPropType = {
   selected: CategoryType[];
@@ -13,46 +14,15 @@ const CategoryList = ({
   onChange,
   maxSelection = 3,
 }: CategoryListPropType): ReactElement => {
-  const categoryByName = {
-    sports: '🤾‍♀️ 스포츠',
-    game: '🎮 게임',
-    news: '📰 뉴스',
-    travel: '✈️ 여행',
-    cook: '🧑‍🍳 요리',
-    comedy: '🤣 코미디',
-    fear: '🧟‍♀️ 공포',
-    drama: '🎭 드라마',
-    review: '🤓 리뷰',
-    fancam: '📷 직캠',
-    talking: '🗣️ 토크',
-    information: '📊 정보',
-    music: '🎵 음악',
-    show: '🎪 예능',
-    eating: '🍽️ 먹방',
-    comic: '🦸‍♂️ 만화',
-    health: '🏋️‍♂️ 운동',
-    vlog: '📷 브이로그',
-  };
-  const categories: CategoryType[] = [
-    'sports',
-    'game',
-    'news',
-    'travel',
-    'cook',
-    'comedy',
-    'fear',
-    'drama',
-    'review',
-    'fancam',
-    'talking',
-    'information',
-    'music',
-    'show',
-    'eating',
-    'comic',
-    'health',
-    'vlog',
-  ];
+  const categoryByName = CATEGORY_ITEMS.reduce(
+    (acc, item) => {
+      acc[item.id] = `${item.emoji} ${item.label}`;
+      return acc;
+    },
+    {} as Record<CategoryType, string>,
+  );
+
+  const categories = CATEGORY_ITEMS.map((item) => item.id);
 
   const handleCategoryClick = (category: CategoryType) => {
     if (selected.includes(category)) {

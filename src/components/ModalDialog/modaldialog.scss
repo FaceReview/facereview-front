@@ -1,7 +1,7 @@
-@use "assets/css/index.scss";
+@use "styles/abstracts" as variables;
 
 .modal-overlay {
-  background: index.$system-dim-black;
+  background: variables.$system-dim-black;
   width: 100%;
   height: 100%;
   z-index: 999;
@@ -17,7 +17,7 @@
   left: 50%;
   z-index: 1000;
   transform: translate(-50%, -50%);
-  background: index.$gray-80;
+  background: variables.$gray-80;
   outline: none;
   border-radius: 8px;
   overflow: auto;
@@ -40,7 +40,7 @@
   &.comment-delete-modal {
     padding: 32px 20px 32px 20px;
     width: 340px;
-    background: index.$gray-100;
+    background: variables.$gray-100;
   }
 
   .modal-contents-container {

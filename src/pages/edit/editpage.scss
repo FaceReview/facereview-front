@@ -1,4 +1,4 @@
-@use "assets/css/index.scss";
+@use "styles/abstracts" as variables;
 
 .edit-page-container {
   display: flex;
@@ -6,11 +6,11 @@
   align-items: center;
   padding-bottom: 102px;
 
-  @include index.mobile {
+  @include variables.mobile {
     padding-top: 82px;
   }
 
-  @include index.desktop {
+  @include variables.desktop {
     padding-top: 148px;
   }
 
@@ -19,12 +19,12 @@
     flex-direction: column;
     align-items: center;
 
-    @include index.mobile {
+    @include variables.mobile {
       width: calc(100vw - 32px);
       margin-top: 60px;
     }
 
-    @include index.desktop {
+    @include variables.desktop {
       width: 380px;
       margin-top: 80px;
     }
@@ -46,7 +46,7 @@
       margin-bottom: 8px;
 
       .edit-page-input-label {
-        color: index.$gray-900;
+        color: variables.$gray-900;
       }
     }
 
@@ -56,6 +56,6 @@
   }
 
   .edit-page-input-alert-message {
-    color: index.$system-error;
+    color: variables.$system-error;
   }
 }

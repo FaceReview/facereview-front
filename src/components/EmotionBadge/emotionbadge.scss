@@ -1,11 +1,10 @@
-@use 'assets/css/index.scss';
+@use 'styles/abstracts' as variables;
 
 .emotion-badge-container {
   display: flex;
   justify-content: center;
   align-items: center;
   border-radius: 100%;
-
 
   &.big {
     width: 24px;
@@ -20,23 +19,23 @@
   }
 
   &.happy {
-    background: index.$category-joyful-tinted;
+    background: variables.$category-joyful-tinted;
   }
 
   &.surprise {
-    background: index.$category-surprised-tinted;
+    background: variables.$category-surprised-tinted;
   }
 
   &.sad {
-    background: index.$category-sad-tinted;
+    background: variables.$category-sad-tinted;
   }
 
   &.angry {
-    background: index.$category-angry-tinted;
+    background: variables.$category-angry-tinted;
   }
 
   &.neutral {
-    background: index.$category-neutral-tinted;
+    background: variables.$category-neutral-tinted;
   }
 
   .emotion-emoji {

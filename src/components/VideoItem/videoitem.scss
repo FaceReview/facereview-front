@@ -1,4 +1,4 @@
-@use "assets/css/index.scss";
+@use "styles/abstracts" as variables;
 
 .video-item-container {
   border-radius: 8px;
@@ -46,13 +46,13 @@
 
   .video-info-container {
     width: 100%;
-    background: index.$gray-50;
+    background: variables.$gray-50;
     padding: 24px 12px 24px 12px;
     margin-top: -2.5px;
     pointer-events: none;
 
     .video-title {
-      color: index.$gray-900;
+      color: variables.$gray-900;
       text-overflow: ellipsis;
       white-space: nowrap;
       overflow: hidden;
@@ -83,33 +83,33 @@
         }
 
         &.happy {
-          background: index.$category-joyful-basic;
+          background: variables.$category-joyful-basic;
         }
 
         &.surprise {
-          background: index.$category-surprised-basic;
+          background: variables.$category-surprised-basic;
         }
 
         &.sad {
-          background: index.$category-sad-basic;
+          background: variables.$category-sad-basic;
         }
 
         &.angry {
-          background: index.$category-angry-basic;
+          background: variables.$category-angry-basic;
         }
 
         &.neutral {
-          background: index.$category-neutral-basic;
+          background: variables.$category-neutral-basic;
         }
       }
 
       .video-emotion-data {
-        color: index.$gray-900;
+        color: variables.$gray-900;
       }
     }
 
     .video-emotion-data-empty {
-      color: index.$gray-400;
+      color: variables.$gray-400;
     }
   }
 }

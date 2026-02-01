@@ -1,7 +1,7 @@
 import Button from 'components/Button/Button';
 import ProfileIcon from 'components/ProfileIcon/ProfileIcon';
 import React, { ReactElement } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStorage } from 'store/authStore';
 import AnimatedLogo from '../AnimatedLogo/AnimatedLogo';
 import './header.scss';
@@ -28,12 +28,14 @@ const Header = ({ isMyPage }: HeaderPropsType): ReactElement => {
   return (
     <div className="header-background">
       <div className="header">
-        <AnimatedLogo
-          animationType="infinite"
-          animatedWrapperWidth={isMobile ? 15 : 30}
-          gap={3}
-          style={isMobile ? { height: '18px' } : { height: '35px' }}
-        />
+        <Link to="/">
+          <AnimatedLogo
+            animationType="infinite"
+            animatedWrapperWidth={isMobile ? 15 : 30}
+            gap={3}
+            style={isMobile ? { height: '18px' } : { height: '35px' }}
+          />
+        </Link>
         {is_sign_in ? (
           isMyPage && isMobile ? (
             <div

@@ -1,35 +1,61 @@
-import WatchPage from 'pages/watch/WatchPage';
+import { Suspense, lazy } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import AuthPage from '../pages/auth/AuthPage';
-import MainPage from '../pages/main/MainPage';
 import ScreenContainer from './ScreenContainer/ScreenContainer';
-import MyPage from '../pages/my/MyPage';
-import EditPage from '../pages/edit/EditPage';
-import TutorialPage from 'pages/tutorial/TutorialPage';
-import AdminPage from 'pages/admin/AdminPage';
+import AnimatedLogo from './AnimatedLogo/AnimatedLogo';
+
+const WatchPage = lazy(() => import('pages/watch/WatchPage'));
+const AuthPage = lazy(() => import('../pages/auth/AuthPage'));
+const MainPage = lazy(() => import('../pages/main/MainPage'));
+const MyPage = lazy(() => import('../pages/my/MyPage'));
+const EditPage = lazy(() => import('../pages/edit/EditPage'));
+const TutorialPage = lazy(() => import('pages/tutorial/TutorialPage'));
+const AdminPage = lazy(() => import('pages/admin/AdminPage'));
+
+const Fallback = () => (
+  <div
+    style={{
+      width: '100vw',
+      height: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: '#15151d',
+    }}>
+    <AnimatedLogo
+      animationType="infinite"
+      animatedWrapperWidth={100}
+      gap={8}
+      style={{ height: '60px' }}
+    />
+  </div>
+);
 
 const Router = () => {
   return (
     <BrowserRouter
       future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-      <Routes>
-        <Route element={<ScreenContainer headerShown={true} />}>
-          <Route path="/main" element={<MainPage />} />
-          <Route path="/watch/:id" element={<WatchPage />} />
-        </Route>
-        <Route path="/auth/:step" element={<AuthPage />} />
-        <Route element={<ScreenContainer isAdmin={true} headerShown={true} />}>
-          <Route path="/admin" element={<AdminPage />} />
-        </Route>
-        <Route element={<ScreenContainer isSignIn={true} headerShown={true} />}>
-          <Route path="/my" element={<MyPage />} />
-          <Route path="/edit" element={<EditPage />} />
-        </Route>
-        <Route path="/tutorial/:step" element={<TutorialPage />} />
-        <Route element={<ScreenContainer headerShown={true} />}>
-          <Route path="*" element={<MainPage />} />
-        </Route>
-      </Routes>
+      <Suspense fallback={<Fallback />}>
+        <Routes>
+          <Route element={<ScreenContainer headerShown={true} />}>
+            <Route path="/main" element={<MainPage />} />
+            <Route path="/watch/:id" element={<WatchPage />} />
+          </Route>
+          <Route path="/auth/:step" element={<AuthPage />} />
+          <Route
+            element={<ScreenContainer isAdmin={true} headerShown={true} />}>
+            <Route path="/admin" element={<AdminPage />} />
+          </Route>
+          <Route
+            element={<ScreenContainer isSignIn={true} headerShown={true} />}>
+            <Route path="/my" element={<MyPage />} />
+            <Route path="/edit" element={<EditPage />} />
+          </Route>
+          <Route path="/tutorial/:step" element={<TutorialPage />} />
+          <Route element={<ScreenContainer headerShown={true} />}>
+            <Route path="*" element={<MainPage />} />
+          </Route>
+        </Routes>
+      </Suspense>
     </BrowserRouter>
   );
 };

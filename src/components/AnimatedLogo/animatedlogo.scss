@@ -1,4 +1,4 @@
-@use "assets/css/index.scss";
+@use "styles/abstracts" as variables;
 
 .animated-logo-container {
   display: flex;
@@ -26,19 +26,19 @@
 
       &.animated-bar-1 {
         width: 100%;
-        background-color: index.$brand-red;
+        background-color: variables.$brand-red;
         animation-name: spring-1;
       }
 
       &.animated-bar-2 {
         width: 75%;
-        background-color: index.$brand-yellow;
+        background-color: variables.$brand-yellow;
         animation-name: spring-2;
       }
 
       &.animated-bar-3 {
         width: 37%;
-        background-color: index.$brand-blue;
+        background-color: variables.$brand-blue;
         animation-name: spring-3;
       }
     }

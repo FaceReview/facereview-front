@@ -1,4 +1,4 @@
-@use "assets/css/index.scss";
+@use "styles/abstracts" as variables;
 
 .main-page-modal-title {
   text-align: center;
@@ -32,7 +32,7 @@
     width: 380px;
     height: 214px;
     min-height: 214px;
-    background: index.$gray-200;
+    background: variables.$gray-200;
     border-radius: 12px;
 
     .main-page-modal-thumbnail-empty-image {
