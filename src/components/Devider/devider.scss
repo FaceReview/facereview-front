@@ -1,7 +1,7 @@
-@use "assets/css/index.scss";
+@use "styles/abstracts" as variables;
 
 .devider {
   width: 100%;
   height: 4px;
-  background: index.$gray-50;
+  background: variables.$gray-50;
 }

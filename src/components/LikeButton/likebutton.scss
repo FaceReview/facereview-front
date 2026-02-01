@@ -1,10 +1,10 @@
-@use "assets/css/index.scss";
+@use "styles/abstracts" as variables;
 
 .like-button {
   position: relative;
   width: fit-content;
-  color: index.$gray-50;
-  background: index.$gray-100;
+  color: variables.$gray-50;
+  background: variables.$gray-100;
   padding: 0px 12px 0px 12px;
   border-radius: 38px;
   cursor: pointer;
@@ -15,7 +15,7 @@
   transition: ease all 0.2s;
 
   &:hover {
-    background-color: index.$gray-200;
+    background-color: variables.$gray-200;
   }
 
   .like-image {
@@ -25,11 +25,11 @@
   }
 
   .like-text {
-    color: index.$gray-900;
+    color: variables.$gray-900;
   }
 
   &.disabled {
-    background: index.$gray-200 !important;
+    background: variables.$gray-200 !important;
     cursor: not-allowed;
   }
 }

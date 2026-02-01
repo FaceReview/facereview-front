@@ -1,15 +1,15 @@
-@use "assets/css/index.scss";
+@use "styles/abstracts" as variables;
 
 .admin-page-container {
   padding-top: 158px;
   padding-bottom: 98px;
 
   .title {
-    color: index.$gray-900;
+    color: variables.$gray-900;
   }
 
   .subtitle {
-    color: index.$gray-400;
+    color: variables.$gray-400;
     margin-top: 12px;
     margin-bottom: 25px;
   }
@@ -40,19 +40,19 @@
       padding: 4px;
       margin-right: 8px;
       margin-bottom: 8px;
-      border: 1px solid index.$primary-basic;
+      border: 1px solid variables.$primary-basic;
       border-radius: 4px;
       transition: ease all 0.2s;
 
       &:hover {
-        color: index.$gray-50;
-        background-color: index.$primary-basic;
+        color: variables.$gray-50;
+        background-color: variables.$primary-basic;
         cursor: pointer;
       }
 
       &.active {
-        color: index.$gray-50;
-        background-color: index.$primary-basic;
+        color: variables.$gray-50;
+        background-color: variables.$primary-basic;
         cursor: pointer;
       }
     }

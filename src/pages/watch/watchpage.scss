@@ -1,16 +1,16 @@
-@use "assets/css/index.scss";
+@use "styles/abstracts" as variables;
 
 .watch-page-container {
   display: flex;
   padding-bottom: 98px;
 
-  @include index.mobile {
+  @include variables.mobile {
     flex-direction: column;
     margin-left: 16px;
     margin-right: 16px;
     padding-top: 92px;
   }
-  @include index.desktop {
+  @include variables.desktop {
     padding-top: 126px;
   }
 
@@ -20,9 +20,9 @@
 
     .video-container {
       position: relative;
-      @include index.mobile {
+      @include variables.mobile {
       }
-      @include index.desktop {
+      @include variables.desktop {
         margin-bottom: 20px;
       }
 
@@ -37,8 +37,8 @@
         height: 32px;
         padding-top: 4px;
         padding-bottom: 4px;
-        color: index.$gray-900;
-        background: index.$system-dim-black;
+        color: variables.$gray-900;
+        background: variables.$system-dim-black;
         opacity: 0;
         transition: all 0.2s;
         pointer-events: none;
@@ -49,23 +49,23 @@
       display: flex;
       justify-content: space-between;
 
-      @include index.mobile {
+      @include variables.mobile {
         padding: 20px 16px 20px 16px;
       }
-      @include index.desktop {
+      @include variables.desktop {
       }
 
       .title {
-        color: index.$gray-900;
+        color: variables.$gray-900;
         word-break: keep-all;
-        @include index.mobile {
+        @include variables.mobile {
           white-space: nowrap;
           overflow: hidden;
           max-width: calc(100vw - 112px);
           height: 24px;
           text-overflow: ellipsis;
         }
-        @include index.desktop {
+        @include variables.desktop {
           margin-bottom: 60px;
         }
       }
@@ -75,33 +75,33 @@
         justify-content: flex-end;
         align-items: center;
 
-        @include index.mobile {
+        @include variables.mobile {
           width: 80px;
           flex-direction: column;
         }
-        @include index.desktop {
+        @include variables.desktop {
           width: 180px;
           height: 32px;
           flex-wrap: wrap;
         }
 
         .video-hits-text {
-          color: index.$gray-700;
+          color: variables.$gray-700;
 
-          @include index.mobile {
+          @include variables.mobile {
             margin-top: 8px;
           }
-          @include index.desktop {
+          @include variables.desktop {
             margin-left: 16px;
           }
         }
       }
     }
 
-    @include index.mobile {
+    @include variables.mobile {
       .video-fixed-container {
         position: fixed;
-        background: index.$bg;
+        background: variables.$bg;
         width: 100vw;
         left: 0;
         top: 44px;
@@ -126,7 +126,7 @@
             display: flex;
 
             .emotion-title {
-              color: index.$gray-900;
+              color: variables.$gray-900;
               margin-right: 8px;
             }
           }
@@ -139,7 +139,7 @@
             .graph-tooltip-container {
               width: 80px;
               height: 50px;
-              background: index.$gray-700;
+              background: variables.$gray-700;
             }
           }
 
@@ -164,7 +164,7 @@
             display: flex;
 
             .others-emotion-title {
-              color: index.$gray-900;
+              color: variables.$gray-900;
               margin-right: 8px;
             }
           }
@@ -173,7 +173,7 @@
     }
 
     .comment-container {
-      @include index.mobile {
+      @include variables.mobile {
         padding-top: 24px;
         padding-bottom: 24px;
       }
@@ -188,7 +188,7 @@
       }
 
       .comment-info-text {
-        color: index.$gray-900;
+        color: variables.$gray-900;
         margin-bottom: 32px;
       }
 
@@ -207,11 +207,11 @@
               margin-bottom: 4px;
 
               .comment-modifying-nickname {
-                color: index.$gray-500;
+                color: variables.$gray-500;
                 margin-right: 4px;
               }
               .comment-modifying-time-text {
-                color: index.$gray-300;
+                color: variables.$gray-300;
               }
             }
 
@@ -220,19 +220,19 @@
               justify-content: flex-end;
 
               .comment-modifying-cancel {
-                color: index.$gray-500;
+                color: variables.$gray-500;
                 cursor: pointer;
                 &:hover {
-                  color: index.$gray-900;
+                  color: variables.$gray-900;
                 }
               }
 
               .comment-modifying-save {
-                color: index.$gray-500;
+                color: variables.$gray-500;
                 margin-left: 16px;
                 &:hover {
                   cursor: pointer;
-                  color: index.$gray-900;
+                  color: variables.$gray-900;
                 }
               }
             }
@@ -253,18 +253,18 @@
                 margin-bottom: 4px;
 
                 .comment-nickname {
-                  color: index.$gray-500;
+                  color: variables.$gray-500;
                   margin-right: 4px;
                 }
 
                 .comment-time-text {
-                  color: index.$gray-300;
+                  color: variables.$gray-300;
                 }
               }
             }
 
             .comment-text {
-              color: index.$gray-900;
+              color: variables.$gray-900;
               word-break: keep-all;
             }
 
@@ -279,7 +279,7 @@
                 margin-left: 12px;
                 position: absolute;
                 margin-left: 12px;
-                background: index.$gray-50;
+                background: variables.$gray-50;
                 border-radius: 8px;
                 z-index: 997;
 
@@ -291,7 +291,7 @@
                   position: relative;
                   height: 40px;
                   padding: 12px 16px 12px 16px;
-                  border-bottom: index.$gray-100 solid 1px;
+                  border-bottom: variables.$gray-100 solid 1px;
                   .comment-modify-dim {
                     display: none;
                     position: absolute;
@@ -332,7 +332,7 @@
         }
 
         .no-comments-text {
-          color: index.$gray-600;
+          color: variables.$gray-600;
         }
       }
     }
@@ -348,7 +348,7 @@
         display: flex;
 
         .emotion-title {
-          color: index.$gray-900;
+          color: variables.$gray-900;
           margin-right: 8px;
         }
       }
@@ -361,7 +361,7 @@
         .graph-tooltip-container {
           width: 80px;
           height: 50px;
-          background: index.$gray-700;
+          background: variables.$gray-700;
         }
       }
 
@@ -379,27 +379,27 @@
 
           &.active .emotion-text,
           &.active .emotion-percentage {
-            color: index.$primary-basic;
+            color: variables.$primary-basic;
           }
 
           .emotion-text {
-            color: index.$gray-800;
+            color: variables.$gray-800;
             margin: 6px 0 6px 0;
           }
 
           .emotion-percentage {
-            color: index.$gray-800;
+            color: variables.$gray-800;
           }
         }
       }
     }
 
     .recommend-container {
-      @include index.mobile {
+      @include variables.mobile {
         width: 100%;
       }
       .recommend-title {
-        color: index.$gray-900;
+        color: variables.$gray-900;
         margin-bottom: 32px;
       }
 
@@ -411,6 +411,6 @@
 
 .custom-tooltip {
   .custom-tooltip-text {
-    color: index.$gray-900;
+    color: variables.$gray-900;
   }
 }

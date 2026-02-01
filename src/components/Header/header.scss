@@ -1,16 +1,16 @@
-@use "assets/css/index.scss";
+@use "styles/abstracts" as variables;
 
 .header-background {
-  background: index.$bg;
+  background: variables.$bg;
   position: fixed;
   top: 0;
   width: 100vw;
   z-index: 998;
 
-  @include index.mobile {
+  @include variables.mobile {
     height: 48px;
   }
-  @include index.desktop {
+  @include variables.desktop {
     height: 92px;
     margin-left: calc(600px - 50vw);
     padding-left: calc(50vw - 600px);
@@ -19,7 +19,7 @@
 
 .header {
   display: flex;
-  background: index.$bg;
+  background: variables.$bg;
   width: 1200px;
   justify-content: space-between;
   align-items: center;
@@ -28,7 +28,7 @@
   top: 0;
   z-index: 998;
 
-  @include index.mobile {
+  @include variables.mobile {
     width: 100%;
     height: 48px;
     padding: 8px 16px 8px 16px;
@@ -39,7 +39,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: index.$gray-500;
+    color: variables.$gray-500;
     height: 32px;
   }
 

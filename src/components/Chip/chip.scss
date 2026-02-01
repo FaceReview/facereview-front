@@ -1,10 +1,10 @@
-@use "assets/css/index.scss";
+@use "styles/abstracts" as variables;
 
 .chip {
   position: relative;
 
-  color: index.$gray-900;
-  background: index.$gray-50;
+  color: variables.$gray-900;
+  background: variables.$gray-50;
   border-radius: 8px;
   cursor: pointer;
   overflow: hidden;
@@ -24,69 +24,69 @@
     transform: scale(1.2);
 
     &.all {
-      color: index.$gray-50;
-      background: index.$gray-900;
+      color: variables.$gray-50;
+      background: variables.$gray-900;
     }
 
     &.happy {
-      background: index.$category-joyful-tinted;
-      color: index.$gray-900;
+      background: variables.$category-joyful-tinted;
+      color: variables.$gray-900;
     }
 
     &.surprise {
-      background: index.$category-surprised-tinted;
-      color: index.$gray-900;
+      background: variables.$category-surprised-tinted;
+      color: variables.$gray-900;
     }
 
     &.sad {
-      background: index.$category-sad-tinted;
-      color: index.$gray-900;
+      background: variables.$category-sad-tinted;
+      color: variables.$gray-900;
     }
 
     &.angry {
-      background: index.$category-angry-tinted;
-      color: index.$gray-900;
+      background: variables.$category-angry-tinted;
+      color: variables.$gray-900;
     }
 
     &.plus {
-      background: index.$gray-100;
+      background: variables.$gray-100;
     }
   }
 
   &.selected {
     &.all {
-      color: index.$gray-50;
-      background: index.$gray-900;
+      color: variables.$gray-50;
+      background: variables.$gray-900;
     }
 
     &.happy {
-      background: index.$category-joyful-basic;
-      color: index.$gray-900;
+      background: variables.$category-joyful-basic;
+      color: variables.$gray-900;
     }
 
     &.surprise {
-      background: index.$category-surprised-basic;
-      color: index.$gray-900;
+      background: variables.$category-surprised-basic;
+      color: variables.$gray-900;
     }
 
     &.sad {
-      background: index.$category-sad-basic;
-      color: index.$gray-900;
+      background: variables.$category-sad-basic;
+      color: variables.$gray-900;
     }
 
     &.angry {
-      background: index.$category-angry-basic;
-      color: index.$gray-900;
+      background: variables.$category-angry-basic;
+      color: variables.$gray-900;
     }
   }
 }
 
 .plus-icon {
-  @include index.desktop {
+  @include variables.desktop {
     width: 20px;
     height: 20px;
   }
-  @include index.mobile {
+  @include variables.mobile {
     width: 15px;
     height: 15px;
   }

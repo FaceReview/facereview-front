@@ -1,38 +1,38 @@
-@use "assets/css/index.scss";
+@use "styles/abstracts" as variables;
 
 .main-page-container {
   padding-bottom: 98px;
 
-  @include index.mobile {
+  @include variables.mobile {
     padding-top: 76px;
     padding-left: 16px;
   }
-  @include index.desktop {
+  @include variables.desktop {
     padding-top: 158px;
   }
 
   .title {
-    color: index.$gray-900;
+    color: variables.$gray-900;
   }
 
   .subtitle {
-    color: index.$gray-400;
+    color: variables.$gray-400;
     margin-top: 12px;
 
-    @include index.mobile {
+    @include variables.mobile {
       margin-bottom: 40px;
     }
-    @include index.desktop {
+    @include variables.desktop {
       margin-bottom: 48px;
     }
   }
 
   .personal-recommend-contents-container {
-    @include index.mobile {
+    @include variables.mobile {
       width: 100%;
       margin-bottom: 100px;
     }
-    @include index.desktop {
+    @include variables.desktop {
       width: calc(50vw + 600px);
       margin-bottom: 100px;
     }
@@ -43,9 +43,9 @@
       overflow-x: auto;
       overflow-y: hidden;
 
-      @include index.mobile {
+      @include variables.mobile {
       }
-      @include index.desktop {
+      @include variables.desktop {
         height: 282px;
       }
     }
@@ -56,9 +56,9 @@
       padding-left: 20px;
       padding-bottom: 20px;
 
-      @include index.mobile {
+      @include variables.mobile {
       }
-      @include index.desktop {
+      @include variables.desktop {
         padding-right: calc(50vw - 660px);
         padding-top: 16px;
       }
@@ -72,11 +72,11 @@
   }
 
   .genre-contents-container {
-    @include index.mobile {
+    @include variables.mobile {
       width: 100%;
       margin-bottom: 100px;
     }
-    @include index.desktop {
+    @include variables.desktop {
       width: calc(50vw + 600px);
       margin-bottom: 100px;
     }
@@ -87,9 +87,9 @@
       overflow-x: auto;
       overflow-y: hidden;
 
-      @include index.mobile {
+      @include variables.mobile {
       }
-      @include index.desktop {
+      @include variables.desktop {
         height: 282px;
       }
     }
@@ -100,9 +100,9 @@
       padding-left: 20px;
       padding-bottom: 20px;
 
-      @include index.mobile {
+      @include variables.mobile {
       }
-      @include index.desktop {
+      @include variables.desktop {
         padding-right: calc(50vw - 660px);
         padding-top: 16px;
       }
@@ -133,11 +133,11 @@
           white-space: nowrap;
           padding-left: 20px;
 
-          @include index.mobile {
+          @include variables.mobile {
             padding-top: 24px;
             padding-bottom: 32px;
           }
-          @include index.desktop {
+          @include variables.desktop {
             padding-top: 16px;
             padding-bottom: 56px;
           }
@@ -151,7 +151,7 @@
       }
 
       .video-wrapper {
-        @include index.desktop {
+        @include variables.desktop {
           width: 1300px;
         }
         display: flex;

@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import { HelmetProvider } from 'react-helmet-async';
-import 'assets/css/index.scss';
+import 'styles/main.scss';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
