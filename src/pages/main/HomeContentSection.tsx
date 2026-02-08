@@ -291,7 +291,7 @@ const HomeContentSection = (): ReactElement => {
                           }
                         : { marginRight: '28px' }
                     }
-                    hoverToPlay={true}
+                    hoverToPlay={false}
                   />
                 ))}
               </div>

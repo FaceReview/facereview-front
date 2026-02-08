@@ -261,7 +261,7 @@ const MyPage = () => {
                           ? { paddingTop: '14px', paddingBottom: '14px' }
                           : { marginRight: '60px' }
                       }
-                      hoverToPlay={true}
+                      hoverToPlay={false}
                     />
                     <div className="video-graph-container">
                       <ResponsiveLine
