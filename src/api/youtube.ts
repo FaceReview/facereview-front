@@ -12,12 +12,14 @@ import api, { youtubeApi } from './index';
 export const getVideoList = async (category: string) => {
   try {
     const url = `/v2/home/category`;
-    const { data } = await api.get<{
-      category_name: string;
-      videos: VideoDataType[];
-    }>(url, { params: { category_name: category } });
+    const { data } = await api.get<
+      {
+        category_name: string;
+        videos: VideoDataType[];
+      }[]
+    >(url, { params: { category_name: category } });
 
-    return data?.videos || [];
+    return data || [];
   } catch (error) {
     console.error(error);
     throw error;

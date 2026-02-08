@@ -82,11 +82,13 @@ const MainPage = (): ReactElement => {
   const currentCategory = CATEGORIES[genreCurrentIndex];
 
   // Fetch current category data
-  const { data: currentGenreVideos = [] } = useQuery({
+  const { data: categoryList = [] } = useQuery({
     queryKey: ['videos', currentCategory],
     queryFn: () => getVideoList(currentCategory),
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
+
+  const currentGenreVideos = categoryList[0]?.videos || [];
 
   // Pre-fetch next genre
   useEffect(() => {
