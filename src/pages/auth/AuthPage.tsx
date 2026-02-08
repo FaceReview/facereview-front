@@ -254,10 +254,10 @@ const AuthPage = () => {
                 ref={emailInputRef}
                 id="authEmail"
                 value={email}
-                onChange={handleEmailChange}
+                onChange={(e) => handleEmailChange(e.target.value)}
                 placeholder="ex) haha@facereview.com"
                 autoFocus={true}
-                isDisabled={currentStep > 1}
+                disabled={currentStep > 1}
               />
               <p className="input-alert-message font-body-large">
                 {emailAlertMessage}
@@ -277,7 +277,7 @@ const AuthPage = () => {
                 id="authPassword"
                 type="password"
                 value={password}
-                onChange={handlePasswordChange}
+                onChange={(e) => handlePasswordChange(e.target.value)}
                 placeholder="최소 8자의 비밀번호를 입력해주세요"
                 maxLength={60}
               />
@@ -297,7 +297,7 @@ const AuthPage = () => {
                 id="authPasswordConfirm"
                 type="password"
                 value={confirmPassword}
-                onChange={handleConfirmPasswordChange}
+                onChange={(e) => handleConfirmPasswordChange(e.target.value)}
                 placeholder="비밀번호를 다시 한 번 입력해주세요"
                 maxLength={60}
               />
@@ -318,7 +318,7 @@ const AuthPage = () => {
                   ref={nicknameInputRef}
                   id="authNickname"
                   value={nickname}
-                  onChange={handleNicknameChange}
+                  onChange={(e) => handleNicknameChange(e.target.value)}
                   placeholder="최소 2자의 닉네임을 입력해주세요"
                   maxLength={60}
                 />

@@ -796,9 +796,9 @@ const WatchPage = (): ReactElement => {
                 style={{ marginRight: '12px' }}
               />
               <TextInput
-                inputType="underline"
+                variant="underline"
                 value={comment}
-                onChange={setComment}
+                onChange={(e) => setComment(e.target.value)}
                 placeholder={'영상에 대한 의견을 남겨보아요'}
               />
               <UploadButton
@@ -838,9 +838,9 @@ const WatchPage = (): ReactElement => {
                         </div>
                       </div>
                       <TextInput
-                        inputType="underline"
+                        variant="underline"
                         value={modifyingComment}
-                        onChange={setModifyingComment}
+                        onChange={(e) => setModifyingComment(e.target.value)}
                         placeholder={''}
                         style={{ marginBottom: '16px' }}
                       />

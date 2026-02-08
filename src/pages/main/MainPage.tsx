@@ -296,9 +296,9 @@ const MainPage = (): ReactElement => {
           style={{ width: '100%', maxWidth: '480px', position: 'relative' }}>
           <TextInput
             value={keyword}
-            onChange={setKeyword}
+            onChange={(e) => setKeyword(e.target.value)}
             placeholder="찾고 싶은 영상을 검색해보세요"
-            inputType="default"
+            variant="default"
             style={{
               width: '100%',
               borderRadius: '100px',
@@ -623,8 +623,8 @@ const MainPage = (): ReactElement => {
                   <div className="main-page-modal-input-wrapper">
                     <TextInput
                       value={registerInput}
-                      inputType="underline"
-                      onChange={setRegisterInput}
+                      variant="underline"
+                      onChange={(e) => setRegisterInput(e.target.value)}
                       placeholder={
                         'ex) https://www.youtube.com/watch?v=3rfONMofiho'
                       }

@@ -184,7 +184,7 @@ const EditPage = () => {
               <TextInput
                 id={'editNickName'}
                 value={nickName}
-                onChange={setNickName}
+                onChange={(e) => setNickName(e.target.value)}
                 placeholder={'하하호호'}
                 style={
                   isMobile
