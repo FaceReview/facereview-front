@@ -1,18 +1,16 @@
-import { useState } from 'react';
-import { toast } from 'react-toastify';
 import AnimatedLogo from 'components/AnimatedLogo/AnimatedLogo';
 import Button from 'components/Button/Button';
 import StepIndicator from 'components/StepIndicator/StepIndicator';
 import TextInput from 'components/TextInput/TextInput';
-
-import './authpage.scss';
+import { useEffect, useRef, useState } from 'react';
+import { toast } from 'react-toastify';
 import { checkEmail, getUserName, signIn, signUp } from 'api/auth';
-import { Link, useNavigate, useParams } from 'react-router-dom';
-import { useAuthStorage } from 'store/authStore';
-import { CategoryType, UserInfoType } from 'types';
-import { AxiosResponse } from 'axios';
 import HeaderToken from 'api/HeaderToken';
 import CategoryList from 'components/CategoryList/CategoryList';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useAuthStorage } from 'store/authStore';
+import { CategoryType } from 'types';
+import './authpage.scss';
 
 const AlertMessages = {
   emailInvalid: '올바르지 않은 이메일 형식이에요',
@@ -40,6 +38,20 @@ const AuthPage = () => {
   const [nicknameAlertMessage, setNicknameAlertMessage] = useState('');
   const [isSignIn, setIsSignIn] = useState(true);
   const [isSingInSuccess, setIsSingInSuccess] = useState(false);
+
+  const emailInputRef = useRef<HTMLInputElement>(null);
+  const passwordInputRef = useRef<HTMLInputElement>(null);
+  const nicknameInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (currentStep === 1) {
+      setTimeout(() => emailInputRef.current?.focus(), 100);
+    } else if (currentStep === 2) {
+      setTimeout(() => passwordInputRef.current?.focus(), 100);
+    } else if (currentStep === 3) {
+      setTimeout(() => nicknameInputRef.current?.focus(), 100);
+    }
+  }, [currentStep]);
 
   const validateEmail = (email: string) => {
     return email.match(
@@ -239,6 +251,7 @@ const AuthPage = () => {
                 이메일 주소
               </label>
               <TextInput
+                ref={emailInputRef}
                 id="authEmail"
                 value={email}
                 onChange={handleEmailChange}
@@ -260,6 +273,7 @@ const AuthPage = () => {
                 비밀번호
               </label>
               <TextInput
+                ref={passwordInputRef}
                 id="authPassword"
                 type="password"
                 value={password}
@@ -301,6 +315,7 @@ const AuthPage = () => {
                   닉네임
                 </label>
                 <TextInput
+                  ref={nicknameInputRef}
                   id="authNickname"
                   value={nickname}
                   onChange={handleNicknameChange}
