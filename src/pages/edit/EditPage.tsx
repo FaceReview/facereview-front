@@ -210,7 +210,7 @@ const EditPage = () => {
               <label
                 htmlFor="editNickName font-title-mini"
                 style={{ marginBottom: '20px' }}>
-                관심사 (3개 선택)
+                관심사 (선택)
               </label>
               <div className="category-wrapper" style={{ marginTop: '20px' }}>
                 <CategoryList
@@ -230,7 +230,7 @@ const EditPage = () => {
               ? { width: window.innerWidth - 32, marginTop: '16px' }
               : { width: '380px', marginTop: '16px' }
           }
-          disabled={nickName.length < 2 || selectedCategories.length < 3}
+          disabled={nickName.length < 2}
           onClick={handleEditButtonClick}
         />
       </div>

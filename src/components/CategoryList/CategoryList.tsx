@@ -12,7 +12,7 @@ type CategoryListPropType = {
 const CategoryList = ({
   selected,
   onChange,
-  maxSelection = 3,
+  maxSelection,
 }: CategoryListPropType): ReactElement => {
   const categoryByName = CATEGORY_ITEMS.reduce(
     (acc, item) => {
@@ -30,10 +30,15 @@ const CategoryList = ({
       onChange(popedCategoryList);
       return;
     }
-    if (selected.length < maxSelection) {
-      const pushedCategoryList = [...selected, category];
-      onChange(pushedCategoryList);
+    if (maxSelection !== undefined) {
+      if (maxSelection === 1) {
+        onChange([category]);
+        return;
+      }
+      if (selected.length >= maxSelection) return;
     }
+    const pushedCategoryList = [...selected, category];
+    onChange(pushedCategoryList);
   };
 
   return (

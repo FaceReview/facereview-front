@@ -17,9 +17,7 @@ const AlertMessages = {
   passwordInvalid: '최소 8자의 비밀번호를 입력해주세요',
   confirmPasswordInvalid: '동일한 비밀번호를 입력해주세요',
   nicknameInvalid: '최소 2자의 닉네임을 입력해주세요',
-  categoryInvalid: '3개의 카테고리를 선택해주세요',
 };
-const MAX_CATEGORY_LENGTH = 3;
 const AuthPage = () => {
   const navigate = useNavigate();
   const { step } = useParams();
@@ -168,7 +166,7 @@ const AuthPage = () => {
         email: email,
         password: password,
         name: nickname,
-        favorite_genres: [categories[0], categories[1], categories[2]], // Casting to match required array
+        favorite_genres: categories,
       }).then((res) => {
         if (res.status === 201 || res.status === 200) {
           toast.success('가입되었어요', { toastId: 'signUp complete' });
@@ -215,9 +213,7 @@ const AuthPage = () => {
   };
 
   const getCategoryAlertMessage = () => {
-    if (categories.length === 0) return '';
-    if (categories.length === MAX_CATEGORY_LENGTH) return ' ';
-    return AlertMessages.categoryInvalid;
+    return ' ';
   };
   const categoryAlertMessage = getCategoryAlertMessage();
 
@@ -330,7 +326,7 @@ const AuthPage = () => {
                 <label
                   htmlFor="authNickname"
                   className="input-label font-title-mini">
-                  관심 카테고리(3개 선택)
+                  관심 카테고리 (선택)
                 </label>
                 <div className="category-wrapper">
                   <CategoryList
