@@ -80,13 +80,13 @@ const AuthPage = (): ReactElement => {
             {currentStep !== 3 ? (
               <Button
                 label={'건너뛰기'}
-                type={'cta-fixed-secondary'}
+                variant={'cta-fixed-secondary'}
                 onClick={handleSkipClick}
               />
             ) : null}
             <Button
               label={currentStep === 3 ? '완료' : '다음'}
-              type={currentStep === 3 ? 'cta-full' : 'cta-fixed'}
+              variant={currentStep === 3 ? 'cta-full' : 'cta-fixed'}
               onClick={handleContinueClick}
             />
           </div>

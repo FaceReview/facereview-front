@@ -48,7 +48,7 @@ const MainPage = (): ReactElement => {
   const handleSubmitClick = () => {
     // Find the request ID associated with the current URL
     const selectedRequest = draftRequestedVideoList.find(
-      (d) => d.youtube_url === currentSelectedUrl
+      (d) => d.youtube_url === currentSelectedUrl,
     );
 
     if (!selectedRequest) {
@@ -88,7 +88,7 @@ const MainPage = (): ReactElement => {
         if (!res.items || res.items.length === 0) return;
 
         const [hour, minute, second] = getTimeArrFromDuration(
-          res.items[0].contentDetails.duration
+          res.items[0].contentDetails.duration,
         );
         const temp = {
           video_url: res.items[0].id,
@@ -164,9 +164,9 @@ const MainPage = (): ReactElement => {
             </div>
             <Button
               label={'등록하기'}
-              type={'cta-full'}
+              variant={'cta-full'}
               onClick={handleSubmitClick}
-              isDisabled={
+              disabled={
                 !currentVideoData.video_url || !currentVideoCategoryList.length
               }
               style={{ marginTop: '24px' }}

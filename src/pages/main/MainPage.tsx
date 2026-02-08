@@ -659,7 +659,7 @@ const MainPage = (): ReactElement => {
                 </div>
                 <Button
                   label={''}
-                  type={'add'}
+                  variant={'add'}
                   style={{ position: 'absolute', bottom: '128px' }}
                   onClick={() => {
                     setRegisteredVideoIds((prevIds) => [
@@ -670,7 +670,7 @@ const MainPage = (): ReactElement => {
                     setRegisteringVideoId('');
                     setIsRegisterMatched(false);
                   }}
-                  isDisabled={!isRegisterMatched}
+                  disabled={!isRegisterMatched}
                 />
               </ModalDialog>
 

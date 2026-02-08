@@ -28,7 +28,7 @@ const ModalDialog = ({
         <div className={`modal-button-wrapper ${type} ${name}`}>
           <Button
             label={'확인'}
-            type={'cta-full'}
+            variant={'cta-full'}
             onClick={() => {
               onClose();
               if (onCheck) onCheck();
@@ -41,11 +41,11 @@ const ModalDialog = ({
         <div className={`modal-button-wrapper ${type} ${name}`}>
           <Button
             label={'취소'}
-            type={'cta-fixed-secondary'}
+            variant={'cta-fixed-secondary'}
             style={{ marginRight: '12px', background: '#5D5D6D' }}
             onClick={onClose}
           />
-          <Button label={'확인'} type={'cta-fixed'} onClick={onCheck} />
+          <Button label={'확인'} variant={'cta-fixed'} onClick={onCheck} />
         </div>
       );
     }

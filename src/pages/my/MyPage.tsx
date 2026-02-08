@@ -33,7 +33,7 @@ const MyPage = () => {
   const { setTempToken } = useAuthStorage();
 
   const [selectedEmotion, setSelectedEmotion] = useState<'all' | EmotionType>(
-    'all'
+    'all',
   );
   const [recentVideo, setRecentVideo] = useState<VideoWatchedType[]>([]);
   const [emotionTimeData, setEmotionTimeData] = useState<{
@@ -80,7 +80,7 @@ const MyPage = () => {
   ]);
 
   const filteredRecentVideos = recentVideo.filter(
-    (v) => selectedEmotion === 'all' || v.most_emotion === selectedEmotion
+    (v) => selectedEmotion === 'all' || v.most_emotion === selectedEmotion,
   );
 
   const handleChipClick = (emotion: 'all' | EmotionType) => {
@@ -161,7 +161,7 @@ const MyPage = () => {
               {!isMobile && (
                 <Button
                   label="로그아웃"
-                  type="small-outline"
+                  variant="small-outline"
                   onClick={handleLogoutClick}
                   style={{
                     marginBottom: '40px',

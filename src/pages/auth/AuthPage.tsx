@@ -225,7 +225,12 @@ const AuthPage = () => {
           </Link>
         </div>
 
-        <div className="input-container">
+        <form
+          className="input-container"
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSubmitButtonClick();
+          }}>
           {currentStep !== 3 ? (
             <div className="input-item-container">
               <label
@@ -327,13 +332,13 @@ const AuthPage = () => {
           {isConfirmButtonVisible() ? (
             <Button
               label={getConfirmButtonLabel()}
-              type="cta-full"
+              variant="cta-full"
+              type="submit"
               style={{ marginTop: '48px' }}
-              onClick={handleSubmitButtonClick}
-              isDisabled={!isConfirmButtonVisible()}
+              disabled={!isConfirmButtonVisible()}
             />
           ) : null}
-        </div>
+        </form>
       </div>
     </>
   );
