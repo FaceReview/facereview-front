@@ -24,7 +24,18 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ label, variant, className, style, disabled, ...restProps }, ref) => {
+  (
+    {
+      label,
+      variant,
+      className,
+      style,
+      disabled,
+      type = 'button',
+      ...restProps
+    },
+    ref,
+  ) => {
     const fontOfType: Record<ButtonVariant, string> = {
       'cta-full': 'font-label-large',
       'cta-fit': 'font-label-large',
@@ -48,6 +59,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <button
         ref={ref}
+        type={type}
         disabled={disabled}
         className={`button ${variant} ${fontOfType[variant]} ${
           disabled ? 'disabled' : ''
