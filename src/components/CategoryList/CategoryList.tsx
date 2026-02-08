@@ -41,6 +41,7 @@ const CategoryList = ({
       {categories.map((category) => (
         <button
           key={category}
+          type="button"
           className={`category-item ${
             selected.includes(category) ? 'selected' : null
           }`}

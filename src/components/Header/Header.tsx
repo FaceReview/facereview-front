@@ -45,6 +45,7 @@ const Header = ({ isMyPage }: HeaderPropsType): ReactElement => {
             </div>
           ) : (
             <button
+              type="button"
               className="header-profile-icon-button"
               onClick={() => {
                 // The original code had navigate("/my");
