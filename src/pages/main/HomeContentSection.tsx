@@ -1,27 +1,27 @@
-import { ReactElement, useEffect, useRef, useState, useCallback } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useAuthStorage } from 'store/authStore';
-import VideoItem from 'components/VideoItem/VideoItem';
-import { v4 as uuidv4 } from 'uuid';
+import { useQuery } from '@tanstack/react-query';
 import {
   getAllVideo,
-  getVideoList,
   getPersonalRecommendedVideo,
+  getVideoList,
 } from 'api/youtube';
+import VideoItem from 'components/VideoItem/VideoItem';
+import { ReactElement, useCallback, useEffect, useRef, useState } from 'react';
+import { useAuthStorage } from 'store/authStore';
 import { EmotionType, VideoDataType } from 'types';
+import { v4 as uuidv4 } from 'uuid';
 
-import Chip from 'components/Chip/Chip';
-import ModalDialog from 'components/ModalDialog/ModalDialog';
-import TextInput from 'components/TextInput/TextInput';
-import { useLocation } from 'react-router-dom';
+import { updateRequestVideoList } from 'api/request';
 import youtubeIcon from 'assets/img/youtubeIcon.png';
 import Button from 'components/Button/Button';
-import SomeIcon from 'components/SomeIcon/SomeIcon';
-import { updateRequestVideoList } from 'api/request';
-import useMediaQuery from 'utils/useMediaQuery';
-import useIntersectionObserver from 'utils/useIntersectionObserver';
-import { CATEGORIES, CATEGORY_ITEMS } from 'constants/index';
+import Chip from 'components/Chip/Chip';
+import ModalDialog from 'components/ModalDialog/ModalDialog';
 import VideoCardSkeleton from 'components/Skeleton/VideoCardSkeleton';
+import SomeIcon from 'components/SomeIcon/SomeIcon';
+import TextInput from 'components/TextInput/TextInput';
+import { CATEGORIES, CATEGORY_ITEMS } from 'constants/index';
+import { useLocation } from 'react-router-dom';
+import useIntersectionObserver from 'utils/useIntersectionObserver';
+import useMediaQuery from 'utils/useMediaQuery';
 
 const HomeContentSection = (): ReactElement => {
   const isMobile = useMediaQuery('(max-width: 1200px)');
@@ -45,31 +45,19 @@ const HomeContentSection = (): ReactElement => {
   const [personalRecommendedVideo, serPersonalRecommendedVideo] = useState<
     VideoDataType[]
   >([]);
-
-  // React Query Integration
-  const queryClient = useQueryClient();
-  const [genreCurrentIndex, setGenreCurrentIndex] = useState<number>(0);
-  const currentCategory = CATEGORIES[genreCurrentIndex];
-
-  // Fetch current category data
-  const { data: categoryList = [] } = useQuery({
-    queryKey: ['videos', currentCategory],
-    queryFn: () => getVideoList(currentCategory),
+  // Fetch ALL category data
+  const { data: allCategoryList = [] } = useQuery({
+    queryKey: ['videos', 'all'],
+    queryFn: () => getVideoList(),
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
-  const currentGenreVideos = categoryList[0]?.videos || [];
+  const [genreCurrentIndex, setGenreCurrentIndex] = useState<number>(0);
 
-  // Pre-fetch next genre
-  useEffect(() => {
-    const nextIndex = (genreCurrentIndex + 1) % CATEGORIES.length;
-    const nextCategory = CATEGORIES[nextIndex];
-    queryClient.prefetchQuery({
-      queryKey: ['videos', nextCategory],
-      queryFn: () => getVideoList(nextCategory),
-      staleTime: 1000 * 60 * 5,
-    });
-  }, [genreCurrentIndex, queryClient]);
+  const currentGenreVideos =
+    allCategoryList.find(
+      (category) => category.category_name === CATEGORIES[genreCurrentIndex],
+    )?.videos || [];
 
   const [genreChangeTerm, setGenreChangeTerm] = useState<number | null>(6000);
   const [genreChangeOpacity, setGenreChangeOpacity] = useState<number>(1);

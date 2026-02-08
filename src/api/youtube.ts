@@ -9,15 +9,16 @@ import {
 } from 'types';
 import api, { youtubeApi } from './index';
 
-export const getVideoList = async (category: string) => {
+export const getVideoList = async (category?: string) => {
   try {
     const url = `/v2/home/category`;
+    const params = category ? { category_name: category } : {};
     const { data } = await api.get<
       {
         category_name: string;
         videos: VideoDataType[];
       }[]
-    >(url, { params: { category_name: category } });
+    >(url, { params });
 
     return data || [];
   } catch (error) {
