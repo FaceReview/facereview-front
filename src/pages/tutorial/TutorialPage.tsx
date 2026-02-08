@@ -1,14 +1,14 @@
-import { ReactElement } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import './tutorialpage.scss';
-import StepIndicator from 'components/StepIndicator/StepIndicator';
-import Button from 'components/Button/Button';
-import { toast } from 'react-toastify';
 import { tutorialComplete } from 'api/auth';
 import tutorial1 from 'assets/img/tutorial1.gif';
 import tutorial2 from 'assets/img/tutorial2.gif';
 import tutorial3 from 'assets/img/tutorial3.gif';
+import Button from 'components/Button/Button';
+import StepIndicator from 'components/StepIndicator/StepIndicator';
+import { ReactElement, useEffect, useRef } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import useMediaQuery from 'utils/useMediaQuery';
+import './tutorialpage.scss';
 
 const TUTORIAL_TEXT = [
   '',
@@ -24,6 +24,13 @@ const AuthPage = (): ReactElement => {
   const navigate = useNavigate();
 
   const currentStep = +(step || 1);
+  const nextButtonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    setTimeout(() => {
+      nextButtonRef.current?.focus();
+    }, 100);
+  }, [currentStep]);
 
   const handleSkipClick = async () => {
     tutorialComplete()
@@ -85,6 +92,7 @@ const AuthPage = (): ReactElement => {
               />
             ) : null}
             <Button
+              ref={nextButtonRef}
               label={currentStep === 3 ? '완료' : '다음'}
               variant={currentStep === 3 ? 'cta-full' : 'cta-fixed'}
               onClick={handleContinueClick}
