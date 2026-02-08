@@ -26,16 +26,16 @@ const EditPage = () => {
   const navigate = useNavigate();
   const [nickName, setNickName] = useState(user_name);
   const [selectedCategories, setSelectedCategories] = useState<CategoryType[]>(
-    user_favorite_genres as CategoryType[]
+    user_favorite_genres as CategoryType[],
   );
   const [profileColor, setProfileColor] = useState<EmotionType>(
-    mapNumberToEmotion(user_profile)
+    mapNumberToEmotion(user_profile),
   );
   const [selectedColor, setSelectedColor] = useState<EmotionType>(
-    mapNumberToEmotion(user_profile)
+    mapNumberToEmotion(user_profile),
   );
   const [localProfileColor, setLocalProfileColor] = useState<EmotionType>(
-    mapNumberToEmotion(user_profile)
+    mapNumberToEmotion(user_profile),
   );
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -184,7 +184,7 @@ const EditPage = () => {
               <TextInput
                 id={'editNickName'}
                 value={nickName}
-                onChange={setNickName}
+                onChange={(e) => setNickName(e.target.value)}
                 placeholder={'하하호호'}
                 style={
                   isMobile
@@ -210,7 +210,7 @@ const EditPage = () => {
               <label
                 htmlFor="editNickName font-title-mini"
                 style={{ marginBottom: '20px' }}>
-                관심사 (3개 선택)
+                관심사 (선택)
               </label>
               <div className="category-wrapper" style={{ marginTop: '20px' }}>
                 <CategoryList
@@ -224,13 +224,13 @@ const EditPage = () => {
 
         <Button
           label="수정"
-          type="cta-full"
+          variant="cta-full"
           style={
             isMobile
               ? { width: window.innerWidth - 32, marginTop: '16px' }
               : { width: '380px', marginTop: '16px' }
           }
-          isDisabled={nickName.length < 2 || selectedCategories.length < 3}
+          disabled={nickName.length < 2}
           onClick={handleEditButtonClick}
         />
       </div>

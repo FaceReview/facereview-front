@@ -1,65 +1,78 @@
-import React, { ReactElement } from "react";
-import "./button.scss";
-import plusIcon from "assets/img/plusIcon.png";
+import plusIcon from 'assets/img/plusIcon.png';
+import { ButtonHTMLAttributes, forwardRef } from 'react';
+import './button.scss';
 
-type ButtonPropsType = {
+type ButtonVariant =
+  | 'cta-full'
+  | 'cta-fit'
+  | 'cta-fit-secondary'
+  | 'small'
+  | 'small-outline'
+  | 'extra-small'
+  | 'with-keyboard'
+  | 'cta-fixed'
+  | 'cta-fixed-secondary'
+  | 'add';
+
+interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   label: string;
-  type:
-    | "cta-full"
-    | "cta-fit"
-    | "cta-fit-secondary"
-    | "small"
-    | "small-outline"
-    | "extra-small"
-    | "with-keyboard"
-    | "cta-fixed"
-    | "cta-fixed-secondary"
-    | "add";
+  variant: ButtonVariant;
+  className?: string;
   style?: React.CSSProperties;
-  isDisabled?: boolean;
-  onClick?: () => void;
-};
+  disabled?: boolean;
+  restProps?: ButtonHTMLAttributes<HTMLButtonElement>;
+}
 
-const Button = ({
-  label,
-  type,
-  style,
-  isDisabled,
-  onClick,
-}: ButtonPropsType): ReactElement => {
-  const fontOfType = {
-    "cta-full": "font-label-large",
-    "cta-fit": "font-label-large",
-    "cta-fit-secondary": "font-label-large",
-    small: "font-label-medium",
-    "small-outline": "font-label-medium",
-    "extra-small": "font-label-small",
-    "with-keyboard": "font-label-large",
-    "cta-fixed": "font-label-large",
-    "cta-fixed-secondary": "font-label-large",
-    add: "",
-  };
+const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+  (
+    {
+      label,
+      variant,
+      className,
+      style,
+      disabled,
+      type = 'button',
+      ...restProps
+    },
+    ref,
+  ) => {
+    const fontOfType: Record<ButtonVariant, string> = {
+      'cta-full': 'font-label-large',
+      'cta-fit': 'font-label-large',
+      'cta-fit-secondary': 'font-label-large',
+      small: 'font-label-medium',
+      'small-outline': 'font-label-medium',
+      'extra-small': 'font-label-small',
+      'with-keyboard': 'font-label-large',
+      'cta-fixed': 'font-label-large',
+      'cta-fixed-secondary': 'font-label-large',
+      add: '',
+    };
 
-  const renderContent = () => {
-    if (type === "add") {
-      return <img className="button-add-img" src={plusIcon} alt="Add" />;
-    }
-    return label;
-  };
+    const renderContent = () => {
+      if (variant === 'add') {
+        return <img className="button-add-img" src={plusIcon} alt="Add" />;
+      }
+      return label;
+    };
 
-  return (
-    <button
-      className={`button ${type} ${fontOfType[type]} ${
-        isDisabled ? "disabled" : null
-      }`}
-      style={style}
-      onClick={isDisabled ? () => {} : onClick}
-    >
-      <div className="dim"></div>
+    return (
+      <button
+        ref={ref}
+        type={type}
+        disabled={disabled}
+        className={`button ${variant} ${fontOfType[variant]} ${
+          disabled ? 'disabled' : ''
+        } ${className || ''}`}
+        style={style}
+        {...restProps}>
+        <div className="dim"></div>
+        {renderContent()}
+      </button>
+    );
+  },
+);
 
-      {renderContent()}
-    </button>
-  );
-};
+Button.displayName = 'Button';
 
 export default Button;

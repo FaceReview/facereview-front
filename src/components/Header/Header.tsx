@@ -45,6 +45,7 @@ const Header = ({ isMyPage }: HeaderPropsType): ReactElement => {
             </div>
           ) : (
             <button
+              type="button"
               className="header-profile-icon-button"
               onClick={() => {
                 // The original code had navigate("/my");
@@ -65,7 +66,7 @@ const Header = ({ isMyPage }: HeaderPropsType): ReactElement => {
         ) : (
           <Button
             label="로그인"
-            type={isMobile ? 'extra-small' : 'small'}
+            variant={isMobile ? 'extra-small' : 'small'}
             onClick={() => navigate('/auth/1')}></Button>
         )}
       </div>

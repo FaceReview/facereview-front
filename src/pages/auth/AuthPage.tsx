@@ -1,27 +1,23 @@
-import { useState } from 'react';
-import { toast } from 'react-toastify';
 import AnimatedLogo from 'components/AnimatedLogo/AnimatedLogo';
 import Button from 'components/Button/Button';
 import StepIndicator from 'components/StepIndicator/StepIndicator';
 import TextInput from 'components/TextInput/TextInput';
-
-import './authpage.scss';
+import { useEffect, useRef, useState } from 'react';
+import { toast } from 'react-toastify';
 import { checkEmail, getUserName, signIn, signUp } from 'api/auth';
-import { Link, useNavigate, useParams } from 'react-router-dom';
-import { useAuthStorage } from 'store/authStore';
-import { CategoryType, UserInfoType } from 'types';
-import { AxiosResponse } from 'axios';
 import HeaderToken from 'api/HeaderToken';
 import CategoryList from 'components/CategoryList/CategoryList';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useAuthStorage } from 'store/authStore';
+import { CategoryType } from 'types';
+import './authpage.scss';
 
 const AlertMessages = {
   emailInvalid: '올바르지 않은 이메일 형식이에요',
   passwordInvalid: '최소 8자의 비밀번호를 입력해주세요',
   confirmPasswordInvalid: '동일한 비밀번호를 입력해주세요',
   nicknameInvalid: '최소 2자의 닉네임을 입력해주세요',
-  categoryInvalid: '3개의 카테고리를 선택해주세요',
 };
-const MAX_CATEGORY_LENGTH = 3;
 const AuthPage = () => {
   const navigate = useNavigate();
   const { step } = useParams();
@@ -40,6 +36,20 @@ const AuthPage = () => {
   const [nicknameAlertMessage, setNicknameAlertMessage] = useState('');
   const [isSignIn, setIsSignIn] = useState(true);
   const [isSingInSuccess, setIsSingInSuccess] = useState(false);
+
+  const emailInputRef = useRef<HTMLInputElement>(null);
+  const passwordInputRef = useRef<HTMLInputElement>(null);
+  const nicknameInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (currentStep === 1) {
+      setTimeout(() => emailInputRef.current?.focus(), 100);
+    } else if (currentStep === 2) {
+      setTimeout(() => passwordInputRef.current?.focus(), 100);
+    } else if (currentStep === 3) {
+      setTimeout(() => nicknameInputRef.current?.focus(), 100);
+    }
+  }, [currentStep]);
 
   const validateEmail = (email: string) => {
     return email.match(
@@ -156,7 +166,7 @@ const AuthPage = () => {
         email: email,
         password: password,
         name: nickname,
-        favorite_genres: [categories[0], categories[1], categories[2]], // Casting to match required array
+        favorite_genres: categories,
       }).then((res) => {
         if (res.status === 201 || res.status === 200) {
           toast.success('가입되었어요', { toastId: 'signUp complete' });
@@ -203,9 +213,7 @@ const AuthPage = () => {
   };
 
   const getCategoryAlertMessage = () => {
-    if (categories.length === 0) return '';
-    if (categories.length === MAX_CATEGORY_LENGTH) return ' ';
-    return AlertMessages.categoryInvalid;
+    return ' ';
   };
   const categoryAlertMessage = getCategoryAlertMessage();
 
@@ -225,7 +233,12 @@ const AuthPage = () => {
           </Link>
         </div>
 
-        <div className="input-container">
+        <form
+          className="input-container"
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSubmitButtonClick();
+          }}>
           {currentStep !== 3 ? (
             <div className="input-item-container">
               <label
@@ -234,12 +247,13 @@ const AuthPage = () => {
                 이메일 주소
               </label>
               <TextInput
+                ref={emailInputRef}
                 id="authEmail"
                 value={email}
-                onChange={handleEmailChange}
+                onChange={(e) => handleEmailChange(e.target.value)}
                 placeholder="ex) haha@facereview.com"
                 autoFocus={true}
-                isDisabled={currentStep > 1}
+                disabled={currentStep > 1}
               />
               <p className="input-alert-message font-body-large">
                 {emailAlertMessage}
@@ -255,10 +269,11 @@ const AuthPage = () => {
                 비밀번호
               </label>
               <TextInput
+                ref={passwordInputRef}
                 id="authPassword"
                 type="password"
                 value={password}
-                onChange={handlePasswordChange}
+                onChange={(e) => handlePasswordChange(e.target.value)}
                 placeholder="최소 8자의 비밀번호를 입력해주세요"
                 maxLength={60}
               />
@@ -278,7 +293,7 @@ const AuthPage = () => {
                 id="authPasswordConfirm"
                 type="password"
                 value={confirmPassword}
-                onChange={handleConfirmPasswordChange}
+                onChange={(e) => handleConfirmPasswordChange(e.target.value)}
                 placeholder="비밀번호를 다시 한 번 입력해주세요"
                 maxLength={60}
               />
@@ -296,9 +311,10 @@ const AuthPage = () => {
                   닉네임
                 </label>
                 <TextInput
+                  ref={nicknameInputRef}
                   id="authNickname"
                   value={nickname}
-                  onChange={handleNicknameChange}
+                  onChange={(e) => handleNicknameChange(e.target.value)}
                   placeholder="최소 2자의 닉네임을 입력해주세요"
                   maxLength={60}
                 />
@@ -310,7 +326,7 @@ const AuthPage = () => {
                 <label
                   htmlFor="authNickname"
                   className="input-label font-title-mini">
-                  관심 카테고리(3개 선택)
+                  관심 카테고리 (선택)
                 </label>
                 <div className="category-wrapper">
                   <CategoryList
@@ -327,13 +343,13 @@ const AuthPage = () => {
           {isConfirmButtonVisible() ? (
             <Button
               label={getConfirmButtonLabel()}
-              type="cta-full"
+              variant="cta-full"
+              type="submit"
               style={{ marginTop: '48px' }}
-              onClick={handleSubmitButtonClick}
-              isDisabled={!isConfirmButtonVisible()}
+              disabled={!isConfirmButtonVisible()}
             />
           ) : null}
-        </div>
+        </form>
       </div>
     </>
   );

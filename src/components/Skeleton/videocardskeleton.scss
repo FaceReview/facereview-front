@@ -1,0 +1,143 @@
+@use 'styles/abstracts' as ab;
+
+.skeleton {
+  background-color: #eee;
+  background: linear-gradient(110deg, #ececec 8%, #f5f5f5 18%, #ececec 33%);
+  border-radius: 5px;
+  background-size: 200% 100%;
+  animation: 1.5s shine linear infinite;
+}
+
+@keyframes shine {
+  to {
+    background-position-x: -200%;
+  }
+}
+
+.video-card-skeleton {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+
+  .thumbnail-skeleton {
+    width: 100%;
+    border-radius: 12px;
+    background-color: ab.$gray-80; // Dark theme placeholder
+    overflow: hidden;
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      transform: translateX(-100%);
+      background-image: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0) 0,
+        rgba(255, 255, 255, 0.05) 20%,
+        rgba(255, 255, 255, 0.1) 60%,
+        rgba(255, 255, 255, 0)
+      );
+      animation: shimmer 2s infinite;
+    }
+  }
+
+  .info-skeleton {
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    .title-skeleton {
+      height: 20px;
+      width: 90%;
+      border-radius: 4px;
+      background-color: ab.$gray-80;
+      position: relative;
+      overflow: hidden;
+      &::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        transform: translateX(-100%);
+        background-image: linear-gradient(
+          90deg,
+          rgba(255, 255, 255, 0) 0,
+          rgba(255, 255, 255, 0.05) 20%,
+          rgba(255, 255, 255, 0.1) 60%,
+          rgba(255, 255, 255, 0)
+        );
+        animation: shimmer 2s infinite;
+      }
+    }
+
+    .meta-skeleton {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      .circle-skeleton {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background-color: ab.$gray-80;
+        position: relative;
+        overflow: hidden;
+        &::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          right: 0;
+          bottom: 0;
+          left: 0;
+          transform: translateX(-100%);
+          background-image: linear-gradient(
+            90deg,
+            rgba(255, 255, 255, 0) 0,
+            rgba(255, 255, 255, 0.05) 20%,
+            rgba(255, 255, 255, 0.1) 60%,
+            rgba(255, 255, 255, 0)
+          );
+          animation: shimmer 2s infinite;
+        }
+      }
+      .text-skeleton {
+        height: 16px;
+        width: 60%;
+        border-radius: 4px;
+        background-color: ab.$gray-80;
+        position: relative;
+        overflow: hidden;
+        &::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          right: 0;
+          bottom: 0;
+          left: 0;
+          transform: translateX(-100%);
+          background-image: linear-gradient(
+            90deg,
+            rgba(255, 255, 255, 0) 0,
+            rgba(255, 255, 255, 0.05) 20%,
+            rgba(255, 255, 255, 0.1) 60%,
+            rgba(255, 255, 255, 0)
+          );
+          animation: shimmer 2s infinite;
+        }
+      }
+    }
+  }
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}

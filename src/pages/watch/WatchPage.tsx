@@ -378,6 +378,9 @@ const WatchPage = (): ReactElement => {
         video_view_log_id: videoViewLogId,
         youtube_running_time: parseFloat((currentTime || 0).toFixed(2)),
         image_length: capturedImage?.length,
+        duration: videoData.duration,
+        user_id: user_id,
+        video_id: videoData.video_id, // Internal UUID
       });
 
       socket.emit(
@@ -387,9 +390,12 @@ const WatchPage = (): ReactElement => {
           youtube_running_time: parseFloat((currentTime || 0).toFixed(2)), // Numeric, seconds
           frame_data: capturedImage,
           duration: videoData.duration || 0,
+          // test
+          user_id: user_id,
+          video_id: videoData.video_id, // Internal UUID
         },
         (response: any) => {
-          console.log('[Socket] watch_frame response:', response);
+          // console.log('[Socket] watch_frame response:', response);
           if (response?.status === 'success' && response?.response) {
             console.log(
               '[Socket] Updating graph data with:',
@@ -419,6 +425,8 @@ const WatchPage = (): ReactElement => {
                 neutral: average_emotion.neutral,
               },
             ]);
+          } else if (response?.status === 'error') {
+            console.error('[Socket] watch_frame error:', response);
           }
         },
       );
@@ -796,9 +804,9 @@ const WatchPage = (): ReactElement => {
                 style={{ marginRight: '12px' }}
               />
               <TextInput
-                inputType="underline"
+                variant="underline"
                 value={comment}
-                onChange={setComment}
+                onChange={(e) => setComment(e.target.value)}
                 placeholder={'영상에 대한 의견을 남겨보아요'}
               />
               <UploadButton
@@ -838,9 +846,9 @@ const WatchPage = (): ReactElement => {
                         </div>
                       </div>
                       <TextInput
-                        inputType="underline"
+                        variant="underline"
                         value={modifyingComment}
-                        onChange={setModifyingComment}
+                        onChange={(e) => setModifyingComment(e.target.value)}
                         placeholder={''}
                         style={{ marginBottom: '16px' }}
                       />
