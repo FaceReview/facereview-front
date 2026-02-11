@@ -19,10 +19,16 @@ import {
   getDounutGraphData,
   getRecentVideo,
 } from 'api/youtube';
-import { EmotionType, VideoWatchedType } from 'types/index';
+import { DonutGraphDataType, EmotionType, VideoWatchedType } from 'types/index';
 import { mapNumberToEmotion } from 'utils/index';
 import { ResponsiveLine } from '@nivo/line';
 import useMediaQuery from 'utils/useMediaQuery';
+import {
+  EMOTION_COLORS,
+  EMOTION_EMOJIS,
+  EMOTION_LABELS,
+  EMOTIONS,
+} from 'constants/index';
 
 const MyPage = () => {
   const { is_sign_in, user_name, user_profile } = useAuthStorage();
@@ -39,45 +45,24 @@ const MyPage = () => {
   const [emotionTimeData, setEmotionTimeData] = useState<{
     [key in EmotionType]: number;
   }>({ happy: 0, sad: 0, surprise: 0, angry: 0, neutral: 0 });
+
   const [donutGraphData, setDonutGraphData] = useState<
     {
       id: string;
       label: string;
       value: number;
       color: string;
+      originalId: EmotionType;
     }[]
-  >([
-    {
-      id: '😄',
-      label: '즐거운',
+  >(
+    EMOTIONS.map((emotion) => ({
+      id: EMOTION_EMOJIS[emotion],
+      label: EMOTION_LABELS[emotion],
       value: 0,
-      color: '#FF4D8D',
-    },
-    {
-      id: '😠',
-      label: '화나는',
-      value: 0,
-      color: '#FF6B4B',
-    },
-    {
-      id: '😲',
-      label: '놀라운',
-      value: 0,
-      color: '#92C624',
-    },
-    {
-      id: '😥',
-      label: '슬픈',
-      value: 0,
-      color: '#479CFF',
-    },
-    {
-      id: '😐',
-      label: '무표정',
-      value: 0,
-      color: '#5d5d6d',
-    },
-  ]);
+      color: EMOTION_COLORS[emotion],
+      originalId: emotion,
+    })),
+  );
 
   const filteredRecentVideos = recentVideo.filter(
     (v) => selectedEmotion === 'all' || v.most_emotion === selectedEmotion,
@@ -107,15 +92,16 @@ const MyPage = () => {
         .catch((err) => console.log(err));
       getDounutGraphData()
         .then((res) => {
-          setDonutGraphData((prevData) => {
-            return [
-              { ...prevData[0], value: res.happy_per_avg },
-              { ...prevData[3], value: res.angry_per_avg },
-              { ...prevData[2], value: res.surprise_per_avg },
-              { ...prevData[1], value: res.sad_per_avg },
-              { ...prevData[4], value: res.neutral_per_avg },
-            ];
-          });
+          setDonutGraphData((prevData) =>
+            prevData.map((item) => {
+              const key =
+                `${item.originalId}_per_avg` as keyof DonutGraphDataType;
+              return {
+                ...item,
+                value: res[key],
+              };
+            }),
+          );
         })
         .catch((err) => console.log(err));
       getAllEmotionTimeData()
@@ -125,6 +111,14 @@ const MyPage = () => {
         .catch((err) => console.log(err));
     }
   }, [is_sign_in]);
+
+  const PAST_TENSE_LABELS: Record<EmotionType, string> = {
+    happy: '즐거웠어요',
+    sad: '슬펐어요',
+    surprise: '놀랐어요',
+    angry: '화났어요',
+    neutral: '평온했어요',
+  };
 
   return (
     <>
@@ -185,60 +179,22 @@ const MyPage = () => {
             </h3>
             <div className="my-page-chip-container">
               <div className="my-page-chip-wrapper">
-                <Chip
-                  type={isMobile ? 'category-small' : 'category-big'}
-                  choose={'all'}
-                  onClick={() => handleChipClick('all')}
-                  isSelected={selectedEmotion === 'all'}
-                  style={
-                    isMobile ? { marginRight: '12px' } : { marginRight: '24px' }
-                  }
-                />
-                <Chip
-                  type={isMobile ? 'category-small' : 'category-big'}
-                  choose={'happy'}
-                  onClick={() => handleChipClick('happy')}
-                  isSelected={selectedEmotion === 'happy'}
-                  style={
-                    isMobile ? { marginRight: '12px' } : { marginRight: '24px' }
-                  }
-                />
-                <Chip
-                  type={isMobile ? 'category-small' : 'category-big'}
-                  choose={'surprise'}
-                  onClick={() => handleChipClick('surprise')}
-                  isSelected={selectedEmotion === 'surprise'}
-                  style={
-                    isMobile ? { marginRight: '12px' } : { marginRight: '24px' }
-                  }
-                />
-                <Chip
-                  type={isMobile ? 'category-small' : 'category-big'}
-                  choose={'sad'}
-                  onClick={() => handleChipClick('sad')}
-                  isSelected={selectedEmotion === 'sad'}
-                  style={
-                    isMobile ? { marginRight: '12px' } : { marginRight: '24px' }
-                  }
-                />
-                <Chip
-                  type={isMobile ? 'category-small' : 'category-big'}
-                  choose={'angry'}
-                  onClick={() => handleChipClick('angry')}
-                  isSelected={selectedEmotion === 'angry'}
-                  style={
-                    isMobile ? { marginRight: '12px' } : { marginRight: '24px' }
-                  }
-                />
-                <Chip
-                  type={isMobile ? 'category-small' : 'category-big'}
-                  choose={'neutral'}
-                  onClick={() => handleChipClick('neutral')}
-                  isSelected={selectedEmotion === 'neutral'}
-                  style={
-                    isMobile ? { marginRight: '12px' } : { marginRight: '24px' }
-                  }
-                />
+                {['all', ...EMOTIONS].map((emotion) => (
+                  <Chip
+                    key={emotion}
+                    type={isMobile ? 'category-small' : 'category-big'}
+                    choose={emotion as 'all' | EmotionType}
+                    onClick={() =>
+                      handleChipClick(emotion as 'all' | EmotionType)
+                    }
+                    isSelected={selectedEmotion === emotion}
+                    style={
+                      isMobile
+                        ? { marginRight: '12px' }
+                        : { marginRight: '24px' }
+                    }
+                  />
+                ))}
               </div>
             </div>
           </div>
@@ -246,7 +202,9 @@ const MyPage = () => {
             <div className="my-page-video-wrapper">
               {filteredRecentVideos.length > 0 ? (
                 filteredRecentVideos.map((v) => (
-                  <div className="recent-video-item">
+                  <div
+                    className="recent-video-item"
+                    key={`videoItem${v.youtube_url}${v.most_emotion_per}`}>
                     <VideoItem
                       type="big-emoji"
                       key={`videoItem${v.youtube_url}${v.most_emotion_per}`}
@@ -266,13 +224,7 @@ const MyPage = () => {
                     <div className="video-graph-container">
                       <ResponsiveLine
                         data={v.distribution_data.graph_data}
-                        colors={[
-                          '#5d5d6d',
-                          '#FF4D8D',
-                          '#479CFF',
-                          '#92C624',
-                          '#FF6B4B',
-                        ]}
+                        colors={EMOTIONS.map((e) => EMOTION_COLORS[e])}
                         margin={{ top: 2, right: 0, bottom: 2, left: 0 }}
                         xScale={{ type: 'point' }}
                         yScale={{
@@ -340,7 +292,7 @@ const MyPage = () => {
           <div className="my-page-emotion-graph-container">
             <div className="pie-graph-container">
               <ResponsivePie
-                colors={['#FF4D8D', '#FF6B4B', '#92C624', '#479CFF', '#5d5d6d']}
+                colors={EMOTIONS.map((e) => EMOTION_COLORS[e])}
                 data={donutGraphData}
                 margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
                 activeOuterRadiusOffset={8}
@@ -355,36 +307,15 @@ const MyPage = () => {
                 tooltip={() => <></>}
               />
               <div className="pie-legend-container">
-                <div className="legend-item-wrapper">
-                  <div className="legend-item-color happy"></div>
-                  <div className="legend-item-text font-label-large">
-                    {donutGraphData[0].value}%
+                {donutGraphData.map((item) => (
+                  <div key={item.originalId} className="legend-item-wrapper">
+                    <div
+                      className={`legend-item-color ${item.originalId}`}></div>
+                    <div className="legend-item-text font-label-large">
+                      {item.value}%
+                    </div>
                   </div>
-                </div>
-                <div className="legend-item-wrapper">
-                  <div className="legend-item-color angry"></div>
-                  <div className="legend-item-text font-label-large">
-                    {donutGraphData[3].value}%
-                  </div>
-                </div>
-                <div className="legend-item-wrapper">
-                  <div className="legend-item-color surprise"></div>
-                  <div className="legend-item-text font-label-large">
-                    {donutGraphData[2].value}%
-                  </div>
-                </div>
-                <div className="legend-item-wrapper">
-                  <div className="legend-item-color sad"></div>
-                  <div className="legend-item-text font-label-large">
-                    {donutGraphData[1].value}%
-                  </div>
-                </div>
-                <div className="legend-item-wrapper">
-                  <div className="legend-item-color neutral"></div>
-                  <div className="legend-item-text font-label-large">
-                    {donutGraphData[4].value}%
-                  </div>
-                </div>
+                ))}
               </div>
             </div>
             <div className="emotion-time-container">
@@ -394,34 +325,14 @@ const MyPage = () => {
                 영상을 보며
               </h3>
               <div className="text-wrapper">
-                <p className="emotion-time-text">
-                  <span className="highlight happy">
-                    {emotionTimeData.happy}
-                  </span>
-                  초 즐거웠어요 😄
-                </p>
-                <p className="emotion-time-text">
-                  <span className="highlight angry">
-                    {emotionTimeData.angry}
-                  </span>
-                  초 화났어요 😠
-                </p>
-                <p className="emotion-time-text">
-                  <span className="highlight sad">{emotionTimeData.sad}</span>초
-                  슬펐어요 😥
-                </p>
-                <p className="emotion-time-text">
-                  <span className="highlight surprise">
-                    {emotionTimeData.surprise}
-                  </span>
-                  초 놀랐어요 😲
-                </p>
-                <p className="emotion-time-text">
-                  <span className="highlight neutral">
-                    {emotionTimeData.neutral}
-                  </span>
-                  초 평온했어요 😐
-                </p>
+                {EMOTIONS.map((emotion) => (
+                  <p key={emotion} className="emotion-time-text">
+                    <span className={`highlight ${emotion}`}>
+                      {emotionTimeData[emotion]}
+                    </span>
+                    초 {PAST_TENSE_LABELS[emotion]} {EMOTION_EMOJIS[emotion]}
+                  </p>
+                ))}
               </div>
             </div>
           </div>

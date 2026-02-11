@@ -24,3 +24,35 @@ export const CATEGORY_ITEMS: {
 ];
 
 export const CATEGORIES: CategoryType[] = CATEGORY_ITEMS.map((item) => item.id);
+
+export const EMOTIONS = [
+  'happy',
+  'surprise',
+  'sad',
+  'angry',
+  'neutral',
+] as const;
+
+export const EMOTION_LABELS = {
+  happy: '즐거운',
+  surprise: '놀라운',
+  sad: '슬픈',
+  angry: '화나는',
+  neutral: '평온한',
+} as const;
+
+export const EMOTION_EMOJIS = {
+  happy: '😄',
+  surprise: '😲',
+  sad: '😥',
+  angry: '😠',
+  neutral: '😐',
+} as const;
+
+export const EMOTION_COLORS = {
+  happy: '#FF4D8D',
+  surprise: '#92C624',
+  sad: '#479CFF',
+  angry: '#FF6B4B',
+  neutral: '#5d5d6d',
+} as const;

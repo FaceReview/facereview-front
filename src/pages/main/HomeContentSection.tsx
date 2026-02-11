@@ -18,7 +18,7 @@ import ModalDialog from 'components/ModalDialog/ModalDialog';
 import VideoCardSkeleton from 'components/Skeleton/VideoCardSkeleton';
 import SomeIcon from 'components/SomeIcon/SomeIcon';
 import TextInput from 'components/TextInput/TextInput';
-import { CATEGORIES, CATEGORY_ITEMS } from 'constants/index';
+import { CATEGORIES, CATEGORY_ITEMS, EMOTIONS } from 'constants/index';
 import { useLocation } from 'react-router-dom';
 import useIntersectionObserver from 'utils/useIntersectionObserver';
 import useMediaQuery from 'utils/useMediaQuery';
@@ -377,51 +377,20 @@ const HomeContentSection = (): ReactElement => {
         <div className="video-container">
           <div className="main-page-chip-container">
             <div className="chip-wrapper">
-              <Chip
-                type={isMobile ? 'category-small' : 'category-big'}
-                choose={'all'}
-                onClick={() => handleChipClick('all')}
-                isSelected={selectedEmotion === 'all'}
-                style={
-                  isMobile ? { marginRight: '12px' } : { marginRight: '24px' }
-                }
-              />
-              <Chip
-                type={isMobile ? 'category-small' : 'category-big'}
-                choose={'happy'}
-                onClick={() => handleChipClick('happy')}
-                isSelected={selectedEmotion === 'happy'}
-                style={
-                  isMobile ? { marginRight: '12px' } : { marginRight: '24px' }
-                }
-              />
-              <Chip
-                type={isMobile ? 'category-small' : 'category-big'}
-                choose={'surprise'}
-                onClick={() => handleChipClick('surprise')}
-                isSelected={selectedEmotion === 'surprise'}
-                style={
-                  isMobile ? { marginRight: '12px' } : { marginRight: '24px' }
-                }
-              />
-              <Chip
-                type={isMobile ? 'category-small' : 'category-big'}
-                choose={'sad'}
-                onClick={() => handleChipClick('sad')}
-                isSelected={selectedEmotion === 'sad'}
-                style={
-                  isMobile ? { marginRight: '12px' } : { marginRight: '24px' }
-                }
-              />
-              <Chip
-                type={isMobile ? 'category-small' : 'category-big'}
-                choose={'angry'}
-                onClick={() => handleChipClick('angry')}
-                isSelected={selectedEmotion === 'angry'}
-                style={
-                  isMobile ? { marginRight: '12px' } : { marginRight: '24px' }
-                }
-              />
+              {['all', ...EMOTIONS].map((emotion) => (
+                <Chip
+                  key={emotion}
+                  type={isMobile ? 'category-small' : 'category-big'}
+                  choose={emotion as 'all' | EmotionType}
+                  onClick={() =>
+                    handleChipClick(emotion as 'all' | EmotionType)
+                  }
+                  isSelected={selectedEmotion === emotion}
+                  style={
+                    isMobile ? { marginRight: '12px' } : { marginRight: '24px' }
+                  }
+                />
+              ))}
               <Chip
                 type={isMobile ? 'category-small' : 'category-big'}
                 choose={'plus'}
