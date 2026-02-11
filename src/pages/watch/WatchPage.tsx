@@ -353,7 +353,7 @@ const WatchPage = (): ReactElement => {
   useEffect(() => {
     const captureInterval = setInterval(() => {
       capture();
-    }, 200);
+    }, 500);
 
     const frameDataInterval = setInterval(async () => {
       // Only emit if signed in and video is playing/ready
