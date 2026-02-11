@@ -1,8 +1,9 @@
-import React, { ReactElement } from 'react';
+import { ReactElement } from 'react';
 import './chip.scss';
 
 import plusIcon from 'assets/img/plusIcon.png';
 import { EmotionType } from 'types/index';
+import { EMOTION_EMOJIS, EMOTION_LABELS } from 'constants/index';
 
 type ChipPropsType = {
   type: 'category-big' | 'category-small';
@@ -25,11 +26,11 @@ const Chip = ({
   };
   const labelOfChoose = {
     all: '전체',
-    happy: '😄 즐거운',
-    surprise: '😲 놀라운',
-    angry: '😠 화나는',
-    sad: '😥 슬픈',
-    neutral: '😐 평온한',
+    happy: `${EMOTION_EMOJIS.happy} ${EMOTION_LABELS.happy}`,
+    surprise: `${EMOTION_EMOJIS.surprise} ${EMOTION_LABELS.surprise}`,
+    angry: `${EMOTION_EMOJIS.angry} ${EMOTION_LABELS.angry}`,
+    sad: `${EMOTION_EMOJIS.sad} ${EMOTION_LABELS.sad}`,
+    neutral: `${EMOTION_EMOJIS.neutral} ${EMOTION_LABELS.neutral}`,
     plus: <img className="plus-icon" src={plusIcon} alt="plusIcon" />,
   };
 

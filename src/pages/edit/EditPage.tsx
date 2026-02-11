@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { EMOTIONS } from 'constants/index';
 import { toast } from 'react-toastify';
 import Button from 'components/Button/Button';
 import TextInput from 'components/TextInput/TextInput';
@@ -121,61 +122,22 @@ const EditPage = () => {
             <h3 className="font-title-mini edit-page-modal-title">
               아이콘을 선택해주세요
             </h3>
+
             <div className="edit-page-modal-icon-wrapper">
-              <ProfileIcon
-                type="icon-medium"
-                color="neutral"
-                onSelectClick={() => handleColorSelect('neutral')}
-                style={{
-                  cursor: 'pointer',
-                  marginRight: '10px',
-                  border:
-                    selectedColor === 'neutral' ? '3px solid #76FFCE' : 'none',
-                }}
-              />
-              <ProfileIcon
-                type="icon-medium"
-                color="happy"
-                onSelectClick={() => handleColorSelect('happy')}
-                style={{
-                  cursor: 'pointer',
-                  marginRight: '10px',
-                  border:
-                    selectedColor === 'happy' ? '3px solid #76FFCE' : 'none',
-                }}
-              />
-              <ProfileIcon
-                type="icon-medium"
-                color="surprise"
-                onSelectClick={() => handleColorSelect('surprise')}
-                style={{
-                  cursor: 'pointer',
-                  marginRight: '10px',
-                  border:
-                    selectedColor === 'surprise' ? '3px solid #76FFCE' : 'none',
-                }}
-              />
-              <ProfileIcon
-                type="icon-medium"
-                color="sad"
-                onSelectClick={() => handleColorSelect('sad')}
-                style={{
-                  cursor: 'pointer',
-                  marginRight: '10px',
-                  border:
-                    selectedColor === 'sad' ? '3px solid #76FFCE' : 'none',
-                }}
-              />
-              <ProfileIcon
-                type="icon-medium"
-                color="angry"
-                onSelectClick={() => handleColorSelect('angry')}
-                style={{
-                  cursor: 'pointer',
-                  border:
-                    selectedColor === 'angry' ? '3px solid #76FFCE' : 'none',
-                }}
-              />
+              {EMOTIONS.map((emotion, index) => (
+                <ProfileIcon
+                  key={emotion}
+                  type="icon-medium"
+                  color={emotion}
+                  onSelectClick={() => handleColorSelect(emotion)}
+                  style={{
+                    cursor: 'pointer',
+                    marginRight: index !== EMOTIONS.length - 1 ? '10px' : 0,
+                    border:
+                      selectedColor === emotion ? '3px solid #76FFCE' : 'none',
+                  }}
+                />
+              ))}
             </div>
           </ModalDialog>
           <div className="edit-page-edit-container">

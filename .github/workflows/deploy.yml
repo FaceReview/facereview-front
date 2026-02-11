@@ -55,22 +55,29 @@ jobs:
             echo "=== 1. 기존 리소스 정리 ==="
             # 실행 중인 컨테이너 및 이미지 삭제
             # (|| true를 붙여서, 삭제할 게 없어도 에러로 인식되지 않게 함)
+            # 신규 컨테이너 이름 정리
+            docker stop facereview-front-app || true
+            docker rm facereview-front-app || true
+            # 기존 컨테이너 이름 정리 (마이그레이션 용도)
             docker stop frontend-app || true
             docker rm frontend-app || true
+
+            # 이미지 정리
+            docker rmi facereview-front-image || true
             docker rmi frontend-image || true
 
             echo "=== 2. Docker 이미지 새로 빌드 ==="
             # --no-cache: 캐시 없이 처음부터 빌드 (최신 코드 반영 확실하게)
             # 만약 빌드 중 에러가 나면 set -e 덕분에 여기서 스크립트가 멈춥니다.
-            docker build --no-cache -t frontend-image .
+            docker build --no-cache -t facereview-front-image .
 
             echo "=== 3. Docker 컨테이너 실행 ==="
             # 호스트 5002번 <-> 컨테이너 80번 연결
             docker run -d \
-              --name frontend-app \
+              --name facereview-front-app \
               -p 5002:80 \
               --restart always \
-              frontend-image
+              facereview-front-image
 
             echo "=== 4. 찌꺼기 데이터 청소 ==="
             # 빌드 과정에서 생긴 임시 이미지와 캐시 삭제
