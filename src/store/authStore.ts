@@ -12,19 +12,11 @@ interface AuthState {
   user_announced: boolean;
   user_favorite_genres: string[];
   access_token: string;
-  refresh_token: string;
-  setToken: ({
-    access_token,
-    refresh_token,
-  }: {
-    access_token: string;
-    refresh_token: string;
-  }) => void;
+  setToken: ({ access_token }: { access_token: string }) => void;
   setUserInfo: ({
     is_admin,
     is_sign_in,
     access_token,
-    refresh_token,
     user_id,
     user_name,
     user_profile,
@@ -34,7 +26,6 @@ interface AuthState {
     is_admin: boolean;
     is_sign_in: boolean;
     access_token: string;
-    refresh_token: string;
     user_id: string;
     user_name: string;
     user_profile: number;
@@ -65,18 +56,15 @@ export const useAuthStorage = create<AuthState>()(
         user_announced: false,
         user_favorite_genres: [],
         access_token: '',
-        refresh_token: '',
-        setToken: ({ access_token, refresh_token }) =>
+        setToken: ({ access_token }) =>
           set(() => ({
             access_token: access_token,
-            refresh_token: refresh_token,
           })),
         setUserInfo: ({
           is_admin,
 
           is_sign_in,
           access_token,
-          refresh_token,
           user_id,
           user_name,
           user_profile,
@@ -87,7 +75,6 @@ export const useAuthStorage = create<AuthState>()(
             is_admin: is_admin,
             is_sign_in: true,
             access_token,
-            refresh_token,
             user_id,
             user_name,
             user_profile,

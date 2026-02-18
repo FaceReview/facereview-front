@@ -99,3 +99,29 @@ export const updateProfile = async (props: UpdateProfileRequest) => {
     throw error;
   }
 };
+
+export const refreshToken = async () => {
+  try {
+    const url = '/v2/auth/reissue';
+    const res = await api.post<{
+      access_token: string;
+    }>(url);
+
+    return res;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+
+export const signOut = async () => {
+  try {
+    const url = '/v2/auth/logout';
+    const res = await api.post(url);
+
+    return res;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};

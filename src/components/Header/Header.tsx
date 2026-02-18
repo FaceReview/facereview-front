@@ -9,6 +9,8 @@ import { mapNumberToEmotion } from 'utils/index';
 import useMediaQuery from 'utils/useMediaQuery';
 import HeaderToken from 'api/HeaderToken';
 
+import { signOut } from 'api/auth';
+
 type HeaderPropsType = {
   isMyPage?: boolean;
 };
@@ -19,10 +21,16 @@ const Header = ({ isMyPage }: HeaderPropsType): ReactElement => {
   const { is_sign_in, setTempToken } = useAuthStorage();
   const user_profile = useAuthStorage((state) => state.user_profile);
 
-  const handleLogoutClick = () => {
-    HeaderToken.set('');
-    setTempToken({ access_token: '' });
-    navigate('/main');
+  const handleLogoutClick = async () => {
+    try {
+      await signOut();
+    } catch (error) {
+      console.error('Logout failed', error);
+    } finally {
+      HeaderToken.set('');
+      setTempToken({ access_token: '' });
+      navigate('/main');
+    }
   };
 
   return (

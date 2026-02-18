@@ -119,7 +119,7 @@ const AuthPage = () => {
             .then(async (res) => {
               // V2 API: signIn returns tokens only. Need to fetch user profile.
               if (res.status === 200) {
-                const { access_token, refresh_token } = res.data;
+                const { access_token } = res.data;
                 HeaderToken.set(access_token);
 
                 // Fetch User Info
@@ -137,7 +137,6 @@ const AuthPage = () => {
                     user_profile: userData.profile_image_id,
                     user_tutorial: userData.is_tutorial_done ? 1 : 0, // Converting boolean to number if store expects number
                     access_token: access_token,
-                    refresh_token: refresh_token,
                     user_favorite_genres: userData.favorite_genres,
                   });
 
