@@ -2922,6 +2922,7 @@ __metadata:
     react-youtube: "npm:^10.1.0"
     sass: "npm:^1.97.1"
     socket.io-client: "npm:^4.7.2"
+    swiper: "npm:^12.1.1"
     typescript: "npm:^5.9.3"
     typescript-eslint: "npm:^8.51.0"
     uuid: "npm:^9.0.1"
@@ -4507,6 +4508,13 @@ __metadata:
   version: 2.0.4
   resolution: "svg-parser@npm:2.0.4"
   checksum: 10c0/02f6cb155dd7b63ebc2f44f36365bc294543bebb81b614b7628f1af3c54ab64f7e1cec20f06e252bf95bdde78441ae295a412c68ad1678f16a6907d924512b7a
+  languageName: node
+  linkType: hard
+
+"swiper@npm:^12.1.1":
+  version: 12.1.1
+  resolution: "swiper@npm:12.1.1"
+  checksum: 10c0/43b3fd5b012d9c4e31a68e872ca760cc79c2e842ea995a5ddb0f78bd6cfe371b405c3f1fe801cf5fd89f5e0672fc1abfb8658b956a11f1e002df2442fae25107
   languageName: node
   linkType: hard
 
