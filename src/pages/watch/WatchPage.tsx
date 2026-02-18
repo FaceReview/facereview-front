@@ -162,23 +162,23 @@ const WatchPage = (): ReactElement => {
     setVideo(e.target);
   };
 
-  const getCurrentTimeString = (seconds: number): string => {
-    let remainSeconds = seconds;
+  // const getCurrentTimeString = (seconds: number): string => {
+  //   let remainSeconds = seconds;
 
-    const resHours = Math.floor(remainSeconds / (60 * 60))
-      .toString()
-      .padStart(1, '0');
-    remainSeconds = remainSeconds % (60 * 60);
+  //   const resHours = Math.floor(remainSeconds / (60 * 60))
+  //     .toString()
+  //     .padStart(1, '0');
+  //   remainSeconds = remainSeconds % (60 * 60);
 
-    const resMinutes = Math.floor(remainSeconds / 60)
-      .toString()
-      .padStart(2, '0');
-    remainSeconds = remainSeconds % 60;
+  //   const resMinutes = Math.floor(remainSeconds / 60)
+  //     .toString()
+  //     .padStart(2, '0');
+  //   remainSeconds = remainSeconds % 60;
 
-    const resSeconds = Math.round(remainSeconds).toString().padStart(2, '0');
+  //   const resSeconds = Math.round(remainSeconds).toString().padStart(2, '0');
 
-    return `${resHours}:${resMinutes}:${resSeconds}`;
-  };
+  //   return `${resHours}:${resMinutes}:${resSeconds}`;
+  // };
 
   const handleCommentSubmit = () => {
     if (is_sign_in) {
@@ -190,7 +190,9 @@ const WatchPage = (): ReactElement => {
           .then(() => {
             getVideoComments({ video_id: id || '' })
               .then((response) => {
-                setCommentList(response);
+                if (Array.isArray(response)) {
+                  setCommentList(response);
+                }
               })
               .catch(() => {});
             setComment('');
@@ -303,7 +305,11 @@ const WatchPage = (): ReactElement => {
       .catch((err) => console.error('Failed to get related videos:', err));
     getVideoComments({ video_id: id || '' })
       .then((res) => {
-        setCommentList(res);
+        if (Array.isArray(res)) {
+          setCommentList(res);
+        } else {
+          setCommentList([]);
+        }
       })
       .catch((err) => console.error('Failed to get comments:', err));
 
@@ -356,8 +362,11 @@ const WatchPage = (): ReactElement => {
     }, 500);
 
     const frameDataInterval = setInterval(async () => {
-      // Only emit if signed in and video is playing/ready
+      // Only emit if signed in, video is playing/ready, and actually playing (state 1)
       if (!is_sign_in || !video || !videoData) return;
+
+      const playerState = await video.getPlayerState();
+      if (playerState !== 1) return;
 
       const capturedImage = capture();
       const currentTime = await video?.getCurrentTime();
@@ -774,82 +783,302 @@ const WatchPage = (): ReactElement => {
           {!isMobile && (
             <div className="comment-input-container">
               <ProfileIcon
-                type="icon-small"
+                type={'icon-medium'}
                 color={mapNumberToEmotion(user_profile)}
-                style={{ marginRight: '16px' }}
+                style={{ marginRight: '12px' }}
               />
               <TextInput
+                variant="underline"
                 value={comment}
-                placeholder="댓글을 입력해주세요"
-                style={{ width: '100%', marginRight: '16px' }}
                 onChange={(e) => setComment(e.target.value)}
+                placeholder={'영상에 대한 의견을 남겨보아요'}
               />
-              <UploadButton onClick={handleCommentSubmit} />
+              <UploadButton
+                onClick={handleCommentSubmit}
+                style={{
+                  marginLeft: '12px',
+                  display: comment.length > 0 ? 'block' : 'none',
+                }}
+              />
             </div>
           )}
-          {commentList.map((c) => (
-            <CommentItem
-              key={c.comment_id}
-              user_name={c.user_name}
-              created_at={c.created_at}
-              content={c.content}
-              user_profile_image_id={c.user_profile_image_id}
-              is_modified={c.is_modified}
-              is_mine={c.is_mine}
-              comment_id={c.comment_id}
-              user_id={c.user_id}
+          <div
+            className={
+              isMobile
+                ? 'comment-info-text font-title-mini'
+                : 'comment-info-text font-title-small'
+            }>
+            댓글 {commentList.length || 0}개
+          </div>
+          <div className="comment-list-container">
+            {commentList.length > 0 ? (
+              commentList.map((comment, idx) =>
+                comment.comment_id === editingcommentindex ? (
+                  <div className="comment-modifying-container">
+                    <ProfileIcon
+                      type={'icon-small'}
+                      color={mapNumberToEmotion(user_profile)}
+                      style={{ marginRight: '12px' }}
+                    />
+                    <div className="comment-modifying-wrapper">
+                      <div className="comment-modifying-info-wrapper">
+                        <div className="comment-modifying-nickname font-label-small">
+                          {comment.user_name}
+                        </div>
+                        <div className="comment-modifying-time-text font-label-small">
+                          {getTimeToString(comment.created_at)}
+                        </div>
+                      </div>
+                      <TextInput
+                        variant="underline"
+                        value={modifyingComment}
+                        onChange={(e) => setModifyingComment(e.target.value)}
+                        placeholder={''}
+                        style={{ marginBottom: '16px' }}
+                      />
+                      <div className="comment-modifying-button-wrapper">
+                        <div
+                          className="comment-modifying-cancel font-label-small"
+                          onClick={() => {
+                            setEditingcommentindex(null);
+                          }}>
+                          취소
+                        </div>
+                        <div
+                          className="comment-modifying-save font-label-small"
+                          onClick={() => {
+                            modifyComment({
+                              comment_id: editingcommentindex,
+                              content: modifyingComment,
+                            })
+                              .then(() => {
+                                getVideoComments({ video_id: id || '' })
+                                  .then((res) => {
+                                    setCommentList(res);
+                                  })
+                                  .catch(() => {});
+                                setEditingcommentindex(null);
+                              })
+                              .catch(() => {});
+                          }}
+                          style={{
+                            pointerEvents:
+                              modifyingComment.length > 0 ? 'auto' : 'none',
+                          }}>
+                          저장
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <CommentItem
+                      key={`comment-${comment.content}-${idx}`}
+                      user_name={comment.user_name}
+                      created_at={getTimeToString(comment.created_at)}
+                      content={comment.content}
+                      user_profile_image_id={comment.user_profile_image_id}
+                      comment_id={comment.comment_id}
+                      is_modified={comment.is_modified}
+                      is_mine={comment.is_mine}
+                      user_id={comment.user_id}
+                    />
+                    <ModalDialog
+                      type={'two-button'}
+                      name={'comment-delete-modal'}
+                      isOpen={isModalOpen2}
+                      onClose={closeModal2}
+                      onCheck={() => {
+                        deleteComment({ comment_id: comment.comment_id })
+                          .then(() => {
+                            getVideoComments({ video_id: id || '' })
+                              .then((res) => {
+                                setCommentList(res);
+                                closeModal2();
+                              })
+                              .catch(() => {});
+                          })
+                          .catch(() => {});
+                      }}>
+                      <h2>댓글을 삭제하시겠어요?</h2>
+                    </ModalDialog>
+                  </>
+                ),
+              )
+            ) : (
+              <p className="no-comments-text font-label-large">
+                아직 댓글이 없어요
+              </p>
+            )}
+          </div>
+        </div>
+        {isMobile && (
+          <Devider style={{ width: '100vw', marginLeft: '-16px' }} />
+        )}
+      </div>
+      <div className="side-container">
+        {!isMobile && (
+          <>
+            <Webcam
+              style={{ borderRadius: '8px', marginBottom: '24px' }}
+              audio={false}
+              ref={webcamRef}
+              screenshotFormat="image/jpeg"
+              videoConstraints={webcamOptions}
+              mirrored={true}
+              screenshotQuality={0.5}
             />
-          ))}
+            <div className="emotion-container">
+              <div className="emotion-title-wrapper">
+                <h4 className="emotion-title font-title-small">
+                  실시간 나의 감정
+                </h4>
+                <EmotionBadge type="big" emotion={currentMyEmotion} />
+              </div>
+              <div className="graph-container">
+                <ResponsiveBar
+                  data={myGraphData}
+                  keys={['happy', 'sad', 'surprise', 'angry', 'neutral']}
+                  indexBy="id"
+                  padding={0.3}
+                  layout="horizontal"
+                  valueScale={{ type: 'linear' }}
+                  indexScale={{ type: 'band', round: true }}
+                  colors={[
+                    '#FF4D8D',
+                    '#479CFF',
+                    '#92C624',
+                    '#FF6B4B',
+                    '#393946',
+                  ]}
+                  borderColor={{
+                    from: 'color',
+                    modifiers: [['darker', 1.6]],
+                  }}
+                  axisTop={null}
+                  axisRight={null}
+                  axisBottom={null}
+                  axisLeft={null}
+                  enableGridY={false}
+                  enableLabel={false}
+                  labelSkipWidth={12}
+                  labelSkipHeight={12}
+                  labelTextColor={{
+                    from: 'color',
+                    modifiers: [['darker', 2.3]],
+                  }}
+                  margin={{ top: -10, bottom: -10 }}
+                  legends={[]}
+                  role="application"
+                  ariaLabel="Nivo bar chart demo"
+                  barAriaLabel={(e) =>
+                    e.id +
+                    ': ' +
+                    e.formattedValue +
+                    ' in country: ' +
+                    e.indexValue
+                  }
+                />
+              </div>
+              <div className="graph-detail-container">
+                {emotionByEmotionText.map((e) => (
+                  <GraphDetailDataItem
+                    key={uuidv4()}
+                    graphData={myGraphData}
+                    emotion={e.emotion}
+                    emotionText={e.emotionText}
+                    mostEmotion={currentMyEmotion}
+                  />
+                ))}
+              </div>
+            </div>
+            <div className="emotion-container">
+              <div className="emotion-title-wrapper">
+                <h4 className="emotion-title font-title-small">
+                  실시간 다른 사람들의 감정
+                </h4>
+                <EmotionBadge type="big" emotion={currentOthersEmotion} />
+              </div>
+              <div className="graph-container">
+                <ResponsiveBar
+                  data={othersGraphData}
+                  keys={['happy', 'sad', 'surprise', 'angry', 'neutral']}
+                  indexBy="id"
+                  padding={0.3}
+                  layout="horizontal"
+                  valueScale={{ type: 'linear' }}
+                  indexScale={{ type: 'band', round: true }}
+                  colors={[
+                    '#FF4D8D',
+                    '#479CFF',
+                    '#92C624',
+                    '#FF6B4B',
+                    '#393946',
+                  ]}
+                  borderColor={{
+                    from: 'color',
+                    modifiers: [['darker', 1.6]],
+                  }}
+                  axisTop={null}
+                  axisRight={null}
+                  axisBottom={null}
+                  axisLeft={null}
+                  enableGridY={false}
+                  enableLabel={false}
+                  labelSkipWidth={12}
+                  labelSkipHeight={12}
+                  labelTextColor={{
+                    from: 'color',
+                    modifiers: [['darker', 2.3]],
+                  }}
+                  margin={{ top: -10, bottom: -10 }}
+                  legends={[]}
+                  role="application"
+                  ariaLabel="Nivo bar chart demo"
+                  barAriaLabel={(e) =>
+                    e.id +
+                    ': ' +
+                    e.formattedValue +
+                    ' in country: ' +
+                    e.indexValue
+                  }
+                />
+              </div>
+              <div className="graph-detail-container">
+                {emotionByEmotionText.map((e) => (
+                  <GraphDetailDataItem
+                    key={uuidv4()}
+                    graphData={othersGraphData}
+                    emotion={e.emotion}
+                    emotionText={e.emotionText}
+                    mostEmotion={currentOthersEmotion}
+                  />
+                ))}
+              </div>
+            </div>
+          </>
+        )}
+        <div className="recommend-container">
+          <h4 className="recommend-title font-title-small">
+            이 영상은 어때요?
+          </h4>
+          <div className="recommend-video-container">
+            {relatedVideoList.map((v, index) => (
+              <VideoItem
+                key={v.video_id || index}
+                width={isMobile ? window.innerWidth - 32 : 320}
+                videoId={v.youtube_url} // Corrected: use youtube_url for thumbnail
+                videoUuid={v.uuid ?? v.id ?? v.video_id}
+                videoTitle={v.title}
+                videoMostEmotion={v.dominant_emotion}
+                videoMostEmotionPercentage={v.dominant_emotion_per}
+                style={{ marginBottom: '24px' }}
+                type={'small-emoji'}
+              />
+            ))}
+          </div>
         </div>
       </div>
-
-      <div className="related-video-container">
-        {relatedVideoList.map((v) => (
-          <VideoItem
-            type="big-emoji"
-            key={uuidv4()}
-            videoId={v.youtube_url}
-            videoUuid={v.video_id}
-            videoTitle={v.title}
-            videoMostEmotion={v.dominant_emotion}
-            videoMostEmotionPercentage={v.dominant_emotion_per}
-            hoverToPlay={false}
-          />
-        ))}
-      </div>
-
-      <ModalDialog
-        type="two-button"
-        name="delete-comment-modal"
-        isOpen={isModalOpen2}
-        onClose={closeModal2}
-        onCheck={() => {
-          if (editingcommentindex) {
-            deleteComment({
-              comment_id: editingcommentindex,
-            })
-              .then(() => {
-                getVideoComments({ video_id: id || '' })
-                  .then((response) => {
-                    setCommentList(response);
-                  })
-                  .catch(() => {});
-              })
-              .catch(() => {
-                toast.error('댓글이 삭제되지 않았어요', {
-                  toastId: 'error delete comment',
-                });
-              });
-            closeModal2();
-          }
-        }}>
-        <div className="delete-comment-modal-label-container">
-          <h2 className="delete-comment-modal-title font-title-medium">
-            댓글을 삭제하시겠습니까?
-          </h2>
-          <p className="font-body-large">삭제한 댓글은 복구할 수 없어요.</p>
-        </div>
-      </ModalDialog>
     </div>
   );
 };
