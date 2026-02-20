@@ -52,6 +52,7 @@ function App() {
                     user_tutorial: userData.is_tutorial_done ? 1 : 0,
                     access_token: access_token,
                     user_favorite_genres: userData.favorite_genres,
+                    is_verify_email_done: userData.is_verify_email_done,
                   });
                 }
               }

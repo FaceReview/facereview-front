@@ -1,4 +1,4 @@
-@use "styles/abstracts" as variables;
+@use 'styles/abstracts' as variables;
 
 .modal-overlay {
   background: variables.$system-dim-black;
@@ -42,6 +42,16 @@
     width: 340px;
     background: variables.$gray-100;
   }
+  &.email-verification {
+    padding: 48px 32px 32px 32px;
+    width: 400px;
+    max-width: 90vw;
+
+    @include variables.mobile {
+      padding: 32px 20px 24px 20px;
+      width: 90vw;
+    }
+  }
 
   .modal-contents-container {
     display: flex;
@@ -73,6 +83,20 @@
     }
     &.edit-page-modal {
       padding: 12px 10px 14px 10px;
+    }
+    &.email-verification {
+      padding: 24px 16px 8px 16px;
+      gap: 16px;
+
+      @include variables.mobile {
+        padding: 16px 12px 8px 12px;
+        gap: 12px;
+      }
+
+      button {
+        flex: 1;
+        margin-right: 0 !important;
+      }
     }
   }
 }

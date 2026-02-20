@@ -138,6 +138,7 @@ const AuthPage = () => {
                     user_tutorial: userData.is_tutorial_done ? 1 : 0, // Converting boolean to number if store expects number
                     access_token: access_token,
                     user_favorite_genres: userData.favorite_genres,
+                    is_verify_email_done: userData.is_verify_email_done,
                   });
 
                   setTimeout(() => {
