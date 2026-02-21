@@ -5,7 +5,6 @@ import VideoItem from 'components/VideoItem/VideoItem';
 import VideoCardSkeleton from 'components/Skeleton/VideoCardSkeleton';
 import useMediaQuery from 'utils/useMediaQuery';
 import useIntersectionObserver from 'utils/useIntersectionObserver';
-import { v4 as uuidv4 } from 'uuid';
 
 type SearchResultsSectionProps = {
   query: string;

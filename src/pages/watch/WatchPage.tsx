@@ -19,13 +19,7 @@ import ProfileIcon from 'components/ProfileIcon/ProfileIcon';
 import TextInput from 'components/TextInput/TextInput';
 import UploadButton from 'components/UploadButton/UploadButton';
 import { ResponsiveBar } from '@nivo/bar';
-import {
-  CommentType,
-  EmotionType,
-  GraphDistributionDataType,
-  VideoDetailType,
-  VideoRelatedType,
-} from 'types';
+import { CommentType, EmotionType, VideoDetailType } from 'types';
 import { getRelatedVideo, getVideoDetail } from 'api/youtube';
 import Devider from 'components/Devider/Devider';
 import { useAuthStorage } from 'store/authStore';
@@ -51,6 +45,7 @@ import { ResponsiveLine } from '@nivo/line';
 import SomeIcon from 'components/SomeIcon/SomeIcon';
 import useMediaQuery from 'utils/useMediaQuery';
 import { EMOTION_COLORS, EMOTION_LABELS, EMOTIONS } from 'constants/index';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 const WatchPage = (): ReactElement => {
   const isMobile = useMediaQuery('(max-width: 1200px)');
@@ -96,9 +91,7 @@ const WatchPage = (): ReactElement => {
     user_announced,
     setUserAnnounced,
   } = useAuthStorage();
-  const navigation = useNavigate();
 
-  const [isConnected, setIsConnected] = useState(socket.connected);
   const [videoViewLogId] = useState<string>(uuidv4()); // Generate log ID once
 
   const webcamRef = useRef<Webcam>(null);
@@ -119,7 +112,7 @@ const WatchPage = (): ReactElement => {
         [emotion]: emotion === 'neutral' ? 100 : 0,
         [`${emotion}Color`]: EMOTION_COLORS[emotion],
       }),
-      { id: 'my-emotion' } as any,
+      { id: 'my-emotion' } as Record<string, string | number>,
     ),
   ]);
   const [othersGraphData, setOthersGraphData] = useState([
@@ -129,26 +122,39 @@ const WatchPage = (): ReactElement => {
         [emotion]: emotion === 'neutral' ? 100 : 0,
         [`${emotion}Color`]: EMOTION_COLORS[emotion],
       }),
-      { id: 'others-emotion' } as any,
+      { id: 'others-emotion' } as Record<string, string | number>,
     ),
   ]);
-  const [videoGraphData, setVideoGraphData] = useState<
-    GraphDistributionDataType[]
-  >([]);
+  const queryClient = useQueryClient();
+
+  const { data: videoData } = useQuery({
+    queryKey: ['videoDetail', id],
+    queryFn: () => getVideoDetail({ video_id: id || '' }),
+    enabled: !!id,
+  });
+
+  const { data: relatedVideoList = [] } = useQuery({
+    queryKey: ['relatedVideos', id],
+    queryFn: () => getRelatedVideo({ video_id: id || '' }),
+    enabled: !!id,
+  });
+
+  const { data: commentList = [] } = useQuery({
+    queryKey: ['videoComments', id],
+    queryFn: () => getVideoComments({ video_id: id || '' }),
+    enabled: !!id,
+  });
+
+  const isLikeVideo = videoData?.user_is_liked ?? false;
+
   const [video, setVideo] = useState<YouTubePlayer | null>(null);
-  const [videoData, setVideoData] = useState<VideoDetailType>();
-  const [isLikeVideo, setIsLikeVideo] = useState(false);
   const [currentMyEmotion, setCurrentMyEmotion] =
     useState<EmotionType>('neutral');
   const [currentOthersEmotion, setCurrentOthersEmotion] =
     useState<EmotionType>('neutral');
-  const [relatedVideoList, setRelatedVideoList] = useState<VideoRelatedType[]>(
-    [],
-  );
   const [isModalOpen1, setIsModalOpen1] = useState<boolean>(false);
   const [isModalOpen2, setIsModalOpen2] = useState<boolean>(false);
   const [comment, setComment] = useState('');
-  const [commentList, setCommentList] = useState<CommentType[]>([]);
 
   const capture = React.useCallback(() => {
     const imageSrc = webcamRef.current?.getScreenshot();
@@ -162,46 +168,39 @@ const WatchPage = (): ReactElement => {
     setVideo(e.target);
   };
 
-  // const getCurrentTimeString = (seconds: number): string => {
-  //   let remainSeconds = seconds;
+  const commentMutation = useMutation({
+    mutationFn: (newComment: string) =>
+      sendNewComment({ content: newComment, video_id: id || '' }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['videoComments', id] });
+      setComment('');
+    },
+    onError: () => {
+      toast.error('댓글이 달리지 않았어요', { toastId: 'error new comment' });
+    },
+  });
 
-  //   const resHours = Math.floor(remainSeconds / (60 * 60))
-  //     .toString()
-  //     .padStart(1, '0');
-  //   remainSeconds = remainSeconds % (60 * 60);
+  const modifyCommentMutation = useMutation({
+    mutationFn: (params: { comment_id: string; content: string }) =>
+      modifyComment(params),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['videoComments', id] });
+      setEditingcommentindex(null);
+    },
+  });
 
-  //   const resMinutes = Math.floor(remainSeconds / 60)
-  //     .toString()
-  //     .padStart(2, '0');
-  //   remainSeconds = remainSeconds % 60;
-
-  //   const resSeconds = Math.round(remainSeconds).toString().padStart(2, '0');
-
-  //   return `${resHours}:${resMinutes}:${resSeconds}`;
-  // };
+  const deleteCommentMutation = useMutation({
+    mutationFn: (comment_id: string) => deleteComment({ comment_id }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['videoComments', id] });
+      closeModal2();
+    },
+  });
 
   const handleCommentSubmit = () => {
     if (is_sign_in) {
       if (comment.length > 0) {
-        sendNewComment({
-          content: comment,
-          video_id: id || '',
-        })
-          .then(() => {
-            getVideoComments({ video_id: id || '' })
-              .then((response) => {
-                if (Array.isArray(response)) {
-                  setCommentList(response);
-                }
-              })
-              .catch(() => {});
-            setComment('');
-          })
-          .catch(() => {
-            toast.error('댓글이 달리지 않았어요', {
-              toastId: 'error new comment',
-            });
-          });
+        commentMutation.mutate(comment);
       }
       return;
     }
@@ -232,19 +231,44 @@ const WatchPage = (): ReactElement => {
     setIsEditVisible(null);
   };
 
+  const likeMutation = useMutation({
+    mutationFn: () =>
+      isLikeVideo
+        ? cancelLike({ video_id: id || '' })
+        : addLike({ video_id: id || '' }),
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey: ['videoDetail', id] });
+      const previousVideoData = queryClient.getQueryData([
+        'videoDetail',
+        id,
+      ]) as VideoDetailType | undefined;
+
+      if (previousVideoData) {
+        queryClient.setQueryData(['videoDetail', id], {
+          ...previousVideoData,
+          user_is_liked: !isLikeVideo,
+          like_count: isLikeVideo
+            ? previousVideoData.like_count - 1
+            : previousVideoData.like_count + 1,
+        });
+      }
+
+      return { previousVideoData };
+    },
+    onError: (err, variables, context) => {
+      if (context?.previousVideoData) {
+        queryClient.setQueryData(
+          ['videoDetail', id],
+          context.previousVideoData,
+        );
+      }
+      toast.error('좋아요 처리에 실패했습니다.', { toastId: 'likeError' });
+    },
+  });
+
   const handleLikeClick = () => {
     if (is_sign_in) {
-      const action = isLikeVideo ? cancelLike : addLike;
-      action({ video_id: id || '' })
-        .then(() => {
-          getVideoDetail({ video_id: id || '' })
-            .then((res) => {
-              setVideoData(res);
-              setIsLikeVideo(res.user_is_liked);
-            })
-            .catch(() => {});
-        })
-        .catch(() => {});
+      likeMutation.mutate();
       return;
     }
     navigate('/auth/1');
@@ -252,16 +276,17 @@ const WatchPage = (): ReactElement => {
 
   useLayoutEffect(() => {
     window.scrollTo(0, 0);
-    getVideoDetail({ video_id: id || '' })
-      .then((res) => {
-        setVideoData(res);
-        setIsLikeVideo(res.user_is_liked);
-        if (res.timeline_data && Object.keys(res.timeline_data).length > 0) {
-          setVideoGraphData(getDistributionToGraphData(res.timeline_data));
-        }
-      })
-      .catch(() => {});
   }, [id]);
+
+  const videoGraphData = useMemo(() => {
+    if (
+      videoData?.timeline_data &&
+      Object.keys(videoData.timeline_data).length > 0
+    ) {
+      return getDistributionToGraphData(videoData.timeline_data);
+    }
+    return [];
+  }, [videoData]);
 
   useEffect(() => {
     if (!user_announced) {
@@ -277,13 +302,11 @@ const WatchPage = (): ReactElement => {
       // Socket Debug Listeners
       const onConnect = () => {
         console.log('✅ Socket connected:', socket.id);
-        setIsConnected(true);
       };
       const onDisconnect = () => {
         console.log('❌ Socket disconnected');
-        setIsConnected(false);
       };
-      const onConnectError = (err: any) =>
+      const onConnectError = (err: Error) =>
         console.error('⚠️ Socket connection error:', err);
 
       socket.on('connect', onConnect);
@@ -295,23 +318,6 @@ const WatchPage = (): ReactElement => {
         console.log(`📩 Socket received event: ${event}`, args);
       });
     }
-
-    // addHits removed as it's likely handled by GET video details in v2
-
-    getRelatedVideo({ video_id: id || '' })
-      .then((res) => {
-        setRelatedVideoList(res);
-      })
-      .catch((err) => console.error('Failed to get related videos:', err));
-    getVideoComments({ video_id: id || '' })
-      .then((res) => {
-        if (Array.isArray(res)) {
-          setCommentList(res);
-        } else {
-          setCommentList([]);
-        }
-      })
-      .catch((err) => console.error('Failed to get comments:', err));
 
     // Main distribution data is now part of video detail (timeline_data)
 
@@ -325,36 +331,6 @@ const WatchPage = (): ReactElement => {
       }
     };
   }, [id, is_sign_in]);
-
-  // Init Watching
-  useEffect(() => {
-    // Debug prerequisites
-    console.log('[Socket] Init Watch Check:', {
-      isConnected,
-      is_sign_in,
-      hasVideoData: !!videoData,
-      user_id,
-    });
-
-    if (isConnected && is_sign_in && videoData && user_id) {
-      console.log('Emitting init_watching');
-      socket.emit(
-        'init_watching',
-        {
-          video_view_log_id: videoViewLogId,
-          user_id: user_id,
-          video_id: videoData.video_id, // Internal UUID
-          duration: videoData.duration || 0,
-        },
-        (response: any) => {
-          console.log('[Socket] Init watching response:', response);
-          if (response?.status !== 'success') {
-            console.error('[Socket] Init watching failed:', response);
-          }
-        },
-      );
-    }
-  }, [is_sign_in, videoData, user_id, videoViewLogId, isConnected]);
 
   useEffect(() => {
     const captureInterval = setInterval(() => {
@@ -392,7 +368,19 @@ const WatchPage = (): ReactElement => {
           user_id: user_id,
           video_id: videoData.video_id, // Internal UUID
         },
-        (response: any) => {
+        (response: {
+          status: string;
+          response?: {
+            user_emotion: {
+              most_emotion: EmotionType;
+              [key: string]: string | number;
+            };
+            average_emotion: {
+              most_emotion: EmotionType;
+              [key: string]: string | number;
+            };
+          };
+        }) => {
           // console.log('[Socket] watch_frame response:', response);
           if (response?.status === 'success' && response?.response) {
             console.log(
@@ -425,16 +413,6 @@ const WatchPage = (): ReactElement => {
     return () => {
       clearInterval(frameDataInterval);
       clearInterval(captureInterval);
-      // End Watching on unmount or dep change
-      if (is_sign_in) {
-        socket.emit('end_watching', {
-          video_view_log_id: videoViewLogId,
-          duration: videoData?.duration || 0,
-          client_info: {
-            browser: navigator.userAgent,
-          },
-        });
-      }
     };
   }, [
     access_token,
@@ -452,8 +430,7 @@ const WatchPage = (): ReactElement => {
     emotionText,
     mostEmotion,
   }: {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    graphData: any;
+    graphData: Record<string, string | number>[];
     emotion: EmotionType;
     emotionText: string;
     mostEmotion: EmotionType;
@@ -493,7 +470,7 @@ const WatchPage = (): ReactElement => {
         className="comment-item-container"
         onMouseEnter={() => {
           if (is_mine) {
-            setHoveredComment(comment_id as any); // Temporarily casting to any/number or needs state update
+            setHoveredComment(comment_id); // Removed unnecessary 'as any'
           }
         }}
         onMouseLeave={() => {
@@ -847,19 +824,12 @@ const WatchPage = (): ReactElement => {
                         <div
                           className="comment-modifying-save font-label-small"
                           onClick={() => {
-                            modifyComment({
-                              comment_id: editingcommentindex,
-                              content: modifyingComment,
-                            })
-                              .then(() => {
-                                getVideoComments({ video_id: id || '' })
-                                  .then((res) => {
-                                    setCommentList(res);
-                                  })
-                                  .catch(() => {});
-                                setEditingcommentindex(null);
-                              })
-                              .catch(() => {});
+                            if (editingcommentindex !== null) {
+                              modifyCommentMutation.mutate({
+                                comment_id: editingcommentindex,
+                                content: modifyingComment,
+                              });
+                            }
                           }}
                           style={{
                             pointerEvents:
@@ -889,16 +859,7 @@ const WatchPage = (): ReactElement => {
                       isOpen={isModalOpen2}
                       onClose={closeModal2}
                       onCheck={() => {
-                        deleteComment({ comment_id: comment.comment_id })
-                          .then(() => {
-                            getVideoComments({ video_id: id || '' })
-                              .then((res) => {
-                                setCommentList(res);
-                                closeModal2();
-                              })
-                              .catch(() => {});
-                          })
-                          .catch(() => {});
+                        deleteCommentMutation.mutate(comment.comment_id);
                       }}>
                       <h2>댓글을 삭제하시겠어요?</h2>
                     </ModalDialog>

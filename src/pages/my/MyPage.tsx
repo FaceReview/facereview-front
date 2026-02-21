@@ -97,6 +97,7 @@ const MyPage = () => {
       toast.success('인증 코드가 발송되었습니다.');
       setIsVerificationModalOpen(true);
     } catch (err) {
+      console.error(err);
       toast.error('인증 코드 발송에 실패했습니다.');
     }
   };
@@ -113,6 +114,7 @@ const MyPage = () => {
       setIsVerificationModalOpen(false);
       setVerificationCode('');
     } catch (err) {
+      console.error(err);
       toast.error('인증 코드가 올바르지 않거나 오류가 발생했습니다.');
     }
   };

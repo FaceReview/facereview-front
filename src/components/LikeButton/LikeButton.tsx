@@ -24,11 +24,11 @@ const LikeButton = ({
       className={`like-button`}
       style={style}
       onClick={isDisabled ? () => {} : onClick}>
-      {isActive ? (
-        <img className={'like-image'} src={likeFilled} alt="like button" />
-      ) : (
-        <img className={'like-image'} src={likeEmpty} alt="like button" />
-      )}
+      <img
+        className={'like-image'}
+        src={isActive ? likeFilled : likeEmpty}
+        alt="like button"
+      />
       <p className="font-label-small like-text">{label}</p>
     </button>
   );

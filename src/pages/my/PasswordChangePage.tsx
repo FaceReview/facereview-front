@@ -41,6 +41,7 @@ const PasswordChangePage = () => {
       setIsEmailSent(true);
       toast.success('인증 코드가 발송되었습니다.');
     } catch (error) {
+      console.error(error);
       toast.error('인증 코드 발송에 실패했습니다. 다시 시도해주세요.');
     } finally {
       setIsSending(false);
@@ -71,6 +72,7 @@ const PasswordChangePage = () => {
         toast.error('오류가 발생했습니다. 토큰을 가져올 수 없습니다.');
       }
     } catch (err) {
+      console.error(err);
       toast.error('인증 코드가 올바르지 않거나 오류가 발생했습니다.');
     }
   };
@@ -96,6 +98,7 @@ const PasswordChangePage = () => {
       );
       handleLogoutClick(); // 변경 성공 시 후속 조치(로그아웃) 실행
     } catch (err) {
+      console.error(err);
       toast.error('비밀번호 변경 처리 중 오류가 발생했습니다.');
     }
   };

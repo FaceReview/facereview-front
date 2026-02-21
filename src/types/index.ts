@@ -46,7 +46,7 @@ export type VideoDetailType = {
   duration: number;
   user_is_liked: boolean;
   youtube_url: string;
-  timeline_data: any; // Using any for now or strictly typing if possible
+  timeline_data: VideoDistributionDataType;
 };
 export type VideoWatchedType = {
   title: string;
