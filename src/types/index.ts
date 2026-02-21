@@ -54,11 +54,9 @@ export type VideoWatchedType = {
   id?: string;
   uuid?: string;
   youtube_url: string;
-  most_emotion: EmotionType;
-  most_emotion_per: number;
-  distribution_data: {
-    graph_data: GraphDistributionDataType[];
-  };
+  dominant_emotion: EmotionType;
+  dominant_emotion_per: number;
+  timeline_data?: GraphDistributionDataType[];
 };
 export type VideoDistributionDataType = {
   [key in EmotionType]: { x: string | number; y: number }[];
@@ -117,12 +115,9 @@ export type RegisterVideoDataType = {
   category: string;
 };
 
-export type DonutGraphDataType = {
-  angry_per_avg: number;
-  happy_per_avg: number;
-  sad_per_avg: number;
-  surprise_per_avg: number;
-  neutral_per_avg: number;
+export type EmotionSummaryResponse = {
+  emotion_percentages: { [key in EmotionType]: number };
+  emotion_seconds: { [key in EmotionType]: number };
 };
 
 export type UpdateProfileRequest = {

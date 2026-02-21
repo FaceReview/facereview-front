@@ -1,4 +1,4 @@
-@use "styles/abstracts" as variables;
+@use 'styles/abstracts' as variables;
 
 .watch-page-container {
   display: flex;
@@ -24,6 +24,7 @@
       }
       @include variables.desktop {
         margin-bottom: 20px;
+        width: 852px;
       }
 
       &:hover .video-graph-container {
