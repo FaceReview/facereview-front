@@ -47,6 +47,8 @@ import useMediaQuery from 'utils/useMediaQuery';
 import { EMOTION_COLORS, EMOTION_LABELS, EMOTIONS } from 'constants/index';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
+let disconnectTimer: NodeJS.Timeout | null = null;
+
 const WatchPage = (): ReactElement => {
   const isMobile = useMediaQuery('(max-width: 1200px)');
   const [modifyingComment, setModifyingComment] = useState<string>('');
@@ -283,7 +285,27 @@ const WatchPage = (): ReactElement => {
       videoData?.timeline_data &&
       Object.keys(videoData.timeline_data).length > 0
     ) {
-      return getDistributionToGraphData(videoData.timeline_data);
+      const dist = getDistributionToGraphData(videoData.timeline_data);
+      const duration = videoData.duration || 100;
+      return dist.map((d) => {
+        let newData = [...d.data];
+        if (newData.length === 0) {
+          newData = [
+            { x: 0, y: 0 },
+            { x: duration, y: 0 },
+          ];
+        } else if (newData.length === 1) {
+          const singleY = newData[0].y;
+          newData = [
+            { x: 0, y: singleY },
+            { x: Math.max(duration, Number(newData[0].x) + 1), y: singleY },
+          ];
+        }
+        return {
+          ...d,
+          data: newData,
+        };
+      });
     }
     return [];
   }, [videoData]);
@@ -297,7 +319,14 @@ const WatchPage = (): ReactElement => {
 
   useEffect(() => {
     if (is_sign_in) {
-      socket.connect();
+      if (disconnectTimer) {
+        clearTimeout(disconnectTimer);
+        disconnectTimer = null;
+      }
+
+      if (!socket.connected) {
+        socket.connect();
+      }
 
       // Socket Debug Listeners
       const onConnect = () => {
@@ -327,7 +356,11 @@ const WatchPage = (): ReactElement => {
         socket.off('disconnect');
         socket.off('connect_error');
         socket.offAny(); // Clean up
-        socket.disconnect();
+
+        // Debounce socket disconnect to prevent "WebSocket is closed before the connection is established" in StrictMode
+        disconnectTimer = setTimeout(() => {
+          socket.disconnect();
+        }, 300);
       }
     };
   }, [id, is_sign_in]);
@@ -345,6 +378,9 @@ const WatchPage = (): ReactElement => {
       if (playerState !== 1) return;
 
       const capturedImage = capture();
+      // Wait until webcam is ready to provide frame data
+      if (!capturedImage) return;
+
       const currentTime = await video?.getCurrentTime();
       // const formattedCurrentTime = getCurrentTimeString(currentTime || 0); // Not needed for payload, strictly
 
@@ -590,9 +626,7 @@ const WatchPage = (): ReactElement => {
               legends={[]}
               role="application"
               ariaLabel="Nivo bar chart demo"
-              barAriaLabel={(e) =>
-                e.id + ': ' + e.formattedValue + ' in country: ' + e.indexValue
-              }
+              barAriaLabel={(e) => `${e.id}: ${e.formattedValue}%`}
             />
           </div>
 
@@ -646,9 +680,7 @@ const WatchPage = (): ReactElement => {
               legends={[]}
               role="application"
               ariaLabel="Nivo bar chart demo"
-              barAriaLabel={(e) =>
-                e.id + ': ' + e.formattedValue + ' in country: ' + e.indexValue
-              }
+              barAriaLabel={(e) => `${e.id}: ${e.formattedValue}%`}
             />
           </div>
           <div className="graph-detail-container">
@@ -702,31 +734,36 @@ const WatchPage = (): ReactElement => {
               />
             )}
             <div className="video-graph-container">
-              {videoGraphData &&
-                videoGraphData.filter((d) => d.data.length > 0).length > 0 && (
-                  <ResponsiveLine
-                    data={videoGraphData.filter((d) => d.data.length > 0)}
-                    colors={EMOTIONS.map((e) => EMOTION_COLORS[e])}
-                    margin={{ top: 2, right: 2, bottom: 2, left: 2 }}
-                    xScale={{ type: 'linear' }}
-                    yScale={{
-                      type: 'linear',
-                      min: 0,
-                      max: 100,
-                      stacked: false,
-                      reverse: false,
-                    }}
-                    curve="monotoneX"
-                    axisTop={null}
-                    axisRight={null}
-                    axisBottom={null}
-                    axisLeft={null}
-                    enablePoints={false}
-                    useMesh={true}
-                    enableSlices={false}
-                    legends={[]}
-                  />
-                )}
+              {videoGraphData && videoGraphData.length > 0 && (
+                <ResponsiveLine
+                  data={videoGraphData}
+                  colors={EMOTIONS.map((e) => EMOTION_COLORS[e])}
+                  margin={{ top: 2, right: 2, bottom: 2, left: 2 }}
+                  xScale={{
+                    type: 'linear',
+                    min: 0,
+                    max: videoData?.duration || 'auto',
+                  }}
+                  yScale={{
+                    type: 'linear',
+                    min: 0,
+                    max: 100,
+                    stacked: false,
+                    reverse: false,
+                  }}
+                  curve="monotoneX"
+                  axisTop={null}
+                  axisRight={null}
+                  axisBottom={null}
+                  axisLeft={null}
+                  enableGridX={false}
+                  enableGridY={false}
+                  enablePoints={false}
+                  useMesh={true}
+                  enableSlices={false}
+                  legends={[]}
+                />
+              )}
             </div>
           </div>
 
@@ -791,7 +828,9 @@ const WatchPage = (): ReactElement => {
             {commentList.length > 0 ? (
               commentList.map((comment, idx) =>
                 comment.comment_id === editingcommentindex ? (
-                  <div className="comment-modifying-container">
+                  <div
+                    key={comment.comment_id}
+                    className="comment-modifying-container">
                     <ProfileIcon
                       type={'icon-small'}
                       color={mapNumberToEmotion(user_profile)}
@@ -841,7 +880,7 @@ const WatchPage = (): ReactElement => {
                     </div>
                   </div>
                 ) : (
-                  <>
+                  <React.Fragment key={comment.comment_id}>
                     <CommentItem
                       key={`comment-${comment.content}-${idx}`}
                       user_name={comment.user_name}
@@ -863,7 +902,7 @@ const WatchPage = (): ReactElement => {
                       }}>
                       <h2>댓글을 삭제하시겠어요?</h2>
                     </ModalDialog>
-                  </>
+                  </React.Fragment>
                 ),
               )
             ) : (

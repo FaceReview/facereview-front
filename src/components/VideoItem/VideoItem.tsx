@@ -45,9 +45,18 @@ const VideoItem = ({
         origin: window.location.origin,
       },
     }),
-    [width, height]
+    [width, height],
   );
   const [video, setVideo] = useState<YouTubePlayer | null>(null);
+
+  const parsedVideoId = useMemo(() => {
+    if (videoId?.includes('v=')) {
+      return videoId.split('v=')[1]?.split('&')[0] || videoId;
+    } else if (videoId?.includes('youtu.be/')) {
+      return videoId.split('youtu.be/')[1]?.split('?')[0] || videoId;
+    }
+    return videoId;
+  }, [videoId]);
 
   const loadedVideoMostEmotion: string = videoMostEmotion as string;
 
@@ -86,12 +95,12 @@ const VideoItem = ({
         <img
           className={`video-thumbnail ${hoverToPlay ? null : 'fix'}`}
           style={{ width: width ? width : 280, height: height ? height : 158 }}
-          src={`http://img.youtube.com/vi/${videoId}/mqdefault.jpg`}
+          src={`http://img.youtube.com/vi/${parsedVideoId}/mqdefault.jpg`}
           alt=""
         />
         {hoverToPlay ? (
           <YouTube
-            videoId={videoId}
+            videoId={parsedVideoId}
             // id={string} // defaults -> ''
             // className={string} // defaults -> ''
             iframeClassName={'youtube-item'} // defaults -> ''

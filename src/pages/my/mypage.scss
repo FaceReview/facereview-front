@@ -318,13 +318,15 @@
 
     .pie-graph-container {
       width: 320px;
-      height: 320px;
+      height: auto;
 
       .pie-legend-container {
         display: flex;
+        flex-wrap: wrap;
         align-items: center;
         margin-top: 12px;
         padding-left: 20px;
+        gap: 8px 0;
 
         .legend-item-wrapper {
           display: flex;
@@ -363,11 +365,21 @@
 
     .emotion-time-container {
       display: flex;
+      flex-direction: column;
       margin-left: 80px;
+
+      @include variables.mobile {
+        margin-left: 0;
+        margin-top: 40px;
+        align-items: center;
+      }
 
       .emotion-time-title {
         color: variables.$gray-900;
-        margin-right: 60px;
+        margin-bottom: 24px;
+        @include variables.desktop {
+          margin-right: 0;
+        }
       }
 
       .emotion-time-text {
@@ -375,7 +387,7 @@
         line-height: 32px;
         font-weight: 700;
         color: variables.$gray-900;
-        margin-bottom: 28px;
+        margin-bottom: 20px;
 
         .happy {
           color: variables.$category-joyful-basic;
@@ -404,7 +416,7 @@
 
     @include variables.desktop {
       width: 1200px;
-      height: 291px;
+      height: auto;
     }
   }
 }

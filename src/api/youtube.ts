@@ -1,11 +1,11 @@
 import {
-  DonutGraphDataType,
-  EmotionType,
-  VideoDataType,
-  VideoDetailType,
   VideoRelatedType,
   VideoWatchedType,
   YoutubeVideoDataType,
+  EmotionSummaryResponse,
+  VideoDataType,
+  VideoDetailType,
+  EmotionType,
 } from 'types';
 import api, { youtubeApi } from './index';
 
@@ -113,22 +113,10 @@ export const getRecentVideo = async (props?: {
   }
 };
 
-export const getDounutGraphData = async () => {
+export const getEmotionSummary = async () => {
   try {
-    const url = '/mypage/donut-data';
-    const { data } = await api.get<DonutGraphDataType>(url);
-
-    return data;
-  } catch (error) {
-    console.log(error);
-    throw error;
-  }
-};
-
-export const getAllEmotionTimeData = async () => {
-  try {
-    const url = '/mypage/all-emotion-num';
-    const { data } = await api.get<{ [key in EmotionType]: number }>(url);
+    const url = '/v2/mypage/emotion/summary';
+    const { data } = await api.get<EmotionSummaryResponse>(url);
 
     return data;
   } catch (error) {

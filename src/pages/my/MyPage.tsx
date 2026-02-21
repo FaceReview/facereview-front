@@ -18,12 +18,8 @@ import ModalDialog from 'components/ModalDialog/ModalDialog';
 import TextInput from 'components/TextInput/TextInput';
 import { sendEmailVerification, verifyEmailCode } from 'api/mypage';
 import { toast } from 'react-toastify';
-import {
-  getAllEmotionTimeData,
-  getDounutGraphData,
-  getRecentVideo,
-} from 'api/youtube';
-import { DonutGraphDataType, EmotionType, VideoWatchedType } from 'types/index';
+import { getEmotionSummary, getRecentVideo } from 'api/youtube';
+import { EmotionType, VideoWatchedType } from 'types/index';
 import { mapNumberToEmotion } from 'utils/index';
 import { ResponsiveLine } from '@nivo/line';
 import useMediaQuery from 'utils/useMediaQuery';
@@ -78,7 +74,7 @@ const MyPage = () => {
   );
 
   const filteredRecentVideos = recentVideo.filter(
-    (v) => selectedEmotion === 'all' || v.most_emotion === selectedEmotion,
+    (v) => selectedEmotion === 'all' || v.dominant_emotion === selectedEmotion,
   );
 
   const handleChipClick = (emotion: 'all' | EmotionType) => {
@@ -131,23 +127,17 @@ const MyPage = () => {
           setRecentVideo(data);
         })
         .catch((err) => console.log(err));
-      getDounutGraphData()
+      getEmotionSummary()
         .then((res) => {
+          setEmotionTimeData(res.emotion_seconds);
           setDonutGraphData((prevData) =>
             prevData.map((item) => {
-              const key =
-                `${item.originalId}_per_avg` as keyof DonutGraphDataType;
               return {
                 ...item,
-                value: res[key],
+                value: res.emotion_percentages[item.originalId] || 0,
               };
             }),
           );
-        })
-        .catch((err) => console.log(err));
-      getAllEmotionTimeData()
-        .then((res) => {
-          setEmotionTimeData(res);
         })
         .catch((err) => console.log(err));
     }
@@ -277,16 +267,16 @@ const MyPage = () => {
                 filteredRecentVideos.map((v) => (
                   <div
                     className="recent-video-item"
-                    key={`videoItem${v.youtube_url}${v.most_emotion_per}`}>
+                    key={`videoItem${v.youtube_url}${v.dominant_emotion_per}`}>
                     <VideoItem
                       type="big-emoji"
-                      key={`videoItem${v.youtube_url}${v.most_emotion_per}`}
+                      key={`videoItem${v.youtube_url}${v.dominant_emotion_per}`}
                       width={isMobile ? window.innerWidth - 32 : 360}
                       videoId={v.youtube_url}
                       videoUuid={v.video_id}
                       videoTitle={v.title}
-                      videoMostEmotion={v.most_emotion}
-                      videoMostEmotionPercentage={v.most_emotion_per}
+                      videoMostEmotion={v.dominant_emotion}
+                      videoMostEmotionPercentage={v.dominant_emotion_per}
                       style={
                         isMobile
                           ? { paddingTop: '14px', paddingBottom: '14px' }
@@ -295,48 +285,50 @@ const MyPage = () => {
                       hoverToPlay={false}
                     />
                     <div className="video-graph-container">
-                      <ResponsiveLine
-                        data={v.distribution_data.graph_data}
-                        colors={EMOTIONS.map((e) => EMOTION_COLORS[e])}
-                        margin={{ top: 2, right: 0, bottom: 2, left: 0 }}
-                        xScale={{ type: 'point' }}
-                        yScale={{
-                          type: 'linear',
-                          min: 0,
-                          max: 100,
-                          reverse: false,
-                        }}
-                        curve={'natural'}
-                        yFormat=" >-.2f"
-                        axisTop={null}
-                        axisRight={null}
-                        enableGridX={false}
-                        enableGridY={false}
-                        axisBottom={{
-                          tickSize: 5,
-                          tickPadding: 5,
-                          tickRotation: 0,
-                          legend: 'transportation',
-                          legendOffset: 36,
-                          legendPosition: 'middle',
-                        }}
-                        axisLeft={{
-                          tickSize: 5,
-                          tickPadding: 5,
-                          tickRotation: 0,
-                          legend: 'count',
-                          legendOffset: -40,
-                          legendPosition: 'middle',
-                        }}
-                        pointSize={0}
-                        pointColor={{ theme: 'background' }}
-                        pointBorderWidth={0}
-                        pointBorderColor={{ from: 'serieColor' }}
-                        pointLabelYOffset={-12}
-                        useMesh={true}
-                        legends={[]}
-                        tooltip={() => <></>}
-                      />
+                      {(v.timeline_data || []).length > 0 && (
+                        <ResponsiveLine
+                          data={v.timeline_data || []}
+                          colors={EMOTIONS.map((e) => EMOTION_COLORS[e])}
+                          margin={{ top: 2, right: 0, bottom: 2, left: 0 }}
+                          xScale={{ type: 'point' }}
+                          yScale={{
+                            type: 'linear',
+                            min: 0,
+                            max: 100,
+                            reverse: false,
+                          }}
+                          curve={'natural'}
+                          yFormat=" >-.2f"
+                          axisTop={null}
+                          axisRight={null}
+                          enableGridX={false}
+                          enableGridY={false}
+                          axisBottom={{
+                            tickSize: 5,
+                            tickPadding: 5,
+                            tickRotation: 0,
+                            legend: 'transportation',
+                            legendOffset: 36,
+                            legendPosition: 'middle',
+                          }}
+                          axisLeft={{
+                            tickSize: 5,
+                            tickPadding: 5,
+                            tickRotation: 0,
+                            legend: 'count',
+                            legendOffset: -40,
+                            legendPosition: 'middle',
+                          }}
+                          pointSize={0}
+                          pointColor={{ theme: 'background' }}
+                          pointBorderWidth={0}
+                          pointBorderColor={{ from: 'serieColor' }}
+                          pointLabelYOffset={-12}
+                          useMesh={true}
+                          legends={[]}
+                          tooltip={() => null}
+                        />
+                      )}
                     </div>
                   </div>
                 ))
@@ -364,21 +356,28 @@ const MyPage = () => {
           </h2>
           <div className="my-page-emotion-graph-container">
             <div className="pie-graph-container">
-              <ResponsivePie
-                colors={EMOTIONS.map((e) => EMOTION_COLORS[e])}
-                data={donutGraphData}
-                margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
-                activeOuterRadiusOffset={8}
-                borderWidth={1}
-                borderColor={{
-                  from: 'color',
-                  modifiers: [['darker', 0.2]],
-                }}
-                innerRadius={0.7}
-                enableArcLabels={false}
-                enableArcLinkLabels={false}
-                tooltip={() => <></>}
-              />
+              <div
+                style={{
+                  width: '320px',
+                  height: '320px',
+                  position: 'relative',
+                }}>
+                <ResponsivePie
+                  colors={EMOTIONS.map((e) => EMOTION_COLORS[e])}
+                  data={donutGraphData}
+                  margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
+                  activeOuterRadiusOffset={8}
+                  borderWidth={1}
+                  borderColor={{
+                    from: 'color',
+                    modifiers: [['darker', 0.2]],
+                  }}
+                  innerRadius={0.7}
+                  enableArcLabels={false}
+                  enableArcLinkLabels={false}
+                  tooltip={() => null}
+                />
+              </div>
               <div className="pie-legend-container">
                 {donutGraphData.map((item) => (
                   <div key={item.originalId} className="legend-item-wrapper">
