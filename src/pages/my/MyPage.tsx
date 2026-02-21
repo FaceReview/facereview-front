@@ -219,14 +219,19 @@ const MyPage = () => {
                 </h3>
               </div>
               {!isMobile && (
-                <Button
-                  label="로그아웃"
-                  variant="small-outline"
-                  onClick={handleLogoutClick}
-                  style={{
-                    marginBottom: '40px',
-                  }}
-                />
+                <div
+                  style={{ display: 'flex', gap: '8px', marginBottom: '40px' }}>
+                  <Button
+                    label="비밀번호 변경"
+                    variant="small-outline"
+                    onClick={() => navigate('/my/password-change')}
+                  />
+                  <Button
+                    label="로그아웃"
+                    variant="small-outline"
+                    onClick={handleLogoutClick}
+                  />
+                </div>
               )}
             </div>
           </div>
