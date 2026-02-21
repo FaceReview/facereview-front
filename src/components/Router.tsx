@@ -7,6 +7,7 @@ const WatchPage = lazy(() => import('pages/watch/WatchPage'));
 const AuthPage = lazy(() => import('../pages/auth/AuthPage'));
 const MainPage = lazy(() => import('../pages/main/MainPage'));
 const MyPage = lazy(() => import('../pages/my/MyPage'));
+const PasswordChangePage = lazy(() => import('../pages/my/PasswordChangePage'));
 const EditPage = lazy(() => import('../pages/edit/EditPage'));
 const TutorialPage = lazy(() => import('pages/tutorial/TutorialPage'));
 const AdminPage = lazy(() => import('pages/admin/AdminPage'));
@@ -48,6 +49,10 @@ const Router = () => {
           <Route
             element={<ScreenContainer isSignIn={true} headerShown={true} />}>
             <Route path="/my" element={<MyPage />} />
+            <Route
+              path="/my/password-change"
+              element={<PasswordChangePage />}
+            />
             <Route path="/edit" element={<EditPage />} />
           </Route>
           <Route path="/tutorial/:step" element={<TutorialPage />} />

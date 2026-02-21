@@ -17,16 +17,45 @@ api.interceptors.request.use(
   },
 );
 
+const MAX_RETRY_COUNT = 3;
+
 api.interceptors.response.use(
   (response) => {
     return response;
   },
-  (error) => {
-    if (error.response?.status === 401) {
-      window.dispatchEvent(new Event('auth:unauthorized'));
-    }
-    if (error.status === 408) {
-      // noop
+  async (error) => {
+    const originalRequest = error.config;
+
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      originalRequest._retryCount = (originalRequest._retryCount || 0) + 1;
+
+      if (originalRequest._retryCount > MAX_RETRY_COUNT) {
+        window.dispatchEvent(new Event('auth:unauthorized'));
+        return Promise.reject(error);
+      }
+
+      try {
+        const { refreshToken } = await import('./auth');
+        const { useAuthStorage } = await import('store/authStore');
+        const HeaderToken = (await import('./HeaderToken')).default;
+
+        const { data } = await refreshToken();
+        const { access_token } = data;
+
+        // Update Token
+        useAuthStorage.getState().setToken({
+          access_token,
+        });
+        HeaderToken.set(access_token);
+
+        // Retry original request
+        originalRequest.headers['Authorization'] = `Bearer ${access_token}`;
+        return api(originalRequest);
+      } catch (refreshError) {
+        window.dispatchEvent(new Event('auth:unauthorized'));
+        return Promise.reject(refreshError);
+      }
     }
     return Promise.reject(error);
   },

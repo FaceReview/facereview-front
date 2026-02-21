@@ -1,4 +1,4 @@
-@use "styles/abstracts" as variables;
+@use 'styles/abstracts' as variables;
 
 .my-page-container {
   display: flex;
@@ -14,6 +14,66 @@
   @include variables.desktop {
     padding-top: 126px;
     width: calc(50vw + 600px);
+  }
+
+  .verify-alert-banner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: rgba(255, 152, 0, 0.1);
+    border: 1px solid rgba(255, 152, 0, 0.3);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    transition: background-color 0.2s;
+
+    @include variables.desktop {
+      margin-right: 20px;
+      width: calc(1200px - 20px);
+    }
+
+    &:hover {
+      background-color: rgba(255, 152, 0, 0.15);
+    }
+
+    .banner-text {
+      color: #ffb74d;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .banner-action {
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      background-color: #ff9800;
+      padding: 6px 12px;
+      border-radius: 6px;
+      margin-left: 16px;
+      flex-shrink: 0;
+      cursor: pointer;
+      border: none;
+
+      &:hover {
+        background-color: #f57c00;
+      }
+    }
+
+    @include variables.mobile {
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 16px;
+      margin-right: 16px;
+      margin-bottom: 32px;
+      width: calc(100vw - 32px);
+
+      .banner-action {
+        margin-top: 12px;
+        margin-left: 0;
+        width: 100%;
+        text-align: center;
+      }
+    }
   }
 
   .my-page-user-container {
@@ -41,6 +101,52 @@
         margin-bottom: 56px;
       }
 
+      .my-page-profile-image-container {
+        position: relative;
+        display: inline-flex;
+        width: fit-content;
+        height: fit-content;
+
+        .verify-badge {
+          position: absolute;
+          bottom: 0;
+          right: 0;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 22px;
+          height: 22px;
+          border-radius: 50%;
+          background-color: #2196f3;
+          box-shadow: 0 0 0 2px #15161c; // 다크테마 배경 컷아웃 효과
+          color: white;
+
+          &::before {
+            content: '';
+            display: block;
+            width: 4px;
+            height: 9px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+            margin-bottom: 2px;
+          }
+
+          @include variables.mobile {
+            width: 16px;
+            height: 16px;
+            box-shadow: 0 0 0 1.5px #15161c;
+
+            &::before {
+              width: 3px;
+              height: 6px;
+              border-width: 0 1.5px 1.5px 0;
+              margin-bottom: 1.5px;
+            }
+          }
+        }
+      }
+
       .my-page-user-edit-container {
         display: flex;
         justify-content: space-between;
@@ -59,6 +165,8 @@
 
           .my-page-username {
             margin-bottom: 6px;
+            display: flex;
+            align-items: center;
           }
         }
       }
@@ -127,7 +235,8 @@
       padding-left: 20px;
       margin-bottom: 88px;
 
-      @include variables.mobile {}
+      @include variables.mobile {
+      }
 
       @include variables.desktop {
         height: 453px;
@@ -200,7 +309,6 @@
 }
 
 .my-page-emotion-container {
-
   .my-page-emotion-graph-container {
     display: flex;
     flex-wrap: wrap;
@@ -217,7 +325,6 @@
         align-items: center;
         margin-top: 12px;
         padding-left: 20px;
-
 
         .legend-item-wrapper {
           display: flex;
@@ -258,7 +365,6 @@
       display: flex;
       margin-left: 80px;
 
-
       .emotion-time-title {
         color: variables.$gray-900;
         margin-right: 60px;
@@ -289,13 +395,12 @@
 
         .neutral {
           color: variables.$category-neutral-basic;
-
         }
       }
     }
 
-
-    @include variables.mobile {}
+    @include variables.mobile {
+    }
 
     @include variables.desktop {
       width: 1200px;

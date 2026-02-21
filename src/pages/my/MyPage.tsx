@@ -14,6 +14,10 @@ import Etc from 'assets/img/etc.png';
 import HeaderToken from 'api/HeaderToken';
 import { useAuthStorage } from 'store/authStore';
 import VideoItem from 'components/VideoItem/VideoItem';
+import ModalDialog from 'components/ModalDialog/ModalDialog';
+import TextInput from 'components/TextInput/TextInput';
+import { sendEmailVerification, verifyEmailCode } from 'api/mypage';
+import { toast } from 'react-toastify';
 import {
   getAllEmotionTimeData,
   getDounutGraphData,
@@ -31,12 +35,21 @@ import {
 } from 'constants/index';
 
 const MyPage = () => {
-  const { is_sign_in, user_name, user_profile } = useAuthStorage();
+  const {
+    is_sign_in,
+    user_name,
+    user_profile,
+    is_verify_email_done,
+    setVerifyEmailDone,
+  } = useAuthStorage();
 
   const isMobile = useMediaQuery('(max-width: 1200px)');
 
   const navigate = useNavigate();
   const { setTempToken } = useAuthStorage();
+
+  const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
+  const [verificationCode, setVerificationCode] = useState('');
 
   const [selectedEmotion, setSelectedEmotion] = useState<'all' | EmotionType>(
     'all',
@@ -76,6 +89,34 @@ const MyPage = () => {
     HeaderToken.set('');
     setTempToken({ access_token: '' });
     navigate('/main');
+  };
+
+  const handleVerifyEmailClick = async () => {
+    try {
+      await sendEmailVerification();
+      toast.success('인증 코드가 발송되었습니다.');
+      setIsVerificationModalOpen(true);
+    } catch (err) {
+      console.error(err);
+      toast.error('인증 코드 발송에 실패했습니다.');
+    }
+  };
+
+  const handleVerifyCodeSubmit = async () => {
+    if (verificationCode.length !== 6) {
+      toast.error('인증코드 6자리를 입력해주세요.');
+      return;
+    }
+    try {
+      await verifyEmailCode({ code: verificationCode });
+      toast.success('이메일 인증이 완료되었습니다.');
+      setVerifyEmailDone(true);
+      setIsVerificationModalOpen(false);
+      setVerificationCode('');
+    } catch (err) {
+      console.error(err);
+      toast.error('인증 코드가 올바르지 않거나 오류가 발생했습니다.');
+    }
   };
 
   useLayoutEffect(() => {
@@ -123,12 +164,38 @@ const MyPage = () => {
   return (
     <>
       <div className="my-page-container">
+        {!is_verify_email_done && (
+          <section
+            className="verify-alert-banner"
+            role="alert"
+            aria-live="polite">
+            <p className="banner-text">
+              원활한 서비스 이용을 위해 이메일 인증을 진행해주세요.
+            </p>
+            <button
+              type="button"
+              className="banner-action"
+              onClick={handleVerifyEmailClick}
+              aria-label="이메일 인증 진행하기">
+              인증하기
+            </button>
+          </section>
+        )}
         <div className="my-page-user-container">
           <div className="my-page-user-info-container">
-            <ProfileIcon
-              type={isMobile ? 'icon-medium' : 'icon-large'}
-              color={mapNumberToEmotion(user_profile)}
-            />
+            <div className="my-page-profile-image-container">
+              <ProfileIcon
+                type={isMobile ? 'icon-medium' : 'icon-large'}
+                color={mapNumberToEmotion(user_profile)}
+              />
+              {is_verify_email_done && (
+                <span
+                  className="verify-badge"
+                  role="img"
+                  aria-label="이메일 인증 완료된 계정입니다."
+                  title="이메일 인증 완료"></span>
+              )}
+            </div>
             <div className="my-page-user-edit-container">
               <div className="my-page-name-container">
                 <div className="my-page-name-wrapper">
@@ -137,7 +204,8 @@ const MyPage = () => {
                       isMobile
                         ? 'my-page-username font-title-medium'
                         : 'my-page-username font-title-large'
-                    }>
+                    }
+                    style={{ display: 'flex', alignItems: 'center' }}>
                     {user_name}님
                   </h2>
                   <SomeIcon
@@ -153,14 +221,19 @@ const MyPage = () => {
                 </h3>
               </div>
               {!isMobile && (
-                <Button
-                  label="로그아웃"
-                  variant="small-outline"
-                  onClick={handleLogoutClick}
-                  style={{
-                    marginBottom: '40px',
-                  }}
-                />
+                <div
+                  style={{ display: 'flex', gap: '8px', marginBottom: '40px' }}>
+                  <Button
+                    label="비밀번호 변경"
+                    variant="small-outline"
+                    onClick={() => navigate('/my/password-change')}
+                  />
+                  <Button
+                    label="로그아웃"
+                    variant="small-outline"
+                    onClick={handleLogoutClick}
+                  />
+                </div>
               )}
             </div>
           </div>
@@ -338,6 +411,63 @@ const MyPage = () => {
           </div>
         </div>
       </div>
+      <ModalDialog
+        type="two-button"
+        name="email-verification"
+        isOpen={isVerificationModalOpen}
+        onClose={() => {
+          setIsVerificationModalOpen(false);
+          setVerificationCode('');
+        }}
+        onCheck={handleVerifyCodeSubmit}>
+        <div style={{ textAlign: 'center', width: '100%' }}>
+          <h3
+            className="font-title-large"
+            style={{
+              marginTop: '0',
+              marginBottom: '16px',
+              fontSize: '24px',
+              fontWeight: '700',
+            }}>
+            이메일 인증
+          </h3>
+          <p
+            className="font-body-large"
+            style={{
+              marginTop: '0',
+              marginBottom: '40px',
+              color: '#A0A0A0',
+              lineHeight: '1.6',
+              fontSize: '15px',
+            }}>
+            가입하신 이메일로 6자리 인증 코드가 발송되었습니다.
+            <br />
+            수신된 메일을 확인하여 코드를 입력해주세요.
+          </p>
+          <TextInput
+            id="verificationCode"
+            value={verificationCode}
+            onChange={(e) => setVerificationCode(e.target.value)}
+            placeholder="6자리 코드"
+            maxLength={6}
+            aria-label="6자리 인증 코드"
+            style={{
+              width: '100%',
+              maxWidth: '280px',
+              margin: '0 auto',
+              textAlign: 'center',
+              letterSpacing: '8px',
+              backgroundColor: '#2A2A36',
+              border: '1px solid #4B4B5C',
+              borderRadius: '8px',
+              padding: '16px',
+              fontSize: '20px',
+              fontWeight: '700',
+              color: '#FFFFFF',
+            }}
+          />
+        </div>
+      </ModalDialog>
     </>
   );
 };

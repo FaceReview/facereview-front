@@ -11,20 +11,13 @@ interface AuthState {
   user_tutorial: number;
   user_announced: boolean;
   user_favorite_genres: string[];
+  is_verify_email_done: boolean;
   access_token: string;
-  refresh_token: string;
-  setToken: ({
-    access_token,
-    refresh_token,
-  }: {
-    access_token: string;
-    refresh_token: string;
-  }) => void;
+  setToken: ({ access_token }: { access_token: string }) => void;
   setUserInfo: ({
     is_admin,
     is_sign_in,
     access_token,
-    refresh_token,
     user_id,
     user_name,
     user_profile,
@@ -34,12 +27,12 @@ interface AuthState {
     is_admin: boolean;
     is_sign_in: boolean;
     access_token: string;
-    refresh_token: string;
     user_id: string;
     user_name: string;
     user_profile: number;
     user_tutorial: number;
     user_favorite_genres: string[];
+    is_verify_email_done: boolean;
   }) => void;
   setUserAnnounced: ({ user_announced }: { user_announced: boolean }) => void;
   setUserName: ({ user_name }: { user_name: string }) => void;
@@ -50,6 +43,7 @@ interface AuthState {
     user_favorite_genres: string[];
   }) => void;
   setTempToken: ({ access_token }: { access_token: string }) => void;
+  setVerifyEmailDone: (status: boolean) => void;
 }
 
 export const useAuthStorage = create<AuthState>()(
@@ -64,35 +58,33 @@ export const useAuthStorage = create<AuthState>()(
         user_tutorial: 0,
         user_announced: false,
         user_favorite_genres: [],
+        is_verify_email_done: false,
         access_token: '',
-        refresh_token: '',
-        setToken: ({ access_token, refresh_token }) =>
+        setToken: ({ access_token }) =>
           set(() => ({
             access_token: access_token,
-            refresh_token: refresh_token,
           })),
         setUserInfo: ({
           is_admin,
 
-          is_sign_in,
           access_token,
-          refresh_token,
           user_id,
           user_name,
           user_profile,
           user_tutorial,
           user_favorite_genres,
+          is_verify_email_done,
         }) =>
           set(() => ({
             is_admin: is_admin,
             is_sign_in: true,
             access_token,
-            refresh_token,
             user_id,
             user_name,
             user_profile,
             user_tutorial,
             user_favorite_genres,
+            is_verify_email_done,
           })),
         setUserAnnounced: ({ user_announced }) =>
           set(() => ({
@@ -118,7 +110,12 @@ export const useAuthStorage = create<AuthState>()(
             user_name: '',
             user_profile: 0,
             user_tutorial: 0,
+            is_verify_email_done: false,
             access_token: access_token,
+          })),
+        setVerifyEmailDone: (status) =>
+          set(() => ({
+            is_verify_email_done: status,
           })),
       }),
 

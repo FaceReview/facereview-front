@@ -4,9 +4,13 @@ import api from './index';
 export const getVideoComments = async (props: { video_id: string }) => {
   try {
     const url = '/v2/watch/comments';
-    const { data } = await api.get<CommentType[]>(url, { params: props });
+    // SuccessResponse 형태가 아니라 { comments: [], total: number } 형태입니다.
+    const { data } = await api.get<{
+      comments: CommentType[];
+      total: number;
+    }>(url, { params: props });
 
-    return data;
+    return data.comments || [];
   } catch (error) {
     console.log(error);
     throw error;
