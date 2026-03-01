@@ -11,7 +11,6 @@ import SomeIcon from 'components/SomeIcon/SomeIcon';
 
 import { ResponsivePie } from '@nivo/pie';
 import Etc from 'assets/img/etc.png';
-import HeaderToken from 'api/HeaderToken';
 import { useAuthStorage } from 'store/authStore';
 import VideoItem from 'components/VideoItem/VideoItem';
 import ModalDialog from 'components/ModalDialog/ModalDialog';
@@ -19,6 +18,7 @@ import TextInput from 'components/TextInput/TextInput';
 import { sendEmailVerification, verifyEmailCode } from 'api/mypage';
 import { toast } from 'react-toastify';
 import { getEmotionSummary, getRecentVideo } from 'api/youtube';
+import { useLogout } from 'hooks/useLogout';
 import { EmotionType, VideoWatchedType } from 'types/index';
 import { mapNumberToEmotion } from 'utils/index';
 import { ResponsiveLine } from '@nivo/line';
@@ -42,7 +42,7 @@ const MyPage = () => {
   const isMobile = useMediaQuery('(max-width: 1200px)');
 
   const navigate = useNavigate();
-  const { setTempToken } = useAuthStorage();
+  const { handleLogout } = useLogout();
 
   const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
   const [verificationCode, setVerificationCode] = useState('');
@@ -81,10 +81,8 @@ const MyPage = () => {
     setSelectedEmotion(emotion);
   };
 
-  const handleLogoutClick = () => {
-    HeaderToken.set('');
-    setTempToken({ access_token: '' });
-    navigate('/main');
+  const handleLogoutClick = async () => {
+    await handleLogout('/main');
   };
 
   const handleVerifyEmailClick = async () => {
