@@ -22,7 +22,7 @@ import { useLogout } from 'hooks/useLogout';
 import { EmotionType, VideoWatchedType } from 'types/index';
 import { mapNumberToEmotion } from 'utils/index';
 import { ResponsiveLine } from '@nivo/line';
-import useMediaQuery from 'utils/useMediaQuery';
+import useMediaQuery from 'hooks/useMediaQuery';
 import {
   EMOTION_COLORS,
   EMOTION_EMOJIS,

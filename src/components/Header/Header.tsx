@@ -6,7 +6,7 @@ import { useAuthStorage } from 'store/authStore';
 import AnimatedLogo from '../AnimatedLogo/AnimatedLogo';
 import './header.scss';
 import { mapNumberToEmotion } from 'utils/index';
-import useMediaQuery from 'utils/useMediaQuery';
+import useMediaQuery from 'hooks/useMediaQuery';
 import { useLogout } from 'hooks/useLogout';
 
 type HeaderPropsType = {

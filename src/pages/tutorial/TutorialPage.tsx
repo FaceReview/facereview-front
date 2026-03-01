@@ -7,7 +7,7 @@ import StepIndicator from 'components/StepIndicator/StepIndicator';
 import { ReactElement, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import useMediaQuery from 'utils/useMediaQuery';
+import useMediaQuery from 'hooks/useMediaQuery';
 import './tutorialpage.scss';
 
 const TUTORIAL_TEXT = [

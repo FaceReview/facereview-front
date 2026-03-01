@@ -20,8 +20,8 @@ import SomeIcon from 'components/SomeIcon/SomeIcon';
 import TextInput from 'components/TextInput/TextInput';
 import { CATEGORIES, CATEGORY_ITEMS, EMOTIONS } from 'constants/index';
 import { useLocation } from 'react-router-dom';
-import useIntersectionObserver from 'utils/useIntersectionObserver';
-import useMediaQuery from 'utils/useMediaQuery';
+import useIntersectionObserver from 'hooks/useIntersectionObserver';
+import useMediaQuery from 'hooks/useMediaQuery';
 
 const HomeContentSection = (): ReactElement => {
   const isMobile = useMediaQuery('(max-width: 1200px)');

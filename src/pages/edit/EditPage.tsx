@@ -12,7 +12,7 @@ import { useAuthStorage } from 'store/authStore';
 import { updateProfile } from 'api/auth';
 import { mapEmotionToNumber, mapNumberToEmotion } from 'utils/index';
 import CategoryList from 'components/CategoryList/CategoryList';
-import useMediaQuery from 'utils/useMediaQuery';
+import useMediaQuery from 'hooks/useMediaQuery';
 
 const EditPage = () => {
   const isMobile = useMediaQuery('(max-width: 1200px)');
