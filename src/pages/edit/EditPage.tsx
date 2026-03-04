@@ -113,31 +113,39 @@ const EditPage = () => {
             isEditable={true}
             onEditClick={openModal}
           />
-          <ModalDialog
-            type={'one-button'}
-            name="edit-page-modal"
-            isOpen={isModalOpen}
-            onClose={closeModal}
-            onCheck={handleModalCheck}>
-            <h3 className="font-title-mini edit-page-modal-title">
-              아이콘을 선택해주세요
-            </h3>
-
-            <div className="edit-page-modal-icon-wrapper">
-              {EMOTIONS.map((emotion, index) => (
-                <ProfileIcon
-                  key={emotion}
-                  type="icon-medium"
-                  color={emotion}
-                  onSelectClick={() => handleColorSelect(emotion)}
-                  style={{
-                    cursor: 'pointer',
-                    marginRight: index !== EMOTIONS.length - 1 ? '10px' : 0,
-                    border:
-                      selectedColor === emotion ? '3px solid #76FFCE' : 'none',
+          <ModalDialog isOpen={isModalOpen} onClose={closeModal}>
+            <div className="edit-page-modal-container">
+              <h3 className="font-title-mini edit-page-modal-title">
+                아이콘을 선택해주세요
+              </h3>
+              <div className="edit-page-modal-icon-wrapper">
+                {EMOTIONS.map((emotion, index) => (
+                  <ProfileIcon
+                    key={emotion}
+                    type="icon-medium"
+                    color={emotion}
+                    onSelectClick={() => handleColorSelect(emotion)}
+                    style={{
+                      cursor: 'pointer',
+                      marginRight: index !== EMOTIONS.length - 1 ? '10px' : 0,
+                      border:
+                        selectedColor === emotion
+                          ? '3px solid #76FFCE'
+                          : 'none',
+                    }}
+                  />
+                ))}
+              </div>
+              <div className="edit-page-modal-button-wrapper">
+                <Button
+                  label={'확인'}
+                  variant={'cta-full'}
+                  onClick={() => {
+                    closeModal();
+                    handleModalCheck();
                   }}
                 />
-              ))}
+              </div>
             </div>
           </ModalDialog>
           <div className="edit-page-edit-container">

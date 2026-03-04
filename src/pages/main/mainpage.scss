@@ -175,3 +175,73 @@
     }
   }
 }
+
+.video-register-modal-container {
+  position: relative;
+  padding: 60px 40px 0px 40px;
+  width: 500px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  .main-page-modal-title {
+    text-align: center;
+  }
+
+  .main-page-modal-input-container {
+    width: 100%;
+    margin-top: 80px;
+
+    .main-page-modal-input-label {
+      margin-bottom: 16px;
+    }
+
+    .main-page-modal-input-wrapper {
+      width: 100%;
+      display: flex;
+    }
+  }
+
+  .main-page-modal-thumbnail-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 36px;
+    height: 298px;
+    overflow: auto;
+
+    .main-page-modal-thumbnail-empty {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 380px;
+      height: 214px;
+      min-height: 214px;
+      background: variables.$gray-200;
+      border-radius: 12px;
+
+      .main-page-modal-thumbnail-empty-image {
+        width: 80px;
+        height: 80px;
+      }
+    }
+
+    .main-page-modal-thumbnail-registering {
+      width: 380px;
+      height: 214px;
+      border-radius: 12px;
+    }
+
+    .main-page-modal-thumbnail-registered {
+      width: 380px;
+      height: 214px;
+      margin-top: 36px;
+      border-radius: 12px;
+    }
+  }
+
+  .video-register-modal-button-wrapper {
+    width: 100%;
+    padding: 12px 10px 40px 10px;
+  }
+}

@@ -1,4 +1,4 @@
-@use "styles/abstracts" as variables;
+@use 'styles/abstracts' as variables;
 
 .edit-page-container {
   display: flex;
@@ -57,5 +57,26 @@
 
   .edit-page-input-alert-message {
     color: variables.$system-error;
+  }
+}
+
+.edit-page-modal-container {
+  padding: 32px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  .edit-page-modal-title {
+    margin-bottom: 24px;
+  }
+
+  .edit-page-modal-icon-wrapper {
+    display: flex;
+    margin-bottom: 12px;
+  }
+
+  .edit-page-modal-button-wrapper {
+    width: 100%;
+    padding: 12px 0 0 0;
   }
 }
