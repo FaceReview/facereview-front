@@ -1,4 +1,4 @@
-@use "styles/abstracts" as variables;
+@use 'styles/abstracts' as variables;
 
 .main-page-modal-title {
   text-align: center;
@@ -85,5 +85,39 @@
   align-items: center;
   .watch-page-modal-title {
     margin-bottom: 12px;
+  }
+}
+
+.deleted-video-modal-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: rgba(255, 82, 82, 0.12);
+  margin-bottom: 24px;
+
+  svg {
+    width: 36px;
+    height: 36px;
+    color: #ff5252;
+  }
+}
+
+.deleted-video-modal-label-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+
+  .deleted-video-modal-title {
+    margin-bottom: 8px;
+    color: #ffffff;
+  }
+
+  .deleted-video-modal-description {
+    color: #9e9e9e;
+    line-height: 1.5;
   }
 }

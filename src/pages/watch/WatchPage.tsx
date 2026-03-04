@@ -156,6 +156,8 @@ const WatchPage = (): ReactElement => {
     useState<EmotionType>('neutral');
   const [isModalOpen1, setIsModalOpen1] = useState<boolean>(false);
   const [isModalOpen2, setIsModalOpen2] = useState<boolean>(false);
+  const [isDeletedModalOpen, setIsDeletedModalOpen] = useState<boolean>(false);
+
   const [comment, setComment] = useState('');
 
   const capture = React.useCallback(() => {
@@ -168,6 +170,10 @@ const WatchPage = (): ReactElement => {
 
   const handleVideoReady = (e: YouTubeEvent<YouTubePlayer>) => {
     setVideo(e.target);
+  };
+
+  const handleVideoError = () => {
+    setIsDeletedModalOpen(true);
   };
 
   const commentMutation = useMutation({
@@ -722,6 +728,29 @@ const WatchPage = (): ReactElement => {
           </p>
         </div>
       </ModalDialog>
+      <ModalDialog
+        type={'one-button'}
+        name="deleted-video-modal"
+        isOpen={isDeletedModalOpen}
+        onClose={() => navigate('/')}
+        onCheck={() => navigate('/')}>
+        <div className="deleted-video-modal-icon">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="currentColor">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+          </svg>
+        </div>
+        <div className="deleted-video-modal-label-container">
+          <h2 className="deleted-video-modal-title font-title-medium">
+            삭제된 영상
+          </h2>
+          <p className="deleted-video-modal-description font-body-large">
+            해당 영상은 삭제되어 접근할 수 없습니다.
+          </p>
+        </div>
+      </ModalDialog>
       <div className="main-container">
         <div className="video-fixed-container">
           <div className="video-container">
@@ -731,6 +760,7 @@ const WatchPage = (): ReactElement => {
                 style={{ marginBottom: '4px' }} // defaults -> {}
                 opts={opts} // defaults -> {}
                 onReady={handleVideoReady} // defaults -> noop
+                onError={handleVideoError}
               />
             )}
             <div className="video-graph-container">
