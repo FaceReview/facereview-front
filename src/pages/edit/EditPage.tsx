@@ -172,7 +172,7 @@ const EditPage = () => {
               <label
                 htmlFor="editNickName font-title-mini"
                 style={{ marginBottom: '20px' }}>
-                관심사 (선택)
+                관심사 (필수)
               </label>
               <div className="category-wrapper" style={{ marginTop: '20px' }}>
                 <CategoryList
@@ -180,6 +180,11 @@ const EditPage = () => {
                   onChange={setSelectedCategories}
                 />
               </div>
+              {selectedCategories.length < 1 && (
+                <p className="edit-page-input-alert-message font-body-large">
+                  최소 1개의 카테고리를 선택해주세요
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -192,7 +197,7 @@ const EditPage = () => {
               ? { width: window.innerWidth - 32, marginTop: '16px' }
               : { width: '380px', marginTop: '16px' }
           }
-          disabled={nickName.length < 2}
+          disabled={nickName.length < 2 || selectedCategories.length < 1}
           onClick={handleEditButtonClick}
         />
       </div>
