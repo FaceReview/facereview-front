@@ -1,6 +1,6 @@
 import { ReactElement, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import useMediaQuery from 'utils/useMediaQuery';
+import useMediaQuery from 'hooks/useMediaQuery';
 import TextInput from 'components/TextInput/TextInput';
 import SearchResultsSection from './SearchResultsSection';
 import HomeContentSection from './HomeContentSection';

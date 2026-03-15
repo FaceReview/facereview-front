@@ -6,10 +6,8 @@ import { useAuthStorage } from 'store/authStore';
 import AnimatedLogo from '../AnimatedLogo/AnimatedLogo';
 import './header.scss';
 import { mapNumberToEmotion } from 'utils/index';
-import useMediaQuery from 'utils/useMediaQuery';
-import HeaderToken from 'api/HeaderToken';
-
-import { signOut } from 'api/auth';
+import useMediaQuery from 'hooks/useMediaQuery';
+import { useLogout } from 'hooks/useLogout';
 
 type HeaderPropsType = {
   isMyPage?: boolean;
@@ -18,19 +16,12 @@ type HeaderPropsType = {
 const Header = ({ isMyPage }: HeaderPropsType): ReactElement => {
   const isMobile = useMediaQuery('(max-width : 1200px)');
   const navigate = useNavigate();
-  const { is_sign_in, setTempToken } = useAuthStorage();
+  const { is_sign_in } = useAuthStorage();
   const user_profile = useAuthStorage((state) => state.user_profile);
+  const { handleLogout } = useLogout();
 
   const handleLogoutClick = async () => {
-    try {
-      await signOut();
-    } catch (error) {
-      console.error('Logout failed', error);
-    } finally {
-      HeaderToken.set('');
-      setTempToken({ access_token: '' });
-      navigate('/main');
-    }
+    await handleLogout('/main');
   };
 
   return (

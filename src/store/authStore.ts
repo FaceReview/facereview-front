@@ -44,6 +44,7 @@ interface AuthState {
   }) => void;
   setTempToken: ({ access_token }: { access_token: string }) => void;
   setVerifyEmailDone: (status: boolean) => void;
+  clearAuth: () => void;
 }
 
 export const useAuthStorage = create<AuthState>()(
@@ -116,6 +117,19 @@ export const useAuthStorage = create<AuthState>()(
         setVerifyEmailDone: (status) =>
           set(() => ({
             is_verify_email_done: status,
+          })),
+        clearAuth: () =>
+          set(() => ({
+            is_admin: false,
+            is_sign_in: false,
+            user_id: '',
+            user_name: '',
+            user_profile: 0,
+            user_tutorial: 0,
+            user_announced: false,
+            user_favorite_genres: [],
+            is_verify_email_done: false,
+            access_token: '',
           })),
       }),
 

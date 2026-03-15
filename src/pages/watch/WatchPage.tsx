@@ -39,11 +39,12 @@ import {
 } from 'utils/index';
 import VideoItem from 'components/VideoItem/VideoItem';
 import ModalDialog from 'components/ModalDialog/ModalDialog';
+import Button from 'components/Button/Button';
 import safeImage from 'assets/img/safeImage.png';
 import LikeButton from 'components/LikeButton/LikeButton';
 import { ResponsiveLine } from '@nivo/line';
 import SomeIcon from 'components/SomeIcon/SomeIcon';
-import useMediaQuery from 'utils/useMediaQuery';
+import useMediaQuery from 'hooks/useMediaQuery';
 import { EMOTION_COLORS, EMOTION_LABELS, EMOTIONS } from 'constants/index';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
@@ -156,6 +157,8 @@ const WatchPage = (): ReactElement => {
     useState<EmotionType>('neutral');
   const [isModalOpen1, setIsModalOpen1] = useState<boolean>(false);
   const [isModalOpen2, setIsModalOpen2] = useState<boolean>(false);
+  const [isDeletedModalOpen, setIsDeletedModalOpen] = useState<boolean>(false);
+
   const [comment, setComment] = useState('');
 
   const capture = React.useCallback(() => {
@@ -168,6 +171,10 @@ const WatchPage = (): ReactElement => {
 
   const handleVideoReady = (e: YouTubeEvent<YouTubePlayer>) => {
     setVideo(e.target);
+  };
+
+  const handleVideoError = () => {
+    setIsDeletedModalOpen(true);
   };
 
   const commentMutation = useMutation({
@@ -701,25 +708,53 @@ const WatchPage = (): ReactElement => {
 
   return (
     <div className="watch-page-container">
-      <ModalDialog
-        type={'one-button'}
-        name="watch-page-modal"
-        isOpen={isModalOpen1}
-        onClose={closeModal1}>
-        <div className="watch-page-modal-image-container">
-          <img
-            className="watch-page-modal-image"
-            src={safeImage}
-            alt="safe-img"
-          />
+      <ModalDialog isOpen={isModalOpen1} onClose={closeModal1}>
+        <div className="watch-page-safe-modal-container">
+          <div className="watch-page-modal-image-container">
+            <img
+              className="watch-page-modal-image"
+              src={safeImage}
+              alt="safe-img"
+            />
+          </div>
+          <div className="watch-page-modal-label-container">
+            <h2 className="watch-page-modal-title font-title-medium">
+              안심하세요!
+            </h2>
+            <p className="font-body-large">
+              영상 시청 중의 나의 모습은 기록되거나 저장되지 않아요.
+            </p>
+          </div>
+          <div className="watch-page-modal-button-wrapper">
+            <Button label={'확인'} variant={'cta-full'} onClick={closeModal1} />
+          </div>
         </div>
-        <div className="watch-page-modal-label-container">
-          <h2 className="watch-page-modal-title font-title-medium">
-            안심하세요!
-          </h2>
-          <p className="font-body-large">
-            영상 시청 중의 나의 모습은 기록되거나 저장되지 않아요.
-          </p>
+      </ModalDialog>
+      <ModalDialog isOpen={isDeletedModalOpen} onClose={() => navigate('/')}>
+        <div className="deleted-video-modal-container">
+          <div className="deleted-video-modal-icon">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+            </svg>
+          </div>
+          <div className="deleted-video-modal-label-container">
+            <h2 className="deleted-video-modal-title font-title-medium">
+              삭제된 영상
+            </h2>
+            <p className="deleted-video-modal-description font-body-large">
+              해당 영상은 삭제되어 접근할 수 없습니다.
+            </p>
+          </div>
+          <div className="deleted-video-modal-button-wrapper">
+            <Button
+              label={'확인'}
+              variant={'cta-full'}
+              onClick={() => navigate('/')}
+            />
+          </div>
         </div>
       </ModalDialog>
       <div className="main-container">
@@ -731,6 +766,7 @@ const WatchPage = (): ReactElement => {
                 style={{ marginBottom: '4px' }} // defaults -> {}
                 opts={opts} // defaults -> {}
                 onReady={handleVideoReady} // defaults -> noop
+                onError={handleVideoError}
               />
             )}
             <div className="video-graph-container">
@@ -892,15 +928,28 @@ const WatchPage = (): ReactElement => {
                       is_mine={comment.is_mine}
                       user_id={comment.user_id}
                     />
-                    <ModalDialog
-                      type={'two-button'}
-                      name={'comment-delete-modal'}
-                      isOpen={isModalOpen2}
-                      onClose={closeModal2}
-                      onCheck={() => {
-                        deleteCommentMutation.mutate(comment.comment_id);
-                      }}>
-                      <h2>댓글을 삭제하시겠어요?</h2>
+                    <ModalDialog isOpen={isModalOpen2} onClose={closeModal2}>
+                      <div className="comment-delete-modal-container">
+                        <h2>댓글을 삭제하시겠어요?</h2>
+                        <div className="comment-delete-modal-button-wrapper">
+                          <Button
+                            label={'취소'}
+                            variant={'cta-fixed-secondary'}
+                            style={{
+                              marginRight: '12px',
+                              background: '#5D5D6D',
+                            }}
+                            onClick={closeModal2}
+                          />
+                          <Button
+                            label={'확인'}
+                            variant={'cta-fixed'}
+                            onClick={() => {
+                              deleteCommentMutation.mutate(comment.comment_id);
+                            }}
+                          />
+                        </div>
+                      </div>
                     </ModalDialog>
                   </React.Fragment>
                 ),

@@ -3,8 +3,8 @@ import { useInfiniteQuery } from '@tanstack/react-query';
 import { searchVideos } from 'api/youtube';
 import VideoItem from 'components/VideoItem/VideoItem';
 import VideoCardSkeleton from 'components/Skeleton/VideoCardSkeleton';
-import useMediaQuery from 'utils/useMediaQuery';
-import useIntersectionObserver from 'utils/useIntersectionObserver';
+import useMediaQuery from 'hooks/useMediaQuery';
+import useIntersectionObserver from 'hooks/useIntersectionObserver';
 
 type SearchResultsSectionProps = {
   query: string;

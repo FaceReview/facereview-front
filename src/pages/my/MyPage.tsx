@@ -11,7 +11,6 @@ import SomeIcon from 'components/SomeIcon/SomeIcon';
 
 import { ResponsivePie } from '@nivo/pie';
 import Etc from 'assets/img/etc.png';
-import HeaderToken from 'api/HeaderToken';
 import { useAuthStorage } from 'store/authStore';
 import VideoItem from 'components/VideoItem/VideoItem';
 import ModalDialog from 'components/ModalDialog/ModalDialog';
@@ -19,10 +18,11 @@ import TextInput from 'components/TextInput/TextInput';
 import { sendEmailVerification, verifyEmailCode } from 'api/mypage';
 import { toast } from 'react-toastify';
 import { getEmotionSummary, getRecentVideo } from 'api/youtube';
+import { useLogout } from 'hooks/useLogout';
 import { EmotionType, VideoWatchedType } from 'types/index';
 import { mapNumberToEmotion } from 'utils/index';
 import { ResponsiveLine } from '@nivo/line';
-import useMediaQuery from 'utils/useMediaQuery';
+import useMediaQuery from 'hooks/useMediaQuery';
 import {
   EMOTION_COLORS,
   EMOTION_EMOJIS,
@@ -42,7 +42,7 @@ const MyPage = () => {
   const isMobile = useMediaQuery('(max-width: 1200px)');
 
   const navigate = useNavigate();
-  const { setTempToken } = useAuthStorage();
+  const { handleLogout } = useLogout();
 
   const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
   const [verificationCode, setVerificationCode] = useState('');
@@ -81,10 +81,8 @@ const MyPage = () => {
     setSelectedEmotion(emotion);
   };
 
-  const handleLogoutClick = () => {
-    HeaderToken.set('');
-    setTempToken({ access_token: '' });
-    navigate('/main');
+  const handleLogoutClick = async () => {
+    await handleLogout('/main');
   };
 
   const handleVerifyEmailClick = async () => {
@@ -411,60 +409,75 @@ const MyPage = () => {
         </div>
       </div>
       <ModalDialog
-        type="two-button"
-        name="email-verification"
         isOpen={isVerificationModalOpen}
         onClose={() => {
           setIsVerificationModalOpen(false);
           setVerificationCode('');
-        }}
-        onCheck={handleVerifyCodeSubmit}>
-        <div style={{ textAlign: 'center', width: '100%' }}>
-          <h3
-            className="font-title-large"
-            style={{
-              marginTop: '0',
-              marginBottom: '16px',
-              fontSize: '24px',
-              fontWeight: '700',
-            }}>
-            이메일 인증
-          </h3>
-          <p
-            className="font-body-large"
-            style={{
-              marginTop: '0',
-              marginBottom: '40px',
-              color: '#A0A0A0',
-              lineHeight: '1.6',
-              fontSize: '15px',
-            }}>
-            가입하신 이메일로 6자리 인증 코드가 발송되었습니다.
-            <br />
-            수신된 메일을 확인하여 코드를 입력해주세요.
-          </p>
-          <TextInput
-            id="verificationCode"
-            value={verificationCode}
-            onChange={(e) => setVerificationCode(e.target.value)}
-            placeholder="6자리 코드"
-            maxLength={6}
-            aria-label="6자리 인증 코드"
-            style={{
-              width: '100%',
-              maxWidth: '280px',
-              margin: '0 auto',
-              textAlign: 'center',
-              letterSpacing: '8px',
-              backgroundColor: '#2A2A36',
-              border: '1px solid #4B4B5C',
-              borderRadius: '8px',
-              padding: '16px',
-              fontSize: '20px',
-              fontWeight: '700',
-              color: '#FFFFFF',
-            }}
-          />
+        }}>
+        <div className="email-verification-modal-container">
+          <div style={{ textAlign: 'center', width: '100%' }}>
+            <h3
+              className="font-title-large"
+              style={{
+                marginTop: '0',
+                marginBottom: '16px',
+                fontSize: '24px',
+                fontWeight: '700',
+              }}>
+              이메일 인증
+            </h3>
+            <p
+              className="font-body-large"
+              style={{
+                marginTop: '0',
+                marginBottom: '40px',
+                color: '#A0A0A0',
+                lineHeight: '1.6',
+                fontSize: '15px',
+              }}>
+              가입하신 이메일로 6자리 인증 코드가 발송되었습니다.
+              <br />
+              수신된 메일을 확인하여 코드를 입력해주세요.
+            </p>
+            <TextInput
+              id="verificationCode"
+              value={verificationCode}
+              onChange={(e) => setVerificationCode(e.target.value)}
+              placeholder="6자리 코드"
+              maxLength={6}
+              aria-label="6자리 인증 코드"
+              style={{
+                width: '100%',
+                maxWidth: '280px',
+                margin: '0 auto',
+                textAlign: 'center',
+                letterSpacing: '8px',
+                backgroundColor: '#2A2A36',
+                border: '1px solid #4B4B5C',
+                borderRadius: '8px',
+                padding: '16px',
+                fontSize: '20px',
+                fontWeight: '700',
+                color: '#FFFFFF',
+              }}
+            />
+          </div>
+          <div className="email-verification-modal-button-wrapper">
+            <Button
+              label={'취소'}
+              variant={'cta-fixed-secondary'}
+              style={{ marginRight: '12px', background: '#5D5D6D' }}
+              onClick={() => {
+                setIsVerificationModalOpen(false);
+                setVerificationCode('');
+              }}
+            />
+            <Button
+              label={'확인'}
+              variant={'cta-fixed'}
+              onClick={handleVerifyCodeSubmit}
+            />
+          </div>
         </div>
       </ModalDialog>
     </>

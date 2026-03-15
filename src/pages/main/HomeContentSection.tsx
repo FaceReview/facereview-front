@@ -20,8 +20,8 @@ import SomeIcon from 'components/SomeIcon/SomeIcon';
 import TextInput from 'components/TextInput/TextInput';
 import { CATEGORIES, CATEGORY_ITEMS, EMOTIONS } from 'constants/index';
 import { useLocation } from 'react-router-dom';
-import useIntersectionObserver from 'utils/useIntersectionObserver';
-import useMediaQuery from 'utils/useMediaQuery';
+import useIntersectionObserver from 'hooks/useIntersectionObserver';
+import useMediaQuery from 'hooks/useMediaQuery';
 
 const HomeContentSection = (): ReactElement => {
   const isMobile = useMediaQuery('(max-width: 1200px)');
@@ -401,78 +401,85 @@ const HomeContentSection = (): ReactElement => {
               />
             </div>
           </div>
-          <ModalDialog
-            type={'one-button'}
-            name="video-register-modal"
-            isOpen={isModalOpen}
-            onClose={closeModal}
-            onCheck={handleRegisterButtonClick}>
-            <SomeIcon
-              type={'close'}
-              style={{ position: 'absolute', top: '20px', right: '20px' }}
-              onClick={closeModal}
-            />
-            <h2 className="main-page-modal-title font-title-medium">
-              맞춤형 영상을 추천해드릴게요.
-              <br />
-              재미있게 본 영상을 추가해주세요.
-            </h2>
-            <div className="main-page-modal-input-container">
-              <p className="main-page-modal-input-label font-title-mini">
-                영상 링크를 첨부해주세요
-              </p>
-              <div className="main-page-modal-input-wrapper">
-                <TextInput
-                  value={registerInput}
-                  variant="underline"
-                  onChange={(e) => setRegisterInput(e.target.value)}
-                  placeholder={
-                    'ex) https://www.youtube.com/watch?v=3rfONMofiho'
-                  }
+          <ModalDialog isOpen={isModalOpen} onClose={closeModal}>
+            <div className="video-register-modal-container">
+              <SomeIcon
+                type={'close'}
+                style={{ position: 'absolute', top: '20px', right: '20px' }}
+                onClick={closeModal}
+              />
+              <h2 className="main-page-modal-title font-title-medium">
+                맞춤형 영상을 추천해드릴게요.
+                <br />
+                재미있게 본 영상을 추가해주세요.
+              </h2>
+              <div className="main-page-modal-input-container">
+                <p className="main-page-modal-input-label font-title-mini">
+                  영상 링크를 첨부해주세요
+                </p>
+                <div className="main-page-modal-input-wrapper">
+                  <TextInput
+                    value={registerInput}
+                    variant="underline"
+                    onChange={(e) => setRegisterInput(e.target.value)}
+                    placeholder={
+                      'ex) https://www.youtube.com/watch?v=3rfONMofiho'
+                    }
+                  />
+                </div>
+              </div>
+              <div className="main-page-modal-thumbnail-container">
+                {isRegisterMatched ? (
+                  <img
+                    className="main-page-modal-thumbnail-registering"
+                    src={getThumbnailUrl(registeringVideoId)}
+                    alt=""
+                  />
+                ) : (
+                  <div className="main-page-modal-thumbnail-empty">
+                    <img
+                      className="main-page-modal-thumbnail-empty-image"
+                      src={youtubeIcon}
+                      alt="youtubeIcon"
+                    />
+                  </div>
+                )}
+
+                {registeredVideoIds.map((v, i) => (
+                  <img
+                    key={v || i}
+                    className="main-page-modal-thumbnail-registered"
+                    src={getThumbnailUrl(v)}
+                    alt=""
+                  />
+                ))}
+              </div>
+              <Button
+                label={''}
+                variant={'add'}
+                style={{ position: 'absolute', bottom: '128px' }}
+                onClick={() => {
+                  setRegisteredVideoIds((prevIds) => [
+                    ...prevIds,
+                    registeringVideoId,
+                  ]);
+                  setRegisterInput('');
+                  setRegisteringVideoId('');
+                  setIsRegisterMatched(false);
+                }}
+                disabled={!isRegisterMatched}
+              />
+              <div className="video-register-modal-button-wrapper">
+                <Button
+                  label={'확인'}
+                  variant={'cta-full'}
+                  onClick={() => {
+                    handleRegisterButtonClick();
+                    closeModal();
+                  }}
                 />
               </div>
             </div>
-            <div className="main-page-modal-thumbnail-container">
-              {isRegisterMatched ? (
-                <img
-                  className="main-page-modal-thumbnail-registering"
-                  src={getThumbnailUrl(registeringVideoId)}
-                  alt=""
-                />
-              ) : (
-                <div className="main-page-modal-thumbnail-empty">
-                  <img
-                    className="main-page-modal-thumbnail-empty-image"
-                    src={youtubeIcon}
-                    alt="youtubeIcon"
-                  />
-                </div>
-              )}
-
-              {registeredVideoIds.map((v, i) => (
-                <img
-                  key={v || i}
-                  className="main-page-modal-thumbnail-registered"
-                  src={getThumbnailUrl(v)}
-                  alt=""
-                />
-              ))}
-            </div>
-            <Button
-              label={''}
-              variant={'add'}
-              style={{ position: 'absolute', bottom: '128px' }}
-              onClick={() => {
-                setRegisteredVideoIds((prevIds) => [
-                  ...prevIds,
-                  registeringVideoId,
-                ]);
-                setRegisterInput('');
-                setRegisteringVideoId('');
-                setIsRegisterMatched(false);
-              }}
-              disabled={!isRegisterMatched}
-            />
           </ModalDialog>
 
           <div className="video-wrapper">

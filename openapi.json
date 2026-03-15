@@ -1,0 +1,3880 @@
+{
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "JWT 액세스 토큰을 입력하세요 (Bearer 접두어 없이)"
+      }
+    },
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": "Error code"
+          },
+          "status": {
+            "type": "string",
+            "description": "Error name"
+          },
+          "message": {
+            "type": "string",
+            "description": "Error message"
+          },
+          "errors": {
+            "type": "object",
+            "description": "Errors"
+          }
+        }
+      },
+      "PaginationMetadata": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "integer"
+          },
+          "total_pages": {
+            "type": "integer"
+          },
+          "first_page": {
+            "type": "integer"
+          },
+          "last_page": {
+            "type": "integer"
+          },
+          "page": {
+            "type": "integer"
+          },
+          "previous_page": {
+            "type": "integer"
+          },
+          "next_page": {
+            "type": "integer"
+          }
+        }
+      },
+      "EmailCheckRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "확인할 이메일"
+          }
+        },
+        "required": [
+          "email"
+        ]
+      },
+      "EmailCheckResponse": {
+        "type": "object",
+        "properties": {
+          "is_duplicate": {
+            "type": "boolean",
+            "description": "이메일 중복 여부 False면 중복된 이메일 없고 True면 있음"
+          },
+          "message": {
+            "type": "string",
+            "description": "안내 메시지"
+          }
+        },
+        "required": [
+          "is_duplicate",
+          "message"
+        ]
+      },
+      "SignupRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "이메일"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 8,
+            "description": "비밀번호 (최소 8자)"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 10,
+            "description": "사용자 이름 (2~10자)"
+          },
+          "favorite_genres": {
+            "type": "array",
+            "minItems": 1,
+            "description": "선호 장르 목록 (최소 1개 이상)",
+            "items": {
+              "type": "string",
+              "enum": [
+                "drama",
+                "eating",
+                "travel",
+                "cook",
+                "show",
+                "information",
+                "game",
+                "sports",
+                "music",
+                "animal",
+                "beauty",
+                "comedy",
+                "horror",
+                "exercise",
+                "vlog",
+                "etc"
+              ]
+            }
+          }
+        },
+        "required": [
+          "email",
+          "favorite_genres",
+          "name",
+          "password"
+        ]
+      },
+      "AccessTokenResponse": {
+        "type": "object",
+        "properties": {
+          "access_token": {
+            "type": "string",
+            "description": "JWT 액세스 토큰"
+          }
+        },
+        "required": [
+          "access_token"
+        ]
+      },
+      "LoginRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "이메일"
+          },
+          "password": {
+            "type": "string",
+            "description": "비밀번호"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "UserResponse": {
+        "type": "object",
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "description": "사용자 고유 UUID"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "이메일"
+          },
+          "name": {
+            "type": "string",
+            "description": "사용자 이름 (닉네임)"
+          },
+          "profile_image_id": {
+            "type": "integer",
+            "description": "프로필 이미지 ID"
+          },
+          "is_tutorial_done": {
+            "type": "boolean",
+            "description": "튜토리얼 완료 여부"
+          },
+          "is_verify_email_done": {
+            "type": "boolean",
+            "description": "이메일 인증 완료 여부"
+          },
+          "role": {
+            "type": "string",
+            "description": "사용자 권한 (GENERAL, ADMIN)"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "가입일"
+          },
+          "favorite_genres": {
+            "type": "array",
+            "description": "선호 장르 목록",
+            "items": {
+              "type": "string",
+              "enum": [
+                "drama",
+                "eating",
+                "travel",
+                "cook",
+                "show",
+                "information",
+                "game",
+                "sports",
+                "music",
+                "animal",
+                "beauty",
+                "comedy",
+                "horror",
+                "exercise",
+                "vlog",
+                "etc"
+              ]
+            }
+          }
+        }
+      },
+      "SuccessResponse": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": "string",
+            "description": "성공 여부"
+          },
+          "message": {
+            "type": "string",
+            "description": "안내 메시지"
+          }
+        }
+      },
+      "TestTokenResponse": {
+        "type": "object",
+        "properties": {
+          "access_token": {
+            "type": "string",
+            "description": "JWT 액세스 토큰"
+          },
+          "refresh_token": {
+            "type": "string",
+            "description": "JWT 리프레시 토큰"
+          }
+        },
+        "required": [
+          "access_token",
+          "refresh_token"
+        ]
+      },
+      "VideoResponse": {
+        "type": "object",
+        "properties": {
+          "video_id": {
+            "type": "string",
+            "description": "영상 UUID"
+          },
+          "youtube_url": {
+            "type": "string",
+            "description": "유튜브 URL"
+          },
+          "title": {
+            "type": "string",
+            "description": "영상 제목"
+          },
+          "dominant_emotion": {
+            "type": "string",
+            "description": "주된 감정 (예: happy, sad)"
+          },
+          "dominant_emotion_per": {
+            "type": "number",
+            "description": "주된 감정의 백분율 (0.0 ~ 100.0)"
+          }
+        }
+      },
+      "SearchVideoResponse": {
+        "type": "object",
+        "properties": {
+          "videos": {
+            "type": "array",
+            "description": "영상 리스트",
+            "items": {
+              "$ref": "#/components/schemas/VideoResponse"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "description": "전체 영상 개수"
+          },
+          "page": {
+            "type": "integer",
+            "description": "현재 페이지"
+          },
+          "size": {
+            "type": "integer",
+            "description": "페이지 당 개수"
+          },
+          "has_next": {
+            "type": "boolean",
+            "description": "다음 페이지 존재 여부"
+          }
+        }
+      },
+      "CategoryGroupedResponse": {
+        "type": "object",
+        "properties": {
+          "category_name": {
+            "type": "string"
+          },
+          "videos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VideoResponse"
+            }
+          }
+        }
+      },
+      "AllVideoResponse": {
+        "type": "object",
+        "properties": {
+          "videos": {
+            "type": "array",
+            "description": "영상 리스트",
+            "items": {
+              "$ref": "#/components/schemas/VideoResponse"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "description": "전체 영상 개수"
+          },
+          "page": {
+            "type": "integer",
+            "description": "현재 페이지"
+          },
+          "size": {
+            "type": "integer",
+            "description": "페이지 당 개수"
+          },
+          "has_next": {
+            "type": "boolean",
+            "description": "다음 페이지 존재 여부"
+          }
+        }
+      },
+      "BookmarkToggleRequest": {
+        "type": "object",
+        "properties": {
+          "video_id": {
+            "type": "string",
+            "description": "북마크할 영상 UUID"
+          }
+        },
+        "required": [
+          "video_id"
+        ]
+      },
+      "BookmarkToggleResponse": {
+        "type": "object",
+        "properties": {
+          "is_bookmarked": {
+            "type": "boolean",
+            "description": "북마크 등록 여부 (true: 추가, false: 해제)"
+          },
+          "message": {
+            "type": "string",
+            "description": "처리 결과 메시지"
+          }
+        }
+      },
+      "VideoRecommendRequest": {
+        "type": "object",
+        "properties": {
+          "youtube_url_list": {
+            "type": "array",
+            "minItems": 1,
+            "description": "추천할 유튜브 URL 리스트",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "youtube_url_list"
+        ]
+      },
+      "UpdateProfileRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 10,
+            "description": "닉네임 (2~10자)"
+          },
+          "profile_image_id": {
+            "type": "integer",
+            "description": "프로필 이미지 ID"
+          },
+          "favorite_genres": {
+            "type": "array",
+            "minItems": 1,
+            "description": "선호 장르 목록 (보낼 경우 최소 1개 이상, 기존 데이터 무조건 포함)",
+            "items": {
+              "type": "string",
+              "enum": [
+                "drama",
+                "eating",
+                "travel",
+                "cook",
+                "show",
+                "information",
+                "game",
+                "sports",
+                "music",
+                "animal",
+                "beauty",
+                "comedy",
+                "horror",
+                "exercise",
+                "vlog",
+                "etc"
+              ]
+            }
+          }
+        }
+      },
+      "VerifyEmailCodeRequest": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "minLength": 6,
+            "maxLength": 6,
+            "description": "인증번호 (6자리)"
+          }
+        },
+        "required": [
+          "code"
+        ]
+      },
+      "VerifyCodeForPasswordResetRequest": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "minLength": 6,
+            "maxLength": 6,
+            "description": "인증번호 (6자리)"
+          }
+        },
+        "required": [
+          "code"
+        ]
+      },
+      "VerifyCodeForPasswordResetResponse": {
+        "type": "object",
+        "properties": {
+          "reset_token": {
+            "type": "string",
+            "description": "비밀번호 재설정 토큰 (UUID)"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "ChangePasswordRequest": {
+        "type": "object",
+        "properties": {
+          "reset_token": {
+            "type": "string",
+            "description": "비밀번호 재설정 토큰"
+          },
+          "new_password": {
+            "type": "string",
+            "minLength": 8,
+            "maxLength": 64,
+            "description": "새 비밀번호 (8~64자)"
+          }
+        },
+        "required": [
+          "new_password",
+          "reset_token"
+        ]
+      },
+      "TimelineEmotionPoint": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "type": "integer"
+          },
+          "y": {
+            "type": "number"
+          }
+        }
+      },
+      "VideoTimeline": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TimelineEmotionPoint"
+            }
+          }
+        }
+      },
+      "RecentVideo": {
+        "type": "object",
+        "properties": {
+          "video_id": {
+            "type": "string"
+          },
+          "youtube_url": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "dominant_emotion": {
+            "type": "string"
+          },
+          "dominant_emotion_per": {
+            "type": "number"
+          },
+          "watched_at": {
+            "type": "string"
+          },
+          "timeline_data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VideoTimeline"
+            }
+          }
+        }
+      },
+      "RecentVideoListResponse": {
+        "type": "object",
+        "properties": {
+          "videos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RecentVideo"
+            }
+          },
+          "total": {
+            "type": "integer"
+          },
+          "page": {
+            "type": "integer"
+          },
+          "size": {
+            "type": "integer"
+          },
+          "has_next": {
+            "type": "boolean"
+          }
+        }
+      },
+      "EmotionSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "emotion_percentages": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "number"
+            }
+          },
+          "emotion_seconds": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer"
+            }
+          }
+        }
+      },
+      "EmotionVideo": {
+        "type": "object",
+        "properties": {
+          "emotion": {
+            "type": "string"
+          },
+          "video_id": {
+            "type": "string"
+          },
+          "youtube_url": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "emotion_percentage": {
+            "type": "number"
+          }
+        }
+      },
+      "CategoryEmotionHighlight": {
+        "type": "object",
+        "properties": {
+          "category": {
+            "type": "string"
+          },
+          "dominant_emotion": {
+            "type": "string"
+          },
+          "percentage": {
+            "type": "number"
+          }
+        }
+      },
+      "HighlightResponse": {
+        "type": "object",
+        "properties": {
+          "emotion_videos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EmotionVideo"
+            }
+          },
+          "category_emotions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CategoryEmotionHighlight"
+            }
+          },
+          "most_watched_category": {
+            "type": "string"
+          },
+          "most_felt_emotion": {
+            "type": "string"
+          }
+        }
+      },
+      "CalendarDay": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "description": "날짜 (YYYY-MM-DD)"
+          },
+          "dominant_emotion": {
+            "type": "string",
+            "description": "해당 날짜의 주요 감정"
+          },
+          "intensity": {
+            "type": "number",
+            "description": "감정 강도 (0.0~1.0)"
+          },
+          "watch_count": {
+            "type": "integer",
+            "description": "시청 횟수"
+          },
+          "total_watch_time": {
+            "type": "integer",
+            "description": "총 시청 시간 (초)"
+          }
+        }
+      },
+      "EmotionCalendarResponse": {
+        "type": "object",
+        "properties": {
+          "year": {
+            "type": "integer"
+          },
+          "month": {
+            "type": "integer",
+            "nullable": true
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CalendarDay"
+            }
+          }
+        }
+      },
+      "Moment": {
+        "type": "object",
+        "properties": {
+          "video_id": {
+            "type": "string"
+          },
+          "video_title": {
+            "type": "string"
+          },
+          "youtube_url": {
+            "type": "string"
+          },
+          "timestamp_seconds": {
+            "type": "number",
+            "description": "영상 내 타임스탬프 (초)"
+          },
+          "emotion": {
+            "type": "string"
+          },
+          "emotion_percentage": {
+            "type": "number"
+          },
+          "thumbnail_url": {
+            "type": "string"
+          },
+          "watched_at": {
+            "type": "string"
+          }
+        }
+      },
+      "MomentListResponse": {
+        "type": "object",
+        "properties": {
+          "moments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Moment"
+            }
+          },
+          "total": {
+            "type": "integer"
+          },
+          "has_next": {
+            "type": "boolean"
+          }
+        }
+      },
+      "DnaTrait": {
+        "type": "object",
+        "properties": {
+          "trait": {
+            "type": "string"
+          },
+          "score": {
+            "type": "integer"
+          }
+        }
+      },
+      "EmotionDnaResponse": {
+        "type": "object",
+        "properties": {
+          "dna_type": {
+            "type": "string",
+            "description": "DNA 유형 코드"
+          },
+          "dna_title": {
+            "type": "string",
+            "description": "DNA 유형 한글명"
+          },
+          "dna_description": {
+            "type": "string",
+            "description": "DNA 유형 설명"
+          },
+          "traits": {
+            "type": "array",
+            "description": "주요 특성 3가지",
+            "items": {
+              "$ref": "#/components/schemas/DnaTrait"
+            }
+          },
+          "emotion_radar": {
+            "type": "object",
+            "description": "감정 레이더 (0~100)",
+            "additionalProperties": {
+              "type": "integer"
+            }
+          },
+          "fun_facts": {
+            "type": "array",
+            "description": "재미있는 사실 2가지",
+            "items": {
+              "type": "string"
+            }
+          },
+          "generated_at": {
+            "type": "string",
+            "description": "생성일시 (ISO 8601)"
+          },
+          "based_on_videos": {
+            "type": "integer",
+            "description": "분석 기반 시청 세션 수"
+          }
+        }
+      },
+      "TimelinePoint": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "type": "integer",
+            "description": "시간 인덱스 (1부터 시작)"
+          },
+          "y": {
+            "type": "number",
+            "description": "감정 비율 (0.0 ~ 100.0)"
+          }
+        }
+      },
+      "TimelineData": {
+        "type": "object",
+        "properties": {
+          "happy": {
+            "type": "array",
+            "description": "행복 타임라인",
+            "items": {
+              "$ref": "#/components/schemas/TimelinePoint"
+            }
+          },
+          "neutral": {
+            "type": "array",
+            "description": "중립 타임라인",
+            "items": {
+              "$ref": "#/components/schemas/TimelinePoint"
+            }
+          },
+          "surprise": {
+            "type": "array",
+            "description": "놀람 타임라인",
+            "items": {
+              "$ref": "#/components/schemas/TimelinePoint"
+            }
+          },
+          "sad": {
+            "type": "array",
+            "description": "슬픔 타임라인",
+            "items": {
+              "$ref": "#/components/schemas/TimelinePoint"
+            }
+          },
+          "angry": {
+            "type": "array",
+            "description": "화남 타임라인",
+            "items": {
+              "$ref": "#/components/schemas/TimelinePoint"
+            }
+          }
+        }
+      },
+      "VideoDetailResponse": {
+        "type": "object",
+        "properties": {
+          "video_id": {
+            "type": "string",
+            "description": "영상 ID (UUID)"
+          },
+          "youtube_url": {
+            "type": "string",
+            "description": "유튜브 URL"
+          },
+          "title": {
+            "type": "string",
+            "description": "영상 제목"
+          },
+          "channel_name": {
+            "type": "string",
+            "description": "채널명"
+          },
+          "category": {
+            "type": "string",
+            "description": "카테고리"
+          },
+          "duration": {
+            "type": "integer",
+            "description": "영상 길이 (초)"
+          },
+          "view_count": {
+            "type": "integer",
+            "description": "조회수"
+          },
+          "like_count": {
+            "type": "integer",
+            "description": "좋아요 수"
+          },
+          "comment_count": {
+            "type": "integer",
+            "description": "댓글 수"
+          },
+          "user_is_liked": {
+            "type": "boolean",
+            "description": "현재 사용자 좋아요 여부"
+          },
+          "timeline_data": {
+            "description": "타임라인 감정 데이터 (압축)",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TimelineData"
+              }
+            ]
+          }
+        }
+      },
+      "RecommendedVideo": {
+        "type": "object",
+        "properties": {
+          "video_id": {
+            "type": "string",
+            "description": "영상 ID"
+          },
+          "youtube_url": {
+            "type": "string",
+            "description": "유튜브 URL"
+          },
+          "title": {
+            "type": "string",
+            "description": "영상 제목"
+          },
+          "dominant_emotion": {
+            "type": "string",
+            "description": "주요 감정"
+          },
+          "dominant_emotion_per": {
+            "type": "number",
+            "description": "주요 감정 비율 (0.0 ~ 100.0)"
+          }
+        }
+      },
+      "RecommendedVideoListResponse": {
+        "type": "object",
+        "properties": {
+          "videos": {
+            "type": "array",
+            "description": "추천 영상 목록",
+            "items": {
+              "$ref": "#/components/schemas/RecommendedVideo"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "description": "전체 개수"
+          },
+          "page": {
+            "type": "integer",
+            "description": "현재 페이지"
+          },
+          "size": {
+            "type": "integer",
+            "description": "페이지 크기"
+          },
+          "has_next": {
+            "type": "boolean",
+            "description": "다음 페이지 존재 여부"
+          }
+        }
+      },
+      "Comment": {
+        "type": "object",
+        "properties": {
+          "comment_id": {
+            "type": "string",
+            "description": "댓글 ID"
+          },
+          "user_id": {
+            "type": "string",
+            "description": "작성자 ID"
+          },
+          "user_name": {
+            "type": "string",
+            "description": "작성자 이름"
+          },
+          "user_profile_image_id": {
+            "type": "integer",
+            "description": "작성자 프로필 이미지 ID"
+          },
+          "content": {
+            "type": "string",
+            "description": "댓글 내용"
+          },
+          "is_modified": {
+            "type": "boolean",
+            "description": "수정 여부"
+          },
+          "created_at": {
+            "type": "string",
+            "description": "작성일시 (ISO 8601)"
+          },
+          "is_mine": {
+            "type": "boolean",
+            "description": "내 댓글 여부"
+          }
+        }
+      },
+      "CommentListResponse": {
+        "type": "object",
+        "properties": {
+          "comments": {
+            "type": "array",
+            "description": "댓글 목록",
+            "items": {
+              "$ref": "#/components/schemas/Comment"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "description": "전체 댓글 수"
+          }
+        }
+      },
+      "AddCommentRequest": {
+        "type": "object",
+        "properties": {
+          "video_id": {
+            "type": "string",
+            "description": "영상 ID"
+          },
+          "content": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500,
+            "description": "댓글 내용 (1~500자)"
+          }
+        },
+        "required": [
+          "content",
+          "video_id"
+        ]
+      },
+      "AddCommentResponse": {
+        "type": "object",
+        "properties": {
+          "comment_id": {
+            "type": "string",
+            "description": "생성된 댓글 ID"
+          },
+          "message": {
+            "type": "string",
+            "description": "성공 메시지"
+          }
+        }
+      },
+      "UpdateCommentRequest": {
+        "type": "object",
+        "properties": {
+          "comment_id": {
+            "type": "string",
+            "description": "댓글 ID"
+          },
+          "content": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500,
+            "description": "수정할 댓글 내용 (1~500자)"
+          }
+        },
+        "required": [
+          "comment_id",
+          "content"
+        ]
+      },
+      "ToggleLikeRequest": {
+        "type": "object",
+        "properties": {
+          "video_id": {
+            "type": "string",
+            "description": "영상 ID"
+          }
+        },
+        "required": [
+          "video_id"
+        ]
+      },
+      "ToggleLikeResponse": {
+        "type": "object",
+        "properties": {
+          "is_liked": {
+            "type": "boolean",
+            "description": "현재 좋아요 상태 (True: 좋아요 됨, False: 취소됨)"
+          },
+          "like_count": {
+            "type": "integer",
+            "description": "현재 좋아요 수"
+          },
+          "message": {
+            "type": "string",
+            "description": "성공 메시지"
+          }
+        }
+      },
+      "AdminUser": {
+        "type": "object",
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "description": "사용자 ID"
+          },
+          "email": {
+            "type": "string",
+            "description": "이메일"
+          },
+          "name": {
+            "type": "string",
+            "description": "사용자 이름"
+          },
+          "role": {
+            "type": "string",
+            "description": "권한 (GENERAL/ADMIN)"
+          },
+          "profile_image_id": {
+            "type": "integer",
+            "description": "프로필 이미지 ID"
+          },
+          "is_tutorial_done": {
+            "type": "boolean",
+            "description": "튜토리얼 완료 여부"
+          },
+          "is_verify_email_done": {
+            "type": "boolean",
+            "description": "이메일 인증 완료 여부"
+          },
+          "is_deleted": {
+            "type": "boolean",
+            "description": "탈퇴 여부"
+          },
+          "created_at": {
+            "type": "string",
+            "description": "가입일시 (ISO 8601)"
+          },
+          "total_watch_count": {
+            "type": "integer",
+            "description": "총 시청 횟수"
+          },
+          "total_comment_count": {
+            "type": "integer",
+            "description": "총 댓글 수"
+          }
+        }
+      },
+      "GetUsersResponse": {
+        "type": "object",
+        "properties": {
+          "users": {
+            "type": "array",
+            "description": "사용자 목록",
+            "items": {
+              "$ref": "#/components/schemas/AdminUser"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "description": "전체 개수"
+          },
+          "page": {
+            "type": "integer",
+            "description": "현재 페이지"
+          },
+          "size": {
+            "type": "integer",
+            "description": "페이지 크기"
+          },
+          "has_next": {
+            "type": "boolean",
+            "description": "다음 페이지 존재 여부"
+          }
+        }
+      },
+      "DeactivateUserResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "성공 메시지"
+          }
+        }
+      },
+      "ChangeUserRoleRequest": {
+        "type": "object",
+        "properties": {
+          "role": {
+            "type": "string",
+            "enum": [
+              "GENERAL",
+              "ADMIN"
+            ],
+            "description": "변경할 권한 (GENERAL/ADMIN)"
+          }
+        },
+        "required": [
+          "role"
+        ]
+      },
+      "ChangeUserRoleResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "성공 메시지"
+          }
+        }
+      },
+      "VideoRequest": {
+        "type": "object",
+        "properties": {
+          "video_request_id": {
+            "type": "string",
+            "description": "영상 요청 ID"
+          },
+          "user_id": {
+            "type": "string",
+            "description": "요청 사용자 ID"
+          },
+          "user_name": {
+            "type": "string",
+            "description": "요청 사용자 이름"
+          },
+          "youtube_url": {
+            "type": "string",
+            "description": "유튜브 영상 ID"
+          },
+          "youtube_full_url": {
+            "type": "string",
+            "description": "유튜브 전체 URL"
+          },
+          "category": {
+            "type": "string",
+            "description": "카테고리"
+          },
+          "status": {
+            "type": "string",
+            "description": "처리 상태"
+          },
+          "admin_comment": {
+            "type": "string",
+            "description": "관리자 코멘트"
+          },
+          "created_at": {
+            "type": "string",
+            "description": "요청일시 (ISO 8601)"
+          },
+          "updated_at": {
+            "type": "string",
+            "description": "처리일시 (ISO 8601)"
+          }
+        }
+      },
+      "GetVideoRequestsResponse": {
+        "type": "object",
+        "properties": {
+          "requests": {
+            "type": "array",
+            "description": "영상 요청 목록",
+            "items": {
+              "$ref": "#/components/schemas/VideoRequest"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "description": "전체 개수"
+          },
+          "page": {
+            "type": "integer",
+            "description": "현재 페이지"
+          },
+          "size": {
+            "type": "integer",
+            "description": "페이지 크기"
+          },
+          "has_next": {
+            "type": "boolean",
+            "description": "다음 페이지 존재 여부"
+          }
+        }
+      },
+      "ApproveVideoRequestRequest": {
+        "type": "object",
+        "properties": {
+          "youtube_title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "description": "유튜브 영상 제목"
+          },
+          "channel_name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "description": "채널명"
+          },
+          "duration": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "영상 길이 (초)"
+          }
+        },
+        "required": [
+          "channel_name",
+          "duration",
+          "youtube_title"
+        ]
+      },
+      "ApproveVideoRequestResponse": {
+        "type": "object",
+        "properties": {
+          "video_id": {
+            "type": "string",
+            "description": "생성된 영상 ID"
+          },
+          "message": {
+            "type": "string",
+            "description": "성공 메시지"
+          }
+        }
+      },
+      "RejectVideoRequestRequest": {
+        "type": "object",
+        "properties": {
+          "admin_comment": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "description": "거절 사유"
+          }
+        },
+        "required": [
+          "admin_comment"
+        ]
+      },
+      "RejectVideoRequestResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "성공 메시지"
+          }
+        }
+      },
+      "AdminVideo": {
+        "type": "object",
+        "properties": {
+          "video_id": {
+            "type": "string",
+            "description": "영상 ID"
+          },
+          "youtube_url": {
+            "type": "string",
+            "description": "유튜브 영상 ID"
+          },
+          "title": {
+            "type": "string",
+            "description": "영상 제목"
+          },
+          "channel_name": {
+            "type": "string",
+            "description": "채널명"
+          },
+          "category": {
+            "type": "string",
+            "description": "카테고리"
+          },
+          "duration": {
+            "type": "integer",
+            "description": "영상 길이 (초)"
+          },
+          "view_count": {
+            "type": "integer",
+            "description": "조회수"
+          },
+          "like_count": {
+            "type": "integer",
+            "description": "좋아요 수"
+          },
+          "comment_count": {
+            "type": "integer",
+            "description": "댓글 수"
+          },
+          "created_at": {
+            "type": "string",
+            "description": "등록일시 (ISO 8601)"
+          },
+          "is_deleted": {
+            "type": "boolean",
+            "description": "삭제 여부"
+          }
+        }
+      },
+      "GetVideosResponse": {
+        "type": "object",
+        "properties": {
+          "videos": {
+            "type": "array",
+            "description": "영상 목록",
+            "items": {
+              "$ref": "#/components/schemas/AdminVideo"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "description": "전체 개수"
+          },
+          "page": {
+            "type": "integer",
+            "description": "현재 페이지"
+          },
+          "size": {
+            "type": "integer",
+            "description": "페이지 크기"
+          },
+          "has_next": {
+            "type": "boolean",
+            "description": "다음 페이지 존재 여부"
+          }
+        }
+      },
+      "DeleteVideoResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "성공 메시지"
+          }
+        }
+      },
+      "AdminComment": {
+        "type": "object",
+        "properties": {
+          "comment_id": {
+            "type": "string",
+            "description": "댓글 ID"
+          },
+          "video_id": {
+            "type": "string",
+            "description": "영상 ID"
+          },
+          "video_title": {
+            "type": "string",
+            "description": "영상 제목"
+          },
+          "user_id": {
+            "type": "string",
+            "description": "작성자 ID"
+          },
+          "user_name": {
+            "type": "string",
+            "description": "작성자 이름"
+          },
+          "content": {
+            "type": "string",
+            "description": "댓글 내용"
+          },
+          "is_modified": {
+            "type": "boolean",
+            "description": "수정 여부"
+          },
+          "is_deleted": {
+            "type": "boolean",
+            "description": "삭제 여부"
+          },
+          "created_at": {
+            "type": "string",
+            "description": "작성일시 (ISO 8601)"
+          }
+        }
+      },
+      "GetCommentsResponse": {
+        "type": "object",
+        "properties": {
+          "comments": {
+            "type": "array",
+            "description": "댓글 목록",
+            "items": {
+              "$ref": "#/components/schemas/AdminComment"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "description": "전체 개수"
+          },
+          "page": {
+            "type": "integer",
+            "description": "현재 페이지"
+          },
+          "size": {
+            "type": "integer",
+            "description": "페이지 크기"
+          },
+          "has_next": {
+            "type": "boolean",
+            "description": "다음 페이지 존재 여부"
+          }
+        }
+      },
+      "DeleteCommentResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "성공 메시지"
+          }
+        }
+      },
+      "ServerStatus": {
+        "type": "object",
+        "properties": {
+          "cpu_usage": {
+            "type": "number",
+            "description": "CPU 사용률 (%)"
+          },
+          "memory_usage": {
+            "type": "number",
+            "description": "메모리 사용률 (%)"
+          },
+          "memory_total_mb": {
+            "type": "number",
+            "description": "총 메모리 (MB)"
+          },
+          "disk_usage": {
+            "type": "number",
+            "description": "디스크 사용률 (%)"
+          }
+        }
+      },
+      "ApiStatus": {
+        "type": "object",
+        "properties": {
+          "total_requests_1h": {
+            "type": "integer",
+            "description": "최근 1시간 요청 수"
+          },
+          "avg_response_time_ms": {
+            "type": "number",
+            "description": "평균 응답 시간 (ms)"
+          },
+          "error_rate_1h": {
+            "type": "number",
+            "description": "최근 1시간 에러율 (%)"
+          }
+        }
+      },
+      "ConnectionStatus": {
+        "type": "object",
+        "properties": {
+          "mysql": {
+            "type": "string",
+            "description": "MySQL 연결 상태 (ok/error)"
+          },
+          "redis": {
+            "type": "string",
+            "description": "Redis 연결 상태 (ok/error)"
+          },
+          "mongodb": {
+            "type": "string",
+            "description": "MongoDB 연결 상태 (ok/error)"
+          }
+        }
+      },
+      "SystemStatusResponse": {
+        "type": "object",
+        "properties": {
+          "server": {
+            "description": "서버 리소스 상태",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ServerStatus"
+              }
+            ]
+          },
+          "api": {
+            "description": "API 요청 통계",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ApiStatus"
+              }
+            ]
+          },
+          "connections": {
+            "description": "DB/인프라 연결 상태",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ConnectionStatus"
+              }
+            ]
+          },
+          "checked_at": {
+            "type": "string",
+            "description": "조회 시각 (ISO 8601)"
+          }
+        }
+      },
+      "GenerateDummyDataResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "처리 결과 메시지"
+          },
+          "created_count": {
+            "type": "integer",
+            "description": "생성된 시청 기록 수"
+          },
+          "user_id": {
+            "type": "string",
+            "description": "데이터가 생성된 유저 ID"
+          },
+          "video_ids": {
+            "type": "array",
+            "description": "더미 데이터가 생성된 영상 ID 목록",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "responses": {
+      "DEFAULT_ERROR": {
+        "description": "Default error response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "UNPROCESSABLE_ENTITY": {
+        "description": "Unprocessable Entity",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/": {
+      "get": {
+        "responses": {
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "tags": [
+          "base"
+        ]
+      }
+    },
+    "/api/v2/auth/check-email": {
+      "post": {
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmailCheckResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailCheckRequest"
+              }
+            }
+          }
+        },
+        "tags": [
+          "auth"
+        ],
+        "summary": "이메일 중복 확인"
+      }
+    },
+    "/api/v2/auth/signup": {
+      "post": {
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessTokenResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignupRequest"
+              }
+            }
+          }
+        },
+        "tags": [
+          "auth"
+        ],
+        "summary": "회원가입"
+      }
+    },
+    "/api/v2/auth/login": {
+      "post": {
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessTokenResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          }
+        },
+        "tags": [
+          "auth"
+        ],
+        "summary": "로그인"
+      }
+    },
+    "/api/v2/auth/me": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "tags": [
+          "auth"
+        ],
+        "summary": "내 정보 조회",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v2/auth/tutorial": {
+      "patch": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "tags": [
+          "auth"
+        ],
+        "summary": "튜토리얼 완료 처리",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v2/auth/logout": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "tags": [
+          "auth"
+        ],
+        "summary": "로그아웃",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v2/auth/reissue": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessTokenResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "tags": [
+          "auth"
+        ],
+        "summary": "액세스 토큰 재발급 (쿠키의 refresh_token 사용)"
+      }
+    },
+    "/api/v2/auth/test-token": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestTokenResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "tags": [
+          "auth"
+        ],
+        "summary": "테스트용 토큰 발급 (개발 전용)"
+      }
+    },
+    "/api/v2/home/search": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "description": "페이지 번호 (1 이상)",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "size",
+            "description": "페이지 당 개수 (최대 100)",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "keyword_type",
+            "description": "검색어 타입 (all, title, channel_name)",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "keyword",
+            "description": "검색어",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "emotions",
+            "description": "감정 필터 리스트 (미선택 시 전체 조회). ?emotions=happy&emotions=sad 형태로 전달",
+            "schema": {
+              "type": "array",
+              "default": [],
+              "items": {
+                "type": "string",
+                "enum": [
+                  "happy",
+                  "sad",
+                  "neutral",
+                  "surprise",
+                  "angry"
+                ]
+              }
+            },
+            "required": false,
+            "explode": true,
+            "style": "form"
+          }
+        ],
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchVideoResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "tags": [
+          "home"
+        ],
+        "summary": "영상 검색"
+      }
+    },
+    "/api/v2/home/personalized": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/VideoResponse"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "tags": [
+          "home"
+        ],
+        "summary": "감정 기반 개인화 추천 영상 목록",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v2/home/category": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CategoryGroupedResponse"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "tags": [
+          "home"
+        ],
+        "summary": "카테고리별 감정 대표 영상 목록"
+      }
+    },
+    "/api/v2/home/video/all": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "description": "페이지 번호 (1 이상)",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "size",
+            "description": "페이지 당 개수 (최대 100)",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "emotion",
+            "description": "감정 필터 (all, happy, sad, neutral, surprise, angry)",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AllVideoResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "tags": [
+          "home"
+        ],
+        "summary": "전체 영상 목록 조회 (감정 필터 가능)"
+      }
+    },
+    "/api/v2/home/bookmark": {
+      "post": {
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookmarkToggleResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BookmarkToggleRequest"
+              }
+            }
+          }
+        },
+        "tags": [
+          "home"
+        ],
+        "summary": "북마크 추가/해제 토글",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      },
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "description": "페이지 번호 (1 이상)",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "size",
+            "description": "페이지 당 개수 (최대 100)",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "emotion",
+            "description": "감정 필터 (all, happy, sad, neutral, surprise, angry)",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AllVideoResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "tags": [
+          "home"
+        ],
+        "summary": "북마크한 영상 목록 조회",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v2/home/video/recommend": {
+      "post": {
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VideoRecommendRequest"
+              }
+            }
+          }
+        },
+        "tags": [
+          "home"
+        ],
+        "summary": "영상 등록 추천 요청",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v2/mypage/profile": {
+      "patch": {
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProfileRequest"
+              }
+            }
+          }
+        },
+        "tags": [
+          "mypage"
+        ],
+        "summary": "프로필 수정 (이름·프로필이미지·선호장르)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v2/mypage/email/verification": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "tags": [
+          "mypage"
+        ],
+        "summary": "이메일 인증번호 발송",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v2/mypage/email/verify": {
+      "post": {
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyEmailCodeRequest"
+              }
+            }
+          }
+        },
+        "tags": [
+          "mypage"
+        ],
+        "summary": "이메일 인증번호 확인",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v2/mypage/password/verification": {
+      "post": {
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerifyCodeForPasswordResetResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyCodeForPasswordResetRequest"
+              }
+            }
+          }
+        },
+        "tags": [
+          "mypage"
+        ],
+        "summary": "비밀번호 재설정용 인증번호 확인 후 재설정 토큰 발급",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v2/mypage/password": {
+      "patch": {
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePasswordRequest"
+              }
+            }
+          }
+        },
+        "tags": [
+          "mypage"
+        ],
+        "summary": "비밀번호 변경 (재설정 토큰 필요)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v2/mypage/videos/recent": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "emotion",
+            "description": "감정 필터 (all 또는 특정 감정)",
+            "schema": {
+              "type": "string",
+              "default": "all",
+              "enum": [
+                "all",
+                "neutral",
+                "happy",
+                "surprise",
+                "sad",
+                "angry"
+              ]
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1,
+              "minimum": 1
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "size",
+            "schema": {
+              "type": "integer",
+              "default": 10,
+              "minimum": 1,
+              "maximum": 50
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecentVideoListResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "tags": [
+          "mypage"
+        ],
+        "summary": "최근 시청 영상 목록 (감정 타임라인 포함)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v2/mypage/emotion/summary": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmotionSummaryResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "tags": [
+          "mypage"
+        ],
+        "summary": "감정 요약 통계 (총 시청시간·감정별 비율·카테고리별 감정)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v2/mypage/highlight": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HighlightResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "tags": [
+          "mypage"
+        ],
+        "summary": "시청 하이라이트 (감정 피크 구간 목록)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v2/mypage/emotion/calendar": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "year",
+            "description": "조회 연도 (미입력 시 현재 연도)",
+            "schema": {
+              "type": "integer",
+              "default": null,
+              "nullable": true
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "month",
+            "description": "조회 월 (미입력 시 연도 전체)",
+            "schema": {
+              "type": "integer",
+              "default": null,
+              "minimum": 1,
+              "maximum": 12,
+              "nullable": true
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmotionCalendarResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "tags": [
+          "mypage"
+        ],
+        "summary": "월별 감정 캘린더 (일자별 대표 감정)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v2/mypage/moments": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "emotion",
+            "description": "감정 필터 (all 또는 특정 감정)",
+            "schema": {
+              "type": "string",
+              "default": "all",
+              "enum": [
+                "all",
+                "neutral",
+                "happy",
+                "surprise",
+                "sad",
+                "angry"
+              ]
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1,
+              "minimum": 1
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "size",
+            "schema": {
+              "type": "integer",
+              "default": 10,
+              "minimum": 1,
+              "maximum": 50
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MomentListResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "tags": [
+          "mypage"
+        ],
+        "summary": "베스트 모먼트 목록 (감정 피크 영상 구간)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v2/mypage/emotion-dna": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmotionDnaResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "tags": [
+          "mypage"
+        ],
+        "summary": "감정 DNA 분석 (시간대·카테고리별 나의 감정 패턴)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v2/mypage/withdraw": {
+      "delete": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "tags": [
+          "mypage"
+        ],
+        "summary": "회원 탈퇴",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v2/watch/video": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "video_id",
+            "description": "영상 ID (UUID)",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VideoDetailResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "tags": [
+          "watch"
+        ],
+        "summary": "영상 상세 조회 (타임라인 감정 그래프 포함)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v2/watch/recommended": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "video_id",
+            "description": "현재 시청 중인 영상 ID",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "description": "페이지 번호 (1부터 시작)",
+            "schema": {
+              "type": "integer",
+              "default": 1,
+              "minimum": 1
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "size",
+            "description": "페이지 크기 (1~50)",
+            "schema": {
+              "type": "integer",
+              "default": 10,
+              "minimum": 1,
+              "maximum": 50
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecommendedVideoListResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "tags": [
+          "watch"
+        ],
+        "summary": "현재 영상 기반 연관 추천 영상 목록",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v2/watch/comments": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "video_id",
+            "description": "영상 ID",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommentListResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "tags": [
+          "watch"
+        ],
+        "summary": "영상 댓글 목록 조회",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      },
+      "post": {
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AddCommentResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddCommentRequest"
+              }
+            }
+          }
+        },
+        "tags": [
+          "watch"
+        ],
+        "summary": "댓글 작성",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      },
+      "patch": {
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCommentRequest"
+              }
+            }
+          }
+        },
+        "tags": [
+          "watch"
+        ],
+        "summary": "댓글 수정",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "comment_id",
+            "description": "댓글 ID",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "tags": [
+          "watch"
+        ],
+        "summary": "댓글 삭제",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v2/watch/like": {
+      "post": {
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ToggleLikeResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ToggleLikeRequest"
+              }
+            }
+          }
+        },
+        "tags": [
+          "watch"
+        ],
+        "summary": "좋아요 추가/취소 토글",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v2/admin/users": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "keyword",
+            "description": "검색어 (이름 또는 이메일, 선택)",
+            "schema": {
+              "type": "string",
+              "default": null,
+              "nullable": true
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "is_deleted",
+            "description": "탈퇴 회원 필터 (true: 탈퇴 회원만, false: 활성 회원만, 미입력: 전체)",
+            "schema": {
+              "type": "boolean",
+              "default": null,
+              "nullable": true
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "description": "페이지 번호 (1부터 시작)",
+            "schema": {
+              "type": "integer",
+              "default": 1,
+              "minimum": 1
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "size",
+            "description": "페이지 크기 (1~100)",
+            "schema": {
+              "type": "integer",
+              "default": 20,
+              "minimum": 1,
+              "maximum": 100
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetUsersResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "tags": [
+          "admin"
+        ],
+        "summary": "회원 목록 조회 (키워드·탈퇴여부 필터)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v2/admin/users/{user_id}/deactivate": {
+      "patch": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeactivateUserResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "tags": [
+          "admin"
+        ],
+        "summary": "회원 비활성화 (논리 삭제)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "user_id",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      ]
+    },
+    "/api/v2/admin/users/{user_id}/role": {
+      "patch": {
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChangeUserRoleResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangeUserRoleRequest"
+              }
+            }
+          }
+        },
+        "tags": [
+          "admin"
+        ],
+        "summary": "회원 권한 변경 (USER / ADMIN)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "user_id",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      ]
+    },
+    "/api/v2/admin/video-requests": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "status",
+            "description": "상태 필터 (PENDING/ACCEPTED/REJECTED, 선택)",
+            "schema": {
+              "type": "string",
+              "default": null,
+              "enum": [
+                "PENDING",
+                "ACCEPTED",
+                "REJECTED",
+                null
+              ],
+              "nullable": true
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "description": "페이지 번호 (1부터 시작)",
+            "schema": {
+              "type": "integer",
+              "default": 1,
+              "minimum": 1
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "size",
+            "description": "페이지 크기 (1~100)",
+            "schema": {
+              "type": "integer",
+              "default": 20,
+              "minimum": 1,
+              "maximum": 100
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetVideoRequestsResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "tags": [
+          "admin"
+        ],
+        "summary": "영상 등록 요청 목록 (상태 필터 가능)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v2/admin/video-requests/{request_id}/approve": {
+      "post": {
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApproveVideoRequestResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApproveVideoRequestRequest"
+              }
+            }
+          }
+        },
+        "tags": [
+          "admin"
+        ],
+        "summary": "영상 등록 요청 승인 (영상 DB 등록)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "request_id",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      ]
+    },
+    "/api/v2/admin/video-requests/{request_id}/reject": {
+      "post": {
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RejectVideoRequestResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RejectVideoRequestRequest"
+              }
+            }
+          }
+        },
+        "tags": [
+          "admin"
+        ],
+        "summary": "영상 등록 요청 거절 (사유 필수)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "request_id",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      ]
+    },
+    "/api/v2/admin/videos": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "keyword",
+            "description": "검색어 (제목 또는 채널명, 선택)",
+            "schema": {
+              "type": "string",
+              "default": null,
+              "nullable": true
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "category",
+            "description": "카테고리 필터 (선택)",
+            "schema": {
+              "type": "string",
+              "default": null,
+              "enum": [
+                "drama",
+                "eating",
+                "travel",
+                "cook",
+                "show",
+                "information",
+                "game",
+                "sports",
+                "music",
+                "animal",
+                "beauty",
+                "comedy",
+                "horror",
+                "exercise",
+                "vlog",
+                "etc",
+                null
+              ],
+              "nullable": true
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "description": "페이지 번호 (1부터 시작)",
+            "schema": {
+              "type": "integer",
+              "default": 1,
+              "minimum": 1
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "size",
+            "description": "페이지 크기 (1~100)",
+            "schema": {
+              "type": "integer",
+              "default": 20,
+              "minimum": 1,
+              "maximum": 100
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetVideosResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "tags": [
+          "admin"
+        ],
+        "summary": "영상 목록 조회 (키워드·카테고리 필터)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v2/admin/videos/{video_id}": {
+      "delete": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteVideoResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "tags": [
+          "admin"
+        ],
+        "summary": "영상 삭제 (논리 삭제)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "video_id",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      ]
+    },
+    "/api/v2/admin/comments": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "video_id",
+            "description": "영상 ID 필터 (선택)",
+            "schema": {
+              "type": "string",
+              "default": null,
+              "nullable": true
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "keyword",
+            "description": "댓글 내용 검색 (선택)",
+            "schema": {
+              "type": "string",
+              "default": null,
+              "nullable": true
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "is_deleted",
+            "description": "삭제 댓글 필터 (true: 삭제 댓글만, false: 정상 댓글만, 미입력: 전체)",
+            "schema": {
+              "type": "boolean",
+              "default": null,
+              "nullable": true
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "description": "페이지 번호 (1부터 시작)",
+            "schema": {
+              "type": "integer",
+              "default": 1,
+              "minimum": 1
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "size",
+            "description": "페이지 크기 (1~100)",
+            "schema": {
+              "type": "integer",
+              "default": 20,
+              "minimum": 1,
+              "maximum": 100
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetCommentsResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "tags": [
+          "admin"
+        ],
+        "summary": "댓글 목록 조회 (영상·키워드·삭제여부 필터)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v2/admin/comments/{comment_id}": {
+      "delete": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteCommentResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "tags": [
+          "admin"
+        ],
+        "summary": "댓글 삭제 (논리 삭제)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "comment_id",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      ]
+    },
+    "/api/v2/admin/system/status": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SystemStatusResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "tags": [
+          "admin"
+        ],
+        "summary": "서버·DB·인프라 상태 및 API 통계 조회",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v2/admin/dummy-data": {
+      "post": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "count",
+            "description": "생성할 시청 기록 수 (10~300, 기본값 30)",
+            "schema": {
+              "type": "integer",
+              "default": 30,
+              "minimum": 10,
+              "maximum": 300
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenerateDummyDataResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "tags": [
+          "admin"
+        ],
+        "summary": "테스트용 시청 더미 데이터 생성 (count: 10~300)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v2/test/scheduler/youtube-trending": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "tags": [
+          "test"
+        ]
+      }
+    },
+    "/api/v2/test/scheduler/status": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "tags": [
+          "test"
+        ]
+      }
+    },
+    "/api/v2/test/config/check": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "tags": [
+          "test"
+        ]
+      }
+    },
+    "/api/v2/test/sentry/test-error": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "tags": [
+          "test"
+        ]
+      }
+    },
+    "/api/v2/test/sentry/test-message": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "tags": [
+          "test"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "FaceReview API",
+    "version": "v2"
+  },
+  "tags": [
+    {
+      "name": "base",
+      "description": "기본 테스트 엔드포인트"
+    },
+    {
+      "name": "auth",
+      "description": "인증 관련 API"
+    },
+    {
+      "name": "home",
+      "description": "홈 화면 및 영상 추천 API"
+    },
+    {
+      "name": "mypage",
+      "description": "마이페이지 API"
+    },
+    {
+      "name": "watch",
+      "description": "영상 시청 및 감정 분석 API"
+    },
+    {
+      "name": "admin",
+      "description": "관리자 페이지 API"
+    },
+    {
+      "name": "test",
+      "description": "테스트용 API (개발 환경 전용)"
+    }
+  ],
+  "openapi": "3.0.3"
+}

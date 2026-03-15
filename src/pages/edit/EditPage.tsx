@@ -12,7 +12,7 @@ import { useAuthStorage } from 'store/authStore';
 import { updateProfile } from 'api/auth';
 import { mapEmotionToNumber, mapNumberToEmotion } from 'utils/index';
 import CategoryList from 'components/CategoryList/CategoryList';
-import useMediaQuery from 'utils/useMediaQuery';
+import useMediaQuery from 'hooks/useMediaQuery';
 
 const EditPage = () => {
   const isMobile = useMediaQuery('(max-width: 1200px)');
@@ -113,31 +113,39 @@ const EditPage = () => {
             isEditable={true}
             onEditClick={openModal}
           />
-          <ModalDialog
-            type={'one-button'}
-            name="edit-page-modal"
-            isOpen={isModalOpen}
-            onClose={closeModal}
-            onCheck={handleModalCheck}>
-            <h3 className="font-title-mini edit-page-modal-title">
-              아이콘을 선택해주세요
-            </h3>
-
-            <div className="edit-page-modal-icon-wrapper">
-              {EMOTIONS.map((emotion, index) => (
-                <ProfileIcon
-                  key={emotion}
-                  type="icon-medium"
-                  color={emotion}
-                  onSelectClick={() => handleColorSelect(emotion)}
-                  style={{
-                    cursor: 'pointer',
-                    marginRight: index !== EMOTIONS.length - 1 ? '10px' : 0,
-                    border:
-                      selectedColor === emotion ? '3px solid #76FFCE' : 'none',
+          <ModalDialog isOpen={isModalOpen} onClose={closeModal}>
+            <div className="edit-page-modal-container">
+              <h3 className="font-title-mini edit-page-modal-title">
+                아이콘을 선택해주세요
+              </h3>
+              <div className="edit-page-modal-icon-wrapper">
+                {EMOTIONS.map((emotion, index) => (
+                  <ProfileIcon
+                    key={emotion}
+                    type="icon-medium"
+                    color={emotion}
+                    onSelectClick={() => handleColorSelect(emotion)}
+                    style={{
+                      cursor: 'pointer',
+                      marginRight: index !== EMOTIONS.length - 1 ? '10px' : 0,
+                      border:
+                        selectedColor === emotion
+                          ? '3px solid #76FFCE'
+                          : 'none',
+                    }}
+                  />
+                ))}
+              </div>
+              <div className="edit-page-modal-button-wrapper">
+                <Button
+                  label={'확인'}
+                  variant={'cta-full'}
+                  onClick={() => {
+                    closeModal();
+                    handleModalCheck();
                   }}
                 />
-              ))}
+              </div>
             </div>
           </ModalDialog>
           <div className="edit-page-edit-container">
@@ -172,7 +180,7 @@ const EditPage = () => {
               <label
                 htmlFor="editNickName font-title-mini"
                 style={{ marginBottom: '20px' }}>
-                관심사 (선택)
+                관심사 (필수)
               </label>
               <div className="category-wrapper" style={{ marginTop: '20px' }}>
                 <CategoryList
@@ -180,6 +188,11 @@ const EditPage = () => {
                   onChange={setSelectedCategories}
                 />
               </div>
+              {selectedCategories.length < 1 && (
+                <p className="edit-page-input-alert-message font-body-large">
+                  최소 1개의 카테고리를 선택해주세요
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -192,7 +205,7 @@ const EditPage = () => {
               ? { width: window.innerWidth - 32, marginTop: '16px' }
               : { width: '380px', marginTop: '16px' }
           }
-          disabled={nickName.length < 2}
+          disabled={nickName.length < 2 || selectedCategories.length < 1}
           onClick={handleEditButtonClick}
         />
       </div>

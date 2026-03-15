@@ -3,13 +3,12 @@ import TextInput from 'components/TextInput/TextInput';
 import Button from 'components/Button/Button';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
-import HeaderToken from 'api/HeaderToken';
-import { useAuthStorage } from 'store/authStore';
 import {
   changePassword,
   sendEmailVerification,
   verifyPasswordCode,
 } from 'api/mypage';
+import { useLogout } from 'hooks/useLogout';
 
 const PasswordChangePage = () => {
   const [step, setStep] = useState<1 | 2>(1);
@@ -21,7 +20,7 @@ const PasswordChangePage = () => {
   const [isEmailSent, setIsEmailSent] = useState(false);
 
   const navigate = useNavigate();
-  const { setTempToken } = useAuthStorage();
+  const { handleLogout } = useLogout();
 
   // 페이지 열릴 때 초기화
   useEffect(() => {
@@ -48,11 +47,8 @@ const PasswordChangePage = () => {
     }
   };
 
-  // 로그아웃 처리
-  const handleLogoutClick = () => {
-    HeaderToken.set('');
-    setTempToken({ access_token: '' });
-    navigate('/auth/1');
+  const handleLogoutClick = async () => {
+    await handleLogout('/auth/1');
   };
 
   // 인증 코드 검증 핸들러

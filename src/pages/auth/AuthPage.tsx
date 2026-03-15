@@ -206,16 +206,14 @@ const AuthPage = () => {
       currentStep === 3 &&
       !isSignIn &&
       nicknameAlertMessage === ' ' &&
-      categoryAlertMessage === ' '
+      categories.length >= 1
     ) {
       return true;
     }
   };
 
-  const getCategoryAlertMessage = () => {
-    return ' ';
-  };
-  const categoryAlertMessage = getCategoryAlertMessage();
+  const categoryAlertMessage =
+    categories.length < 1 ? '최소 1개의 카테고리를 선택해주세요' : ' ';
 
   return (
     <>
@@ -326,7 +324,7 @@ const AuthPage = () => {
                 <label
                   htmlFor="authNickname"
                   className="input-label font-title-mini">
-                  관심 카테고리 (선택)
+                  관심 카테고리 (필수)
                 </label>
                 <div className="category-wrapper">
                   <CategoryList
