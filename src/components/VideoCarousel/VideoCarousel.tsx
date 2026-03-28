@@ -8,12 +8,13 @@ import './VideoCarousel.scss';
 
 import useMediaQuery from 'hooks/useMediaQuery';
 import VideoItem from 'components/VideoItem/VideoItem';
+import { VideoDataType } from 'types';
 import { SwiperOptions } from 'swiper/types';
 
-interface VideoCarouselProps {
-  videos: any[];
+interface VideoCarouselProps<T> {
+  videos: T[];
   hoverToPlay?: boolean;
-  renderItem?: (video: any, index: number) => React.ReactNode;
+  renderItem?: (video: T, index: number) => React.ReactNode;
 
   // 자동 여백 계산을 위한 디멘션 설정
   desktopSlidesPerView?: number;  // 한 줄에 보여줄 아이템 개수 (기본 4)
@@ -21,14 +22,14 @@ interface VideoCarouselProps {
   desktopContainerWidth?: number; // 부모 컨테이너 가로 픽셀 (기본 1200)
 }
 
-const VideoCarousel = ({
+const VideoCarousel = <T,>({
   videos,
   hoverToPlay = true,
   renderItem,
   desktopSlidesPerView = 4,
   desktopItemWidth = 280,
   desktopContainerWidth = 1200,
-}: VideoCarouselProps): ReactElement | null => {
+}: VideoCarouselProps<T>): ReactElement | null => {
   const isMobile = useMediaQuery('(max-width: 1200px)');
 
   if (!videos || videos.length === 0) return null;
@@ -81,29 +82,35 @@ const VideoCarousel = ({
           } as React.CSSProperties
         }
       >
-        {videos.map((v, i) => (
-          <SwiperSlide key={v.uuid ?? v.id ?? v.video_id ?? i}>
-            {renderItem ? (
-              renderItem(v, i)
-            ) : (
-              <VideoItem
-                type="small-emoji"
-                width={isMobile ? window.innerWidth - 32 : 280}
-                videoId={v.youtube_url}
-                videoUuid={v.uuid ?? v.id ?? v.video_id}
-                videoTitle={v.title}
-                videoMostEmotion={v.dominant_emotion}
-                videoMostEmotionPercentage={v.dominant_emotion_per}
-                style={
-                  isMobile
-                    ? { marginTop: '14px', marginBottom: '14px' }
-                    : { marginBottom: '56px' }
-                }
-                hoverToPlay={hoverToPlay}
-              />
-            )}
-          </SwiperSlide>
-        ))}
+        {videos.map((v, i) => {
+          const record = v as Record<string, unknown>;
+          return (
+            <SwiperSlide key={(record.uuid ?? record.id ?? record.video_id ?? i) as React.Key}>
+              {renderItem ? (
+                renderItem(v, i)
+              ) : (() => {
+                const video = v as unknown as VideoDataType;
+                return (
+                  <VideoItem
+                    type="small-emoji"
+                    width={isMobile ? window.innerWidth - 32 : 280}
+                    videoId={video.youtube_url}
+                    videoUuid={video.uuid ?? video.id ?? video.video_id}
+                    videoTitle={video.title}
+                    videoMostEmotion={video.dominant_emotion}
+                    videoMostEmotionPercentage={video.dominant_emotion_per}
+                    style={
+                      isMobile
+                        ? { marginTop: '14px', marginBottom: '14px' }
+                        : { marginBottom: '56px' }
+                    }
+                    hoverToPlay={hoverToPlay}
+                  />
+                );
+              })()}
+            </SwiperSlide>
+          );
+        })}
       </Swiper>
     </div>
   );

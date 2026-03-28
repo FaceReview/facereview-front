@@ -238,15 +238,9 @@
       @include variables.mobile {
         padding-left: 20px;
       }
-
-      @include variables.desktop {
-      }
     }
 
     .my-page-video-wrapper {
-      @include variables.mobile {
-      }
-
       @include variables.desktop {
         padding-top: 16px;
       }
@@ -294,13 +288,6 @@
         }
       }
     }
-
-    // -ms-overflow-style: none; /* 인터넷 익스플로러 */
-    // scrollbar-width: none; /* 파이어폭스 */
-
-    // .my-page-video-container::-webkit-scrollbar {
-    //   display: none; /* 크롬, 사파리, 오페라, 엣지 */
-    // }
   }
 }
 
@@ -407,8 +394,7 @@
       }
     }
 
-    @include variables.mobile {
-    }
+
 
     @include variables.desktop {
       width: 1200px;

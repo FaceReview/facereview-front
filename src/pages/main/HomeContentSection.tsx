@@ -123,8 +123,6 @@ const HomeContentSection = (): ReactElement => {
     }
   };
 
-
-
   const location = useLocation();
 
   useEffect(() => {
