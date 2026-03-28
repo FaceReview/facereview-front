@@ -1,4 +1,4 @@
-@use "styles/abstracts" as variables;
+@use 'styles/abstracts' as variables;
 
 .chip {
   position: relative;
@@ -20,7 +20,7 @@
     height: 32px;
   }
 
-  @media (hover: hover) {
+  @media (hover: hover) and (pointer: fine) {
     &:hover {
       transform: scale(1.2);
 
