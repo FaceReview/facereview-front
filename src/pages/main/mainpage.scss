@@ -5,7 +5,7 @@
 
   @include variables.mobile {
     padding-top: 70px;
-    padding-left: 16px;
+    padding-inline: 16px;
   }
   @include variables.desktop {
     padding-top: 110px;
@@ -47,41 +47,8 @@
       margin-bottom: 100px;
     }
     @include variables.desktop {
-      width: calc(50vw + 600px);
+      width: 1200px;
       margin-bottom: 100px;
-    }
-
-    .main-page-video-container {
-      display: flex;
-      margin-left: -20px;
-      overflow-x: auto;
-      overflow-y: hidden;
-
-      @include variables.mobile {
-      }
-      @include variables.desktop {
-        height: 282px;
-      }
-    }
-
-    .main-page-video-wrapper {
-      height: 100%;
-      display: flex;
-      padding-left: 20px;
-      padding-bottom: 20px;
-
-      @include variables.mobile {
-      }
-      @include variables.desktop {
-        padding-right: calc(50vw - 660px);
-        padding-top: 16px;
-      }
-    }
-    -ms-overflow-style: none; /* 인터넷 익스플로러 */
-    scrollbar-width: none; /* 파이어폭스 */
-
-    .main-page-video-container::-webkit-scrollbar {
-      display: none; /* 크롬, 사파리, 오페라, 엣지 */
     }
   }
 
@@ -91,41 +58,46 @@
       margin-bottom: 100px;
     }
     @include variables.desktop {
-      width: calc(50vw + 600px);
+      width: 1200px;
       margin-bottom: 100px;
     }
 
-    .main-page-genre-video-container {
+    .genre-title-row {
       display: flex;
-      margin-left: -20px;
-      overflow-x: auto;
-      overflow-y: hidden;
+      align-items: center;
+      justify-content: space-between;
 
-      @include variables.mobile {
-      }
-      @include variables.desktop {
-        height: 282px;
-      }
-    }
+      .genre-nav-buttons {
+        display: flex;
+        gap: 10px;
+        flex-shrink: 0;
 
-    .main-page-genre-video-wrapper {
-      height: 100%;
-      display: flex;
-      padding-left: 20px;
-      padding-bottom: 20px;
+        .genre-nav-btn {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 36px;
+          height: 36px;
+          border-radius: 50%;
+          border: 1.5px solid rgba(255, 255, 255, 0.12);
+          background: #25252f;
+          color: rgba(255, 255, 255, 0.6);
+          cursor: pointer;
+          transition: all 0.2s ease;
 
-      @include variables.mobile {
-      }
-      @include variables.desktop {
-        padding-right: calc(50vw - 660px);
-        padding-top: 16px;
-      }
-    }
-    -ms-overflow-style: none; /* 인터넷 익스플로러 */
-    scrollbar-width: none; /* 파이어폭스 */
+          @media (hover: hover) {
+            &:hover {
+              border-color: rgba(255, 152, 113, 0.5);
+              color: #ff9871;
+              background: rgba(255, 152, 113, 0.08);
+            }
+          }
 
-    .main-page-video-container::-webkit-scrollbar {
-      display: none; /* 크롬, 사파리, 오페라, 엣지 */
+          &:active {
+            transform: scale(0.92);
+          }
+        }
+      }
     }
   }
 
@@ -135,17 +107,19 @@
     }
 
     .video-container {
-      margin-left: -20px;
+      width: 1200px;
+      max-width: 100%;
 
       .main-page-chip-container {
         display: flex;
         width: 100%;
         overflow-x: auto;
+        margin-left: -8px;
 
         .chip-wrapper {
           display: flex;
           white-space: nowrap;
-          padding-left: 20px;
+          padding-left: 8px;
 
           @include variables.mobile {
             padding-top: 24px;
@@ -166,11 +140,10 @@
 
       .video-wrapper {
         @include variables.desktop {
-          width: 1300px;
+          width: 100%;
         }
         display: flex;
         flex-wrap: wrap;
-        padding-left: 20px;
       }
     }
   }

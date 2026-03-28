@@ -5,7 +5,6 @@ import {
   EmotionSummaryResponse,
   VideoDataType,
   VideoDetailType,
-  EmotionType,
 } from 'types';
 import api, { youtubeApi } from './index';
 

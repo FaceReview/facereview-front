@@ -5,10 +5,10 @@ import {
   getVideoList,
 } from 'api/youtube';
 import VideoItem from 'components/VideoItem/VideoItem';
-import { ReactElement, useCallback, useEffect, useRef, useState } from 'react';
+import { ReactElement, useCallback, useEffect, useState } from 'react';
 import { useAuthStorage } from 'store/authStore';
 import { EmotionType, VideoDataType } from 'types';
-import { v4 as uuidv4 } from 'uuid';
+import VideoCarousel from 'components/VideoCarousel/VideoCarousel';
 
 import { updateRequestVideoList } from 'api/request';
 import youtubeIcon from 'assets/img/youtubeIcon.png';
@@ -59,9 +59,16 @@ const HomeContentSection = (): ReactElement => {
       (category) => category.category_name === CATEGORIES[genreCurrentIndex],
     )?.videos || [];
 
-  const [genreChangeTerm, setGenreChangeTerm] = useState<number | null>(6000);
-  const [genreChangeOpacity, setGenreChangeOpacity] = useState<number>(1);
   const genreTitle: Array<string> = CATEGORY_ITEMS.map((item) => item.label);
+
+  const handleGenrePrev = () => {
+    setGenreCurrentIndex((prev) =>
+      prev === 0 ? CATEGORIES.length - 1 : prev - 1,
+    );
+  };
+  const handleGenreNext = () => {
+    setGenreCurrentIndex((prev) => (prev + 1) % CATEGORIES.length);
+  };
 
   const getThumbnailUrl = (videoId: string) =>
     `http://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
@@ -115,53 +122,6 @@ const HomeContentSection = (): ReactElement => {
       );
     }
   };
-
-  const timeoutTimer = useRef<ReturnType<typeof setTimeout> | undefined>(
-    undefined,
-  );
-  const intervalTimer = useRef<ReturnType<typeof setInterval> | undefined>(
-    undefined,
-  );
-
-  const useInterval = (
-    callback: () => void,
-    delay: number | null,
-    index: number,
-  ) => {
-    const savedCallback = useRef<(() => void) | undefined>(undefined);
-
-    useEffect(() => {
-      savedCallback.current = callback;
-    }, [callback]);
-
-    useEffect(() => {
-      const tick = () => {
-        setGenreChangeOpacity(1);
-        if (savedCallback.current) {
-          savedCallback.current();
-        }
-      };
-
-      if (delay !== null) {
-        timeoutTimer.current = setTimeout(() => {
-          setGenreChangeOpacity(0);
-        }, 5800);
-        intervalTimer.current = setInterval(tick, delay);
-        return () => {
-          clearInterval(intervalTimer.current);
-          clearTimeout(timeoutTimer.current);
-        };
-      }
-    }, [delay, index]);
-  };
-
-  useInterval(
-    () => {
-      setGenreCurrentIndex((prevIndex) => (prevIndex + 1) % CATEGORIES.length);
-    },
-    genreChangeTerm,
-    genreCurrentIndex,
-  );
 
   const location = useLocation();
 
@@ -258,53 +218,47 @@ const HomeContentSection = (): ReactElement => {
             가장 좋아할 영상을 준비했어요.
           </h4>
           <div className="video-container">
-            <div className="main-page-video-container">
-              <div className="main-page-video-wrapper">
-                {personalRecommendedVideo.map((v, i) => (
-                  <VideoItem
-                    type="small-emoji"
-                    key={v.youtube_url || i}
-                    width={isMobile ? window.innerWidth - 48 : 280}
-                    videoId={v.youtube_url}
-                    videoUuid={v.uuid ?? v.id ?? v.video_id}
-                    videoTitle={v.title}
-                    videoMostEmotion={v.dominant_emotion}
-                    videoMostEmotionPercentage={v.dominant_emotion_per}
-                    style={
-                      isMobile
-                        ? {
-                            marginTop: '14px',
-                            marginBottom: '14px',
-                            marginRight: '16px',
-                          }
-                        : { marginRight: '28px' }
-                    }
-                    hoverToPlay={false}
-                  />
-                ))}
-              </div>
-            </div>
+          <div className="genre-video-container">
+            <VideoCarousel
+              videos={personalRecommendedVideo}
+            />
+          </div>
           </div>
         </div>
       ) : null}
 
       {/* ... Genre ... */}
       <div className="genre-contents-container">
-        <h2
-          className={
-            isMobile ? 'title font-title-medium' : 'title font-title-large'
-          }>
-          <span
-            style={{
-              opacity: genreChangeOpacity,
-              transition: 'opacity 0.2s ease-in-out',
-            }}>
-            {genreTitle[genreCurrentIndex]}
-          </span>{' '}
-          추천{` `}
-          {isMobile && <br />}
-          영상을 골라봤어요.
-        </h2>
+        <div className="genre-title-row">
+          <h2
+            className={
+              isMobile ? 'title font-title-medium' : 'title font-title-large'
+            }>
+            {genreTitle[genreCurrentIndex]} 추천{` `}
+            {isMobile && <br />}
+            영상을 골라봤어요.
+          </h2>
+          <div className="genre-nav-buttons">
+            <button
+              type="button"
+              className="genre-nav-btn"
+              onClick={handleGenrePrev}
+              aria-label="이전 장르">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+            <button
+              type="button"
+              className="genre-nav-btn"
+              onClick={handleGenreNext}
+              aria-label="다음 장르">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+          </div>
+        </div>
         <h4
           className={
             isMobile ? 'subtitle font-title-mini' : 'subtitle font-title-small'
@@ -313,45 +267,8 @@ const HomeContentSection = (): ReactElement => {
           {isMobile && <br />}
           추천 영상을 준비했어요.
         </h4>
-        <div
-          onMouseEnter={() => {
-            clearInterval(intervalTimer.current);
-            clearTimeout(timeoutTimer.current);
-            setGenreChangeTerm(null);
-          }}
-          onMouseLeave={() => setGenreChangeTerm(6000)}
-          style={{
-            opacity: genreChangeOpacity,
-            transition: 'opacity 0.2s ease-in-out',
-          }}
-          className="genre-video-container">
-          <div className="main-page-genre-video-container">
-            <div className="main-page-genre-video-wrapper">
-              {currentGenreVideos.map((v) => (
-                <VideoItem
-                  type="small-emoji"
-                  key={uuidv4()}
-                  width={isMobile ? window.innerWidth - 48 : 280}
-                  videoId={v.youtube_url}
-                  videoUuid={v.uuid ?? v.id ?? v.video_id}
-                  videoTitle={v.title}
-                  videoMostEmotion={v.dominant_emotion}
-                  videoMostEmotionPercentage={v.dominant_emotion_per}
-                  style={
-                    isMobile
-                      ? {
-                          marginTop: '14px',
-                          marginBottom: '14px',
-                          marginRight: '16px',
-                        }
-                      : {
-                          marginRight: '28px',
-                        }
-                  }
-                />
-              ))}
-            </div>
-          </div>
+        <div className="genre-video-container">
+          <VideoCarousel videos={currentGenreVideos} />
         </div>
       </div>
 
@@ -496,7 +413,10 @@ const HomeContentSection = (): ReactElement => {
                 style={
                   isMobile
                     ? { marginTop: '14px', marginBottom: '14px' }
-                    : { marginRight: '28px', marginBottom: '56px' }
+                    : {
+                        marginRight: (i + 1) % 4 === 0 ? 0 : '26px',
+                        marginBottom: '56px',
+                      }
                 }
               />
             ))}
@@ -509,7 +429,10 @@ const HomeContentSection = (): ReactElement => {
                     style={
                       isMobile
                         ? { marginTop: '14px', marginBottom: '14px' }
-                        : { marginRight: '28px', marginBottom: '56px' }
+                        : {
+                            marginRight: (i + 1) % 4 === 0 ? 0 : '26px',
+                            marginBottom: '56px',
+                          }
                     }
                   />
                 ))}

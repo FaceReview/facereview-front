@@ -20,36 +20,38 @@
     height: 32px;
   }
 
-  &:hover {
-    transform: scale(1.2);
+  @media (hover: hover) {
+    &:hover {
+      transform: scale(1.2);
 
-    &.all {
-      color: variables.$gray-50;
-      background: variables.$gray-900;
-    }
+      &.all {
+        color: variables.$gray-50;
+        background: variables.$gray-900;
+      }
 
-    &.happy {
-      background: variables.$category-joyful-tinted;
-      color: variables.$gray-900;
-    }
+      &.happy {
+        background: variables.$category-joyful-tinted;
+        color: variables.$gray-900;
+      }
 
-    &.surprise {
-      background: variables.$category-surprised-tinted;
-      color: variables.$gray-900;
-    }
+      &.surprise {
+        background: variables.$category-surprised-tinted;
+        color: variables.$gray-900;
+      }
 
-    &.sad {
-      background: variables.$category-sad-tinted;
-      color: variables.$gray-900;
-    }
+      &.sad {
+        background: variables.$category-sad-tinted;
+        color: variables.$gray-900;
+      }
 
-    &.angry {
-      background: variables.$category-angry-tinted;
-      color: variables.$gray-900;
-    }
+      &.angry {
+        background: variables.$category-angry-tinted;
+        color: variables.$gray-900;
+      }
 
-    &.plus {
-      background: variables.$gray-100;
+      &.plus {
+        background: variables.$gray-100;
+      }
     }
   }
 
