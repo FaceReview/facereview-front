@@ -27,7 +27,7 @@ const VideoItem = ({
   videoMostEmotionPercentage,
   width,
   style,
-  hoverToPlay,
+  hoverToPlay = true,
 }: VideoItemPropsType): ReactElement => {
   const navigation = useNavigate();
   const height = width ? width * (9 / 16) : null;

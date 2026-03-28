@@ -221,7 +221,6 @@ const HomeContentSection = (): ReactElement => {
           <div className="genre-video-container">
             <VideoCarousel
               videos={personalRecommendedVideo}
-              hoverToPlay={false}
             />
           </div>
           </div>
