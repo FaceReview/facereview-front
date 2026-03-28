@@ -13,7 +13,8 @@
 
   @include variables.desktop {
     padding-top: 126px;
-    width: calc(50vw + 600px);
+    width: 1200px;
+    margin: 0 auto;
   }
 
   .verify-alert-banner {
@@ -176,14 +177,14 @@
   .my-page-watched-contents-container {
     display: flex;
     flex-direction: column;
-    overflow: hidden;
-    margin-left: -20px;
 
     @include variables.mobile {
+      margin-left: -20px;
       margin-top: 40px;
     }
 
     @include variables.desktop {
+      width: 1200px;
       margin-top: 56px;
     }
 
@@ -193,7 +194,9 @@
       width: 100%;
 
       .my-page-title {
-        padding-left: 20px;
+        @include variables.mobile {
+          padding-left: 20px;
+        }
       }
 
       .my-page-chip-container {
@@ -204,9 +207,9 @@
         .my-page-chip-wrapper {
           display: flex;
           white-space: nowrap;
-          padding-left: 20px;
 
           @include variables.mobile {
+            padding-left: 20px;
             padding-top: 24px;
             padding-bottom: 18px;
           }
@@ -230,35 +233,28 @@
     }
 
     .my-page-video-container {
-      display: flex;
-      overflow-x: auto;
-      padding-left: 20px;
       margin-bottom: 88px;
 
       @include variables.mobile {
+        padding-left: 20px;
       }
 
       @include variables.desktop {
-        height: 453px;
       }
     }
 
     .my-page-video-wrapper {
-      display: flex;
-
       @include variables.mobile {
-        flex-direction: column;
       }
 
       @include variables.desktop {
-        height: 100%;
-        padding-right: calc(50vw - 660px);
         padding-top: 16px;
       }
 
       .recent-video-item {
+        width: 100%;
         .video-graph-container {
-          width: 360px;
+          width: 100%;
           height: 60px;
           padding: 4px;
           background: variables.$gray-50;

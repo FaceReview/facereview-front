@@ -8,7 +8,7 @@ import VideoItem from 'components/VideoItem/VideoItem';
 import { ReactElement, useCallback, useEffect, useRef, useState } from 'react';
 import { useAuthStorage } from 'store/authStore';
 import { EmotionType, VideoDataType } from 'types';
-import { v4 as uuidv4 } from 'uuid';
+import VideoCarousel from 'components/VideoCarousel/VideoCarousel';
 
 import { updateRequestVideoList } from 'api/request';
 import youtubeIcon from 'assets/img/youtubeIcon.png';
@@ -258,32 +258,12 @@ const HomeContentSection = (): ReactElement => {
             가장 좋아할 영상을 준비했어요.
           </h4>
           <div className="video-container">
-            <div className="main-page-video-container">
-              <div className="main-page-video-wrapper">
-                {personalRecommendedVideo.map((v, i) => (
-                  <VideoItem
-                    type="small-emoji"
-                    key={v.youtube_url || i}
-                    width={isMobile ? window.innerWidth - 48 : 280}
-                    videoId={v.youtube_url}
-                    videoUuid={v.uuid ?? v.id ?? v.video_id}
-                    videoTitle={v.title}
-                    videoMostEmotion={v.dominant_emotion}
-                    videoMostEmotionPercentage={v.dominant_emotion_per}
-                    style={
-                      isMobile
-                        ? {
-                            marginTop: '14px',
-                            marginBottom: '14px',
-                            marginRight: '16px',
-                          }
-                        : { marginRight: '28px' }
-                    }
-                    hoverToPlay={false}
-                  />
-                ))}
-              </div>
-            </div>
+          <div className="genre-video-container">
+            <VideoCarousel
+              videos={personalRecommendedVideo}
+              hoverToPlay={false}
+            />
+          </div>
           </div>
         </div>
       ) : null}
@@ -325,33 +305,7 @@ const HomeContentSection = (): ReactElement => {
             transition: 'opacity 0.2s ease-in-out',
           }}
           className="genre-video-container">
-          <div className="main-page-genre-video-container">
-            <div className="main-page-genre-video-wrapper">
-              {currentGenreVideos.map((v) => (
-                <VideoItem
-                  type="small-emoji"
-                  key={uuidv4()}
-                  width={isMobile ? window.innerWidth - 48 : 280}
-                  videoId={v.youtube_url}
-                  videoUuid={v.uuid ?? v.id ?? v.video_id}
-                  videoTitle={v.title}
-                  videoMostEmotion={v.dominant_emotion}
-                  videoMostEmotionPercentage={v.dominant_emotion_per}
-                  style={
-                    isMobile
-                      ? {
-                          marginTop: '14px',
-                          marginBottom: '14px',
-                          marginRight: '16px',
-                        }
-                      : {
-                          marginRight: '28px',
-                        }
-                  }
-                />
-              ))}
-            </div>
-          </div>
+          <VideoCarousel videos={currentGenreVideos} />
         </div>
       </div>
 
@@ -496,7 +450,10 @@ const HomeContentSection = (): ReactElement => {
                 style={
                   isMobile
                     ? { marginTop: '14px', marginBottom: '14px' }
-                    : { marginRight: '28px', marginBottom: '56px' }
+                    : {
+                        marginRight: (i + 1) % 4 === 0 ? 0 : '26px',
+                        marginBottom: '56px',
+                      }
                 }
               />
             ))}
@@ -509,7 +466,10 @@ const HomeContentSection = (): ReactElement => {
                     style={
                       isMobile
                         ? { marginTop: '14px', marginBottom: '14px' }
-                        : { marginRight: '28px', marginBottom: '56px' }
+                        : {
+                            marginRight: (i + 1) % 4 === 0 ? 0 : '26px',
+                            marginBottom: '56px',
+                          }
                     }
                   />
                 ))}

@@ -13,6 +13,7 @@ import { ResponsivePie } from '@nivo/pie';
 import Etc from 'assets/img/etc.png';
 import { useAuthStorage } from 'store/authStore';
 import VideoItem from 'components/VideoItem/VideoItem';
+import VideoCarousel from 'components/VideoCarousel/VideoCarousel';
 import ModalDialog from 'components/ModalDialog/ModalDialog';
 import TextInput from 'components/TextInput/TextInput';
 import { sendEmailVerification, verifyEmailCode } from 'api/mypage';
@@ -262,74 +263,78 @@ const MyPage = () => {
           <div className="my-page-video-container">
             <div className="my-page-video-wrapper">
               {filteredRecentVideos.length > 0 ? (
-                filteredRecentVideos.map((v) => (
-                  <div
-                    className="recent-video-item"
-                    key={`videoItem${v.youtube_url}${v.dominant_emotion_per}`}>
-                    <VideoItem
-                      type="big-emoji"
-                      key={`videoItem${v.youtube_url}${v.dominant_emotion_per}`}
-                      width={isMobile ? window.innerWidth - 32 : 360}
-                      videoId={v.youtube_url}
-                      videoUuid={v.video_id}
-                      videoTitle={v.title}
-                      videoMostEmotion={v.dominant_emotion}
-                      videoMostEmotionPercentage={v.dominant_emotion_per}
-                      style={
-                        isMobile
-                          ? { paddingTop: '14px', paddingBottom: '14px' }
-                          : { marginRight: '60px' }
-                      }
-                      hoverToPlay={false}
-                    />
-                    <div className="video-graph-container">
-                      {(v.timeline_data || []).length > 0 && (
-                        <ResponsiveLine
-                          data={v.timeline_data || []}
-                          colors={EMOTIONS.map((e) => EMOTION_COLORS[e])}
-                          margin={{ top: 2, right: 0, bottom: 2, left: 0 }}
-                          xScale={{ type: 'point' }}
-                          yScale={{
-                            type: 'linear',
-                            min: 0,
-                            max: 100,
-                            reverse: false,
-                          }}
-                          curve={'natural'}
-                          yFormat=" >-.2f"
-                          axisTop={null}
-                          axisRight={null}
-                          enableGridX={false}
-                          enableGridY={false}
-                          axisBottom={{
-                            tickSize: 5,
-                            tickPadding: 5,
-                            tickRotation: 0,
-                            legend: 'transportation',
-                            legendOffset: 36,
-                            legendPosition: 'middle',
-                          }}
-                          axisLeft={{
-                            tickSize: 5,
-                            tickPadding: 5,
-                            tickRotation: 0,
-                            legend: 'count',
-                            legendOffset: -40,
-                            legendPosition: 'middle',
-                          }}
-                          pointSize={0}
-                          pointColor={{ theme: 'background' }}
-                          pointBorderWidth={0}
-                          pointBorderColor={{ from: 'serieColor' }}
-                          pointLabelYOffset={-12}
-                          useMesh={true}
-                          legends={[]}
-                          tooltip={() => null}
-                        />
-                      )}
+                <VideoCarousel
+                  videos={filteredRecentVideos}
+                  desktopSlidesPerView={3}
+                  desktopItemWidth={360}
+                  renderItem={(v) => (
+                    <div
+                      className="recent-video-item"
+                      key={`videoItem${v.youtube_url}${v.dominant_emotion_per}`}>
+                      <VideoItem
+                        type="big-emoji"
+                        width={isMobile ? window.innerWidth - 32 : 360}
+                        videoId={v.youtube_url}
+                        videoUuid={v.video_id}
+                        videoTitle={v.title}
+                        videoMostEmotion={v.dominant_emotion}
+                        videoMostEmotionPercentage={v.dominant_emotion_per}
+                        style={
+                          isMobile
+                            ? { paddingTop: '14px', paddingBottom: '14px' }
+                            : { marginRight: '0' } // Swiper가 gap을 알아서 띄우므로(spaceBetween) item 우측 마진 초기화
+                        }
+                        hoverToPlay={false}
+                      />
+                      <div className="video-graph-container">
+                        {(v.timeline_data || []).length > 0 && (
+                          <ResponsiveLine
+                            data={v.timeline_data || []}
+                            colors={EMOTIONS.map((e) => EMOTION_COLORS[e])}
+                            margin={{ top: 2, right: 0, bottom: 2, left: 0 }}
+                            xScale={{ type: 'point' }}
+                            yScale={{
+                              type: 'linear',
+                              min: 0,
+                              max: 100,
+                              reverse: false,
+                            }}
+                            curve={'natural'}
+                            yFormat=" >-.2f"
+                            axisTop={null}
+                            axisRight={null}
+                            enableGridX={false}
+                            enableGridY={false}
+                            axisBottom={{
+                              tickSize: 5,
+                              tickPadding: 5,
+                              tickRotation: 0,
+                              legend: 'transportation',
+                              legendOffset: 36,
+                              legendPosition: 'middle',
+                            }}
+                            axisLeft={{
+                              tickSize: 5,
+                              tickPadding: 5,
+                              tickRotation: 0,
+                              legend: 'count',
+                              legendOffset: -40,
+                              legendPosition: 'middle',
+                            }}
+                            pointSize={0}
+                            pointColor={{ theme: 'background' }}
+                            pointBorderWidth={0}
+                            pointBorderColor={{ from: 'serieColor' }}
+                            pointLabelYOffset={-12}
+                            useMesh={true}
+                            legends={[]}
+                            tooltip={() => null}
+                          />
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))
+                  )}
+                />
               ) : (
                 <div className="my-page-video-empty">
                   <img

@@ -47,7 +47,7 @@
       margin-bottom: 100px;
     }
     @include variables.desktop {
-      width: calc(50vw + 600px);
+      width: 1200px;
       margin-bottom: 100px;
     }
 
@@ -91,9 +91,11 @@
       margin-bottom: 100px;
     }
     @include variables.desktop {
-      width: calc(50vw + 600px);
+      width: 1200px;
       margin-bottom: 100px;
     }
+
+
 
     .main-page-genre-video-container {
       display: flex;
@@ -135,7 +137,8 @@
     }
 
     .video-container {
-      margin-left: -20px;
+      width: 1200px;
+      max-width: 100%;
 
       .main-page-chip-container {
         display: flex;
@@ -145,7 +148,6 @@
         .chip-wrapper {
           display: flex;
           white-space: nowrap;
-          padding-left: 20px;
 
           @include variables.mobile {
             padding-top: 24px;
@@ -166,11 +168,10 @@
 
       .video-wrapper {
         @include variables.desktop {
-          width: 1300px;
+          width: 100%;
         }
         display: flex;
         flex-wrap: wrap;
-        padding-left: 20px;
       }
     }
   }
