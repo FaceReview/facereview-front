@@ -48,6 +48,7 @@ const VideoItem = ({
     [width, height],
   );
   const [video, setVideo] = useState<YouTubePlayer | null>(null);
+  const [isHovered, setIsHovered] = useState(false);
 
   const parsedVideoId = useMemo(() => {
     if (videoId?.includes('v=')) {
@@ -70,16 +71,19 @@ const VideoItem = ({
   };
 
   const handleMouseHover = () => {
-    if (video?.isMuted() && video?.playVideo) {
+    if (!hoverToPlay) return;
+    setIsHovered(true);
+    // iframe이 이미 마운트된 경우 소리 켜고 재생
+    if (video?.isMuted()) {
       video?.unMute();
       video?.playVideo();
     }
   };
   const handleMouseOut = () => {
-    if (video?.isMuted && !video?.isMuted() && video?.stopVideo) {
-      video?.mute();
-      video?.stopVideo();
-    }
+    if (!hoverToPlay) return;
+    // hover 이탈 시 iframe 언마운트 → 네트워크 요청 완전 종료
+    setIsHovered(false);
+    setVideo(null);
   };
 
   return (
@@ -98,24 +102,12 @@ const VideoItem = ({
           src={`http://img.youtube.com/vi/${parsedVideoId}/mqdefault.jpg`}
           alt=""
         />
-        {hoverToPlay ? (
+        {hoverToPlay && isHovered ? (
           <YouTube
             videoId={parsedVideoId}
-            // id={string} // defaults -> ''
-            // className={string} // defaults -> ''
-            iframeClassName={'youtube-item'} // defaults -> ''
-            // style={object} // defaults -> {}
-            // title={string} // defaults -> ''
-            // loading={string} // defaults -> undefined
-            opts={opts} // defaults -> {}
-            onReady={handleVideoReady} // defaults -> noop
-            // onPlay={func} // defaults -> noop
-            // onPause={func} // defaults -> noop
-            // onEnd={func} // defaults -> noop
-            // onError={func} // defaults -> noop
-            // onStateChange={handleStateChange} // defaults -> noop
-            // onPlaybackRateChange={func} // defaults -> noop
-            // onPlaybackQualityChange={func} // defaults -> noop
+            iframeClassName={'youtube-item'}
+            opts={opts}
+            onReady={handleVideoReady}
           />
         ) : null}
       </div>
