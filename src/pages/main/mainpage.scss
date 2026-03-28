@@ -5,7 +5,7 @@
 
   @include variables.mobile {
     padding-top: 70px;
-    padding-left: 16px;
+    padding-inline: 16px;
   }
   @include variables.desktop {
     padding-top: 110px;
@@ -95,7 +95,43 @@
       margin-bottom: 100px;
     }
 
+    .genre-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
 
+      .genre-nav-buttons {
+        display: flex;
+        gap: 10px;
+        flex-shrink: 0;
+
+        .genre-nav-btn {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 36px;
+          height: 36px;
+          border-radius: 50%;
+          border: 1.5px solid rgba(255, 255, 255, 0.12);
+          background: #25252f;
+          color: rgba(255, 255, 255, 0.6);
+          cursor: pointer;
+          transition: all 0.2s ease;
+
+          @media (hover: hover) {
+            &:hover {
+              border-color: rgba(255, 152, 113, 0.5);
+              color: #ff9871;
+              background: rgba(255, 152, 113, 0.08);
+            }
+          }
+
+          &:active {
+            transform: scale(0.92);
+          }
+        }
+      }
+    }
 
     .main-page-genre-video-container {
       display: flex;
@@ -144,10 +180,12 @@
         display: flex;
         width: 100%;
         overflow-x: auto;
+        margin-left: -8px;
 
         .chip-wrapper {
           display: flex;
           white-space: nowrap;
+          padding-left: 8px;
 
           @include variables.mobile {
             padding-top: 24px;

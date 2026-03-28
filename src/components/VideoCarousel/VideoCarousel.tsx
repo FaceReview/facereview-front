@@ -69,7 +69,7 @@ const VideoCarousel = ({
             paddingLeft: isMobile ? '16px' : '20px',
             paddingRight: isMobile ? '16px' : '20px',
             marginLeft: isMobile ? '-16px' : '-20px',
-            marginRight: isMobile ? '0px' : '-20px',
+            marginRight: isMobile ? '-16px' : '-20px',
             '--swiper-pagination-bottom': '0px',
             '--swiper-pagination-color': '#76FECE', // 활성 점 (포인트 컬러)
             '--swiper-pagination-bullet-inactive-color': '#76FECE', // 비활성 점 (동일 통일감 부여)
