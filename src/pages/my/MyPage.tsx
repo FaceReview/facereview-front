@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import './mypage.scss';
@@ -21,7 +21,7 @@ import { toast } from 'react-toastify';
 import { getEmotionSummary, getRecentVideo } from 'api/youtube';
 import { useLogout } from 'hooks/useLogout';
 import { EmotionType, VideoWatchedType } from 'types/index';
-import { mapNumberToEmotion } from 'utils/index';
+import { getDistributionToGraphData, mapNumberToEmotion } from 'utils/index';
 import { ResponsiveLine } from '@nivo/line';
 import useMediaQuery from 'hooks/useMediaQuery';
 import {
@@ -74,8 +74,76 @@ const MyPage = () => {
     })),
   );
 
-  const filteredRecentVideos = recentVideo.filter(
-    (v) => selectedEmotion === 'all' || v.dominant_emotion === selectedEmotion,
+  const filteredRecentVideos = useMemo(
+    () =>
+      recentVideo
+        .filter(
+          (video) =>
+            selectedEmotion === 'all' ||
+            video.dominant_emotion === selectedEmotion,
+        )
+        .map((video) => {
+          let graphData: any[] = [];
+          if (video.timeline_data && Object.keys(video.timeline_data).length > 0) {
+            const dist = getDistributionToGraphData(video.timeline_data).filter(
+              (series) => series.data.length > 0,
+            );
+
+            if (dist.length > 0) {
+              const duration = video.duration || 100;
+              const allXValues = dist.flatMap((series) =>
+                series.data
+                  .map((point) =>
+                    typeof point.x === 'number' ? point.x : Number(point.x),
+                  )
+                  .filter((x) => Number.isFinite(x)),
+              );
+              const maxGraphX =
+                allXValues.length > 0 ? Math.max(...allXValues) : duration;
+              const shouldNormalizeToDuration = maxGraphX > duration && maxGraphX > 1;
+
+              graphData = dist.map((d) => {
+                let newData = d.data.map((point) => {
+                  const rawX =
+                    typeof point.x === 'number' ? point.x : Number(point.x) || 0;
+                  const normalizedX = shouldNormalizeToDuration
+                    ? ((rawX - 1) / (maxGraphX - 1)) * duration
+                    : rawX;
+
+                  return {
+                    x: Math.min(Math.max(normalizedX, 0), duration),
+                    y: point.y,
+                  };
+                });
+
+                newData = newData.sort((a, b) => a.x - b.x);
+
+                if (newData.length === 0) {
+                  newData = [{ x: 0, y: 0 }];
+                } else {
+                  const firstPoint = newData[0];
+
+                  if (firstPoint.x !== 0) {
+                    newData = [{ x: 0, y: firstPoint.y }, ...newData];
+                  } else {
+                    newData[0] = { x: 0, y: firstPoint.y };
+                  }
+                }
+
+                return {
+                  ...d,
+                  data: newData,
+                };
+              });
+            }
+          }
+
+          return {
+            ...video,
+            graphData,
+          };
+        }),
+    [recentVideo, selectedEmotion],
   );
 
   const handleChipClick = (emotion: 'all' | EmotionType) => {
@@ -287,46 +355,27 @@ const MyPage = () => {
                         hoverToPlay={false}
                       />
                       <div className="video-graph-container">
-                        {(v.timeline_data || []).length > 0 && (
+                        {v.graphData.length > 0 && (
                           <ResponsiveLine
-                            data={v.timeline_data || []}
+                            data={v.graphData}
                             colors={EMOTIONS.map((e) => EMOTION_COLORS[e])}
                             margin={{ top: 2, right: 0, bottom: 2, left: 0 }}
-                            xScale={{ type: 'point' }}
+                            xScale={{ type: 'linear', min: 0, max: v.duration || 100 }}
                             yScale={{
                               type: 'linear',
                               min: 0,
                               max: 100,
                               reverse: false,
                             }}
-                            curve={'natural'}
-                            yFormat=" >-.2f"
+                            curve={'monotoneX'}
                             axisTop={null}
                             axisRight={null}
+                            axisBottom={null}
+                            axisLeft={null}
                             enableGridX={false}
                             enableGridY={false}
-                            axisBottom={{
-                              tickSize: 5,
-                              tickPadding: 5,
-                              tickRotation: 0,
-                              legend: 'transportation',
-                              legendOffset: 36,
-                              legendPosition: 'middle',
-                            }}
-                            axisLeft={{
-                              tickSize: 5,
-                              tickPadding: 5,
-                              tickRotation: 0,
-                              legend: 'count',
-                              legendOffset: -40,
-                              legendPosition: 'middle',
-                            }}
-                            pointSize={0}
-                            pointColor={{ theme: 'background' }}
-                            pointBorderWidth={0}
-                            pointBorderColor={{ from: 'serieColor' }}
-                            pointLabelYOffset={-12}
-                            useMesh={true}
+                            enablePoints={false}
+                            useMesh={false}
                             legends={[]}
                             tooltip={() => null}
                           />

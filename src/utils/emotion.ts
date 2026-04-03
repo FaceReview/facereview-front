@@ -35,39 +35,43 @@ export const getDistributionToGraphData = (
   dist: VideoDistributionDataType,
 ): GraphDistributionDataType[] => {
   if (!dist) return [];
+  return EMOTIONS.map((emotion) => {
+    const rawPoints = Array.isArray(dist[emotion]) ? dist[emotion] : [];
+    const pointMap = new Map<number, { total: number; count: number }>();
 
-  const temp: { [key in EmotionType]: { x: string | number; y: number }[] } = {
-    neutral: [],
-    happy: [],
-    sad: [],
-    surprise: [],
-    angry: [],
-  };
+    rawPoints.forEach((point) => {
+      const x =
+        typeof point?.x === 'number' ? point.x : Number(point?.x ?? NaN);
+      const y =
+        typeof point?.y === 'number' ? point.y : Number(point?.y ?? NaN);
 
-  EMOTIONS.forEach((emotion) => {
-    if (dist[emotion] && Array.isArray(dist[emotion])) {
-      for (let i = 1; i < dist[emotion].length; i += 2) {
-        const curr = dist[emotion][i];
-        const prev = dist[emotion][i - 1];
-        if (curr && prev) {
-          const xVal =
-            curr.x !== undefined && curr.x !== null ? Number(curr.x) : null;
-          const y1 = typeof curr.y === 'number' ? curr.y : 0;
-          const y2 = typeof prev.y === 'number' ? prev.y : 0;
-
-          if (xVal !== null && !isNaN(xVal)) {
-            temp[emotion].push({
-              x: xVal,
-              y: (y1 + y2) / 2 || 0, // Prevent NaN
-            });
-          }
-        }
+      if (!Number.isFinite(x) || !Number.isFinite(y)) {
+        return;
       }
-    }
-  });
 
-  return EMOTIONS.map((emotion) => ({
-    id: emotion,
-    data: temp[emotion],
-  }));
+      const prev = pointMap.get(x);
+
+      if (prev) {
+        pointMap.set(x, {
+          total: prev.total + y,
+          count: prev.count + 1,
+        });
+        return;
+      }
+
+      pointMap.set(x, { total: y, count: 1 });
+    });
+
+    const data = Array.from(pointMap.entries())
+      .sort(([xA], [xB]) => xA - xB)
+      .map(([x, value]) => ({
+        x,
+        y: value.total / value.count,
+      }));
+
+    return {
+      id: emotion,
+      data,
+    };
+  });
 };
