@@ -35,6 +35,7 @@ export type VideoDataType = {
   title: string;
   dominant_emotion: EmotionType;
   dominant_emotion_per: number;
+  duration?: number;
 };
 export type VideoDetailType = {
   video_id: string;
@@ -56,7 +57,8 @@ export type VideoWatchedType = {
   youtube_url: string;
   dominant_emotion: EmotionType;
   dominant_emotion_per: number;
-  timeline_data?: GraphDistributionDataType[];
+  timeline_data?: VideoDistributionDataType;
+  duration?: number;
 };
 export type VideoDistributionDataType = {
   [key in EmotionType]: { x: string | number; y: number }[];
@@ -85,6 +87,7 @@ export type VideoRelatedType = {
   title: string;
   dominant_emotion: EmotionType;
   dominant_emotion_per: number;
+  duration?: number;
 };
 
 export type ReqeustedVideoType = {
