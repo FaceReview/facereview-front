@@ -85,7 +85,7 @@ const VideoCarousel = <T,>({
         {videos.map((v, i) => {
           const record = v as Record<string, unknown>;
           return (
-            <SwiperSlide key={(record.uuid ?? record.id ?? record.video_id ?? i) as React.Key}>
+            <SwiperSlide key={`${(record.uuid ?? record.id ?? record.video_id ?? '')}-${i}`}>
               {renderItem ? (
                 renderItem(v, i)
               ) : (() => {
