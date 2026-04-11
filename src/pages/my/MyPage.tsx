@@ -83,7 +83,7 @@ const MyPage = () => {
             video.dominant_emotion === selectedEmotion,
         )
         .map((video) => {
-          let graphData: any[] = [];
+          let graphData: { id: string; data: { x: number; y: number }[] }[] = [];
           if (video.timeline_data && Object.keys(video.timeline_data).length > 0) {
             const dist = getDistributionToGraphData(video.timeline_data).filter(
               (series) => series.data.length > 0,
