@@ -66,7 +66,7 @@ const MyPage = () => {
     }[]
   >(
     EMOTIONS.map((emotion) => ({
-      id: EMOTION_EMOJIS[emotion],
+      id: emotion,
       label: EMOTION_LABELS[emotion],
       value: 0,
       color: EMOTION_COLORS[emotion],
@@ -196,12 +196,12 @@ const MyPage = () => {
         .catch((err) => console.log(err));
       getEmotionSummary()
         .then((res) => {
-          setEmotionTimeData(res.emotion_seconds);
+          setEmotionTimeData(res?.emotion_seconds || { happy: 0, sad: 0, surprise: 0, angry: 0, neutral: 0 });
           setDonutGraphData((prevData) =>
             prevData.map((item) => {
               return {
                 ...item,
-                value: res.emotion_percentages[item.originalId] || 0,
+                value: Math.round(res?.emotion_percentages?.[item.originalId] || 0),
               };
             }),
           );
@@ -335,10 +335,10 @@ const MyPage = () => {
                   videos={filteredRecentVideos}
                   desktopSlidesPerView={3}
                   desktopItemWidth={360}
-                  renderItem={(v) => (
+                  renderItem={(v, i) => (
                     <div
                       className="recent-video-item"
-                      key={`videoItem${v.youtube_url}${v.dominant_emotion_per}`}>
+                      key={`videoItem${v.youtube_url}${v.dominant_emotion_per}_${i}`}>
                       <VideoItem
                         type="big-emoji"
                         width={isMobile ? window.innerWidth - 32 : 360}
@@ -414,21 +414,35 @@ const MyPage = () => {
                   height: '320px',
                   position: 'relative',
                 }}>
-                <ResponsivePie
-                  colors={EMOTIONS.map((e) => EMOTION_COLORS[e])}
-                  data={donutGraphData}
-                  margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
-                  activeOuterRadiusOffset={8}
-                  borderWidth={1}
-                  borderColor={{
-                    from: 'color',
-                    modifiers: [['darker', 0.2]],
-                  }}
-                  innerRadius={0.7}
-                  enableArcLabels={false}
-                  enableArcLinkLabels={false}
-                  tooltip={() => null}
-                />
+                {donutGraphData.every((d) => d.value === 0) ? (
+                  <ResponsivePie
+                    data={[{ id: 'empty', label: 'empty', value: 1 }]}
+                    colors={['#4B4B5C']}
+                    margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
+                    innerRadius={0.7}
+                    enableArcLabels={false}
+                    enableArcLinkLabels={false}
+                    tooltip={() => <></>}
+                    isInteractive={false}
+                  />
+                ) : (
+                  <ResponsivePie
+                    colors={EMOTIONS.map((e) => EMOTION_COLORS[e])}
+                    data={donutGraphData}
+                    sortByValue={false}
+                    margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
+                    activeOuterRadiusOffset={8}
+                    borderWidth={1}
+                    borderColor={{
+                      from: 'color',
+                      modifiers: [['darker', 0.2]],
+                    }}
+                    innerRadius={0.7}
+                    enableArcLabels={false}
+                    enableArcLinkLabels={false}
+                    tooltip={() => <></>}
+                  />
+                )}
               </div>
               <div className="pie-legend-container">
                 {donutGraphData.map((item) => (
@@ -436,7 +450,7 @@ const MyPage = () => {
                     <div
                       className={`legend-item-color ${item.originalId}`}></div>
                     <div className="legend-item-text font-label-large">
-                      {item.value}%
+                      {item.value || 0}%
                     </div>
                   </div>
                 ))}
@@ -452,7 +466,7 @@ const MyPage = () => {
                 {EMOTIONS.map((emotion) => (
                   <p key={emotion} className="emotion-time-text">
                     <span className={`highlight ${emotion}`}>
-                      {emotionTimeData[emotion]}
+                      {emotionTimeData?.[emotion] || 0}
                     </span>
                     초 {PAST_TENSE_LABELS[emotion]} {EMOTION_EMOJIS[emotion]}
                   </p>
