@@ -3,7 +3,7 @@
 .video-item-container {
   border-radius: 8px;
   overflow: hidden;
-  transition: all 0.2s;
+  transition: transform 0.2s, box-shadow 0.2s;
   cursor: pointer;
 
   &:hover {
@@ -36,8 +36,9 @@
     }
 
     .video-thumbnail {
-      width: auto;
-      height: 158px;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
       position: absolute;
       visibility: 1;
       display: block;

@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useMemo, useState } from 'react';
+import React, { useLayoutEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import './mypage.scss';
@@ -30,6 +30,26 @@ import {
   EMOTION_LABELS,
   EMOTIONS,
 } from 'constants/index';
+import { useQuery } from '@tanstack/react-query';
+
+// Hoisted module-level constants
+const PAST_TENSE_LABELS: Record<EmotionType, string> = {
+  happy: '즐거웠어요',
+  sad: '슬펐어요',
+  surprise: '놀랐어요',
+  angry: '화났어요',
+  neutral: '평온했어요',
+};
+
+const INITIAL_DONUT_DATA = EMOTIONS.map((emotion) => ({
+  id: emotion,
+  label: EMOTION_LABELS[emotion],
+  value: 0,
+  color: EMOTION_COLORS[emotion],
+  originalId: emotion,
+}));
+
+const INITIAL_EMOTION_TIME = { happy: 0, sad: 0, surprise: 0, angry: 0, neutral: 0 };
 
 const MyPage = () => {
   const {
@@ -51,28 +71,30 @@ const MyPage = () => {
   const [selectedEmotion, setSelectedEmotion] = useState<'all' | EmotionType>(
     'all',
   );
-  const [recentVideo, setRecentVideo] = useState<VideoWatchedType[]>([]);
-  const [emotionTimeData, setEmotionTimeData] = useState<{
-    [key in EmotionType]: number;
-  }>({ happy: 0, sad: 0, surprise: 0, angry: 0, neutral: 0 });
 
-  const [donutGraphData, setDonutGraphData] = useState<
-    {
-      id: string;
-      label: string;
-      value: number;
-      color: string;
-      originalId: EmotionType;
-    }[]
-  >(
-    EMOTIONS.map((emotion) => ({
-      id: emotion,
-      label: EMOTION_LABELS[emotion],
-      value: 0,
-      color: EMOTION_COLORS[emotion],
-      originalId: emotion,
-    })),
-  );
+  // React Query: fetch recent videos
+  const { data: recentVideo = [] } = useQuery<VideoWatchedType[]>({
+    queryKey: ['mypage', 'recentVideos'],
+    queryFn: () => getRecentVideo(),
+    enabled: is_sign_in,
+  });
+
+  // React Query: fetch emotion summary
+  const { data: emotionSummaryData } = useQuery({
+    queryKey: ['mypage', 'emotionSummary'],
+    queryFn: () => getEmotionSummary(),
+    enabled: is_sign_in,
+  });
+
+  const emotionTimeData = emotionSummaryData?.emotion_seconds ?? INITIAL_EMOTION_TIME;
+
+  const donutGraphData = useMemo(() => {
+    if (!emotionSummaryData?.emotion_percentages) return INITIAL_DONUT_DATA;
+    return INITIAL_DONUT_DATA.map((item) => ({
+      ...item,
+      value: Math.round(emotionSummaryData.emotion_percentages[item.originalId] || 0),
+    }));
+  }, [emotionSummaryData]);
 
   const filteredRecentVideos = useMemo(
     () =>
@@ -186,37 +208,6 @@ const MyPage = () => {
     window.scrollTo(0, 0);
   }, []);
 
-  useEffect(() => {
-    if (is_sign_in) {
-      getRecentVideo()
-        .then((data) => {
-          console.log(data);
-          setRecentVideo(data);
-        })
-        .catch((err) => console.log(err));
-      getEmotionSummary()
-        .then((res) => {
-          setEmotionTimeData(res?.emotion_seconds || { happy: 0, sad: 0, surprise: 0, angry: 0, neutral: 0 });
-          setDonutGraphData((prevData) =>
-            prevData.map((item) => {
-              return {
-                ...item,
-                value: Math.round(res?.emotion_percentages?.[item.originalId] || 0),
-              };
-            }),
-          );
-        })
-        .catch((err) => console.log(err));
-    }
-  }, [is_sign_in]);
-
-  const PAST_TENSE_LABELS: Record<EmotionType, string> = {
-    happy: '즐거웠어요',
-    sad: '슬펐어요',
-    surprise: '놀랐어요',
-    angry: '화났어요',
-    neutral: '평온했어요',
-  };
 
   return (
     <>

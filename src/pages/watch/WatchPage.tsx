@@ -11,7 +11,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import Webcam from 'react-webcam';
 import YouTube, { YouTubeEvent } from 'react-youtube';
 import EmotionBadge from 'components/EmotionBadge/EmotionBadge';
-import { Options, YouTubePlayer } from 'youtube-player/dist/types';
+import { YouTubePlayer } from 'youtube-player/dist/types';
 import './watchpage.scss';
 import { socket } from 'socket';
 import React from 'react';
@@ -19,7 +19,7 @@ import ProfileIcon from 'components/ProfileIcon/ProfileIcon';
 import TextInput from 'components/TextInput/TextInput';
 import UploadButton from 'components/UploadButton/UploadButton';
 import { ResponsiveBar } from '@nivo/bar';
-import { CommentType, EmotionType, VideoDetailType } from 'types';
+import { EmotionType, VideoDetailType } from 'types';
 import { getRelatedVideo, getVideoDetail } from 'api/youtube';
 import Devider from 'components/Devider/Devider';
 import { useAuthStorage } from 'store/authStore';
@@ -43,57 +43,68 @@ import Button from 'components/Button/Button';
 import safeImage from 'assets/img/safeImage.png';
 import LikeButton from 'components/LikeButton/LikeButton';
 import { ResponsiveLine } from '@nivo/line';
-import SomeIcon from 'components/SomeIcon/SomeIcon';
 import useMediaQuery from 'hooks/useMediaQuery';
 import { EMOTION_COLORS, EMOTION_LABELS, EMOTIONS } from 'constants/index';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import GraphDetailDataItem from 'components/GraphDetailDataItem/GraphDetailDataItem';
+import CommentItem from 'components/CommentItem/CommentItem';
 
 let disconnectTimer: NodeJS.Timeout | null = null;
+
+// Hoisted module-level constants to avoid re-creation on every render
+const EMOTION_BY_EMOTION_TEXT = EMOTIONS.map((emotion) => ({
+  emotion,
+  emotionText: EMOTION_LABELS[emotion],
+}));
+
+const BAR_CHART_COLORS = EMOTIONS.map((e) => EMOTION_COLORS[e]);
+const BAR_CHART_BORDER_COLOR = { from: 'color' as const, modifiers: [['darker', 1.6] as ['darker', number]] };
+const BAR_CHART_LABEL_TEXT_COLOR = { from: 'color' as const, modifiers: [['darker', 2.3] as ['darker', number]] };
+const BAR_CHART_MARGIN = { top: -10, bottom: -10 };
+const LINE_CHART_MARGIN = { top: 0, right: 0, bottom: 0, left: 0 };
+const WEBCAM_STYLE = { borderRadius: '8px', marginBottom: '24px' };
+const PROFILE_ICON_STYLE = { marginRight: '12px' };
 
 const WatchPage = (): ReactElement => {
   const isMobile = useMediaQuery('(max-width: 1200px)');
   const [modifyingComment, setModifyingComment] = useState<string>('');
   const { id } = useParams();
   const navigate = useNavigate();
-  const opts: Options = useMemo(
+  const opts = useMemo(
     () =>
       isMobile
         ? {
             width: '100%',
             height: `${window.innerWidth * (9 / 16)}px`,
+            host: 'https://www.youtube-nocookie.com',
             playerVars: {
-              autoplay: 1,
-              color: 'white',
-              rel: 0,
+              autoplay: 1 as const,
+              color: 'white' as const,
+              rel: 0 as const,
               origin: window.location.origin,
             },
           }
         : {
             width: 852,
             height: 480,
+            host: 'https://www.youtube-nocookie.com',
             playerVars: {
-              autoplay: 1,
-              color: 'white',
-              rel: 0,
+              autoplay: 1 as const,
+              color: 'white' as const,
+              rel: 0 as const,
               origin: window.location.origin,
             },
           },
     [isMobile],
   );
 
-  const emotionByEmotionText = EMOTIONS.map((emotion) => ({
-    emotion,
-    emotionText: EMOTION_LABELS[emotion],
-  }));
-
-  const {
-    is_sign_in,
-    access_token,
-    user_id, // Get user_id
-    user_profile,
-    user_announced,
-    setUserAnnounced,
-  } = useAuthStorage();
+  // Zustand selector optimization: subscribe to individual slices
+  const is_sign_in = useAuthStorage((s) => s.is_sign_in);
+  const access_token = useAuthStorage((s) => s.access_token);
+  const user_id = useAuthStorage((s) => s.user_id);
+  const user_profile = useAuthStorage((s) => s.user_profile);
+  const user_announced = useAuthStorage((s) => s.user_announced);
+  const setUserAnnounced = useAuthStorage((s) => s.setUserAnnounced);
 
   const [videoViewLogId] = useState<string>(uuidv4()); // Generate log ID once
 
@@ -499,112 +510,37 @@ const WatchPage = (): ReactElement => {
     videoViewLogId,
   ]);
 
-  const GraphDetailDataItem = ({
-    graphData,
-    emotion,
-    emotionText,
-    mostEmotion,
-  }: {
-    graphData: Record<string, string | number>[];
-    emotion: EmotionType;
-    emotionText: string;
-    mostEmotion: EmotionType;
-  }) => {
-    return (
-      <div
-        className={`graph-detail-item ${
-          emotion === mostEmotion ? 'active' : null
-        }`}>
-        <EmotionBadge type={'big'} emotion={emotion} />
-
-        <p className="font-label-medium emotion-text">{emotionText}</p>
-        <p className="font-label-medium emotion-percentage">
-          {'' + graphData[0][emotion] + '%'}
-        </p>
-      </div>
-    );
-  };
+  // GraphDetailDataItem and CommentItem are now external components
 
   const [hoveredComment, setHoveredComment] = useState<string | null>(null);
   const [isEditVisible, setIsEditVisible] = useState<string | null>(null);
   const [editingcommentindex, setEditingcommentindex] = useState<string | null>(
     null,
   );
+  const [deletingCommentId, setDeletingCommentId] = useState<string | null>(null);
 
-  const CommentItem = ({
-    user_name,
-    created_at,
-    content,
-    user_profile_image_id,
-    is_modified,
-    is_mine,
-    comment_id,
-  }: CommentType): ReactElement => {
-    return (
-      <div
-        className="comment-item-container"
-        onMouseEnter={() => {
-          if (is_mine) {
-            setHoveredComment(comment_id); // Removed unnecessary 'as any'
-          }
-        }}
-        onMouseLeave={() => {
-          setHoveredComment(null);
-          setIsEditVisible(null);
-        }}>
-        <ProfileIcon
-          type={'icon-small'}
-          color={mapNumberToEmotion(user_profile_image_id)}
-          style={{ marginRight: '12px' }}
-        />
-        <div className="comment-right-container">
-          <div className="comment-text-wrapper">
-            <div className="comment-info-wrapper">
-              <div className="comment-nickname font-label-small">
-                {user_name}
-              </div>
-              <div className="comment-time-text font-label-small">
-                {created_at}
-                {is_modified ? <>(수정됨)</> : null}
-              </div>
-            </div>
-            <div className="comment-text font-body-medium">{content}</div>
-          </div>
+  // CommentItem callbacks — React Compiler handles memoization automatically
+  const handleCommentMouseEnter = (commentId: string) => {
+    setHoveredComment(commentId);
+  };
 
-          <div className="comment-icon-container">
-            {hoveredComment === comment_id && (
-              <SomeIcon
-                type={'more'}
-                onClick={() => setIsEditVisible(comment_id)}
-              />
-            )}
-            <div
-              className={`comment-edit-container ${
-                isEditVisible === comment_id && 'visible'
-              }`}>
-              <div
-                className="comment-modify-text"
-                onClick={() => {
-                  setIsEditVisible(null);
-                  setEditingcommentindex(comment_id);
-                }}>
-                <div className="comment-modify-dim"></div>
-                수정
-              </div>
-              <div
-                className="comment-delete-text"
-                onClick={() => {
-                  setIsEditVisible(null);
-                  openModal2();
-                }}>
-                <div className="comment-delete-dim"></div>
-                삭제
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+  const handleCommentMouseLeave = () => {
+    setHoveredComment(null);
+    setIsEditVisible(null);
+  };
+
+  const handleCommentEditClick = (commentId: string) => {
+    setIsEditVisible(commentId);
+  };
+
+  const handleCommentDeleteClick = () => {
+    setIsEditVisible(null);
+    openModal2();
+  };
+
+  const handleCommentStartEditing = (commentId: string) => {
+    setIsEditVisible(null);
+    setEditingcommentindex(commentId);
   };
 
   useEffect(() => {
@@ -622,7 +558,7 @@ const WatchPage = (): ReactElement => {
     return (
       <div className="watch-page-cam-container">
         <Webcam
-          style={{ borderRadius: '8px', marginBottom: '24px' }}
+          style={WEBCAM_STYLE}
           audio={false}
           ref={webcamRef}
           screenshotFormat="image/jpeg"
@@ -644,11 +580,8 @@ const WatchPage = (): ReactElement => {
               layout="horizontal"
               valueScale={{ type: 'linear' }}
               indexScale={{ type: 'band', round: true }}
-              colors={EMOTIONS.map((e) => EMOTION_COLORS[e])}
-              borderColor={{
-                from: 'color',
-                modifiers: [['darker', 1.6]],
-              }}
+              colors={BAR_CHART_COLORS}
+              borderColor={BAR_CHART_BORDER_COLOR}
               axisTop={null}
               axisRight={null}
               axisBottom={null}
@@ -657,11 +590,8 @@ const WatchPage = (): ReactElement => {
               enableLabel={false}
               labelSkipWidth={12}
               labelSkipHeight={12}
-              labelTextColor={{
-                from: 'color',
-                modifiers: [['darker', 2.3]],
-              }}
-              margin={{ top: -10, bottom: -10 }}
+              labelTextColor={BAR_CHART_LABEL_TEXT_COLOR}
+              margin={BAR_CHART_MARGIN}
               legends={[]}
               role="application"
               ariaLabel="Nivo bar chart demo"
@@ -670,9 +600,9 @@ const WatchPage = (): ReactElement => {
           </div>
 
           <div className="graph-detail-container">
-            {emotionByEmotionText.map((e) => (
+            {EMOTION_BY_EMOTION_TEXT.map((e) => (
               <GraphDetailDataItem
-                key={uuidv4()}
+                key={e.emotion}
                 graphData={myGraphData}
                 emotion={e.emotion}
                 emotionText={e.emotionText}
@@ -698,11 +628,8 @@ const WatchPage = (): ReactElement => {
               layout="horizontal"
               valueScale={{ type: 'linear' }}
               indexScale={{ type: 'band', round: true }}
-              colors={EMOTIONS.map((e) => EMOTION_COLORS[e])}
-              borderColor={{
-                from: 'color',
-                modifiers: [['darker', 1.6]],
-              }}
+              colors={BAR_CHART_COLORS}
+              borderColor={BAR_CHART_BORDER_COLOR}
               axisTop={null}
               axisRight={null}
               axisBottom={null}
@@ -711,11 +638,8 @@ const WatchPage = (): ReactElement => {
               enableLabel={false}
               labelSkipWidth={12}
               labelSkipHeight={12}
-              labelTextColor={{
-                from: 'color',
-                modifiers: [['darker', 2.3]],
-              }}
-              margin={{ top: -10, bottom: -10 }}
+              labelTextColor={BAR_CHART_LABEL_TEXT_COLOR}
+              margin={BAR_CHART_MARGIN}
               legends={[]}
               role="application"
               ariaLabel="Nivo bar chart demo"
@@ -723,7 +647,7 @@ const WatchPage = (): ReactElement => {
             />
           </div>
           <div className="graph-detail-container">
-            {emotionByEmotionText.map((e) => (
+            {EMOTION_BY_EMOTION_TEXT.map((e) => (
               <GraphDetailDataItem
                 key={e.emotion}
                 graphData={othersGraphData}
@@ -792,21 +716,34 @@ const WatchPage = (): ReactElement => {
       <div className="main-container">
         <div className="video-fixed-container">
           <div className="video-container">
-            {videoData?.youtube_url && (
+            {videoData?.youtube_url ? (
               <YouTube
                 videoId={videoData.youtube_url}
                 style={{ display: 'block' }}
-                opts={opts} // defaults -> {}
-                onReady={handleVideoReady} // defaults -> noop
+                opts={opts}
+                onReady={handleVideoReady}
                 onError={handleVideoError}
               />
+            ) : (
+              <div
+                style={{
+                  width: isMobile ? '100%' : 852,
+                  height: isMobile ? window.innerWidth * (9 / 16) : 480,
+                  backgroundColor: '#1a1a2e',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: '8px',
+                }}>
+                <div className="video-loading-spinner" />
+              </div>
             )}
             <div className="video-graph-container">
               {videoGraphData && videoGraphData.length > 0 && (
                 <ResponsiveLine
                   data={videoGraphData}
-                  colors={EMOTIONS.map((e) => EMOTION_COLORS[e])}
-                  margin={{ top: 0, right: 0, bottom: 0, left: 0 }}
+                  colors={BAR_CHART_COLORS}
+                  margin={LINE_CHART_MARGIN}
                   xScale={{
                     type: 'linear',
                     min: 0,
@@ -868,7 +805,7 @@ const WatchPage = (): ReactElement => {
               <ProfileIcon
                 type={'icon-medium'}
                 color={mapNumberToEmotion(user_profile)}
-                style={{ marginRight: '12px' }}
+                style={PROFILE_ICON_STYLE}
               />
               <TextInput
                 variant="underline"
@@ -895,7 +832,7 @@ const WatchPage = (): ReactElement => {
           </div>
           <div className="comment-list-container">
             {commentList.length > 0 ? (
-              commentList.map((comment, idx) =>
+              commentList.map((comment) =>
                 comment.comment_id === editingcommentindex ? (
                   <div
                     key={comment.comment_id}
@@ -903,7 +840,7 @@ const WatchPage = (): ReactElement => {
                     <ProfileIcon
                       type={'icon-small'}
                       color={mapNumberToEmotion(user_profile)}
-                      style={{ marginRight: '12px' }}
+                      style={PROFILE_ICON_STYLE}
                     />
                     <div className="comment-modifying-wrapper">
                       <div className="comment-modifying-info-wrapper">
@@ -949,42 +886,27 @@ const WatchPage = (): ReactElement => {
                     </div>
                   </div>
                 ) : (
-                  <React.Fragment key={comment.comment_id}>
-                    <CommentItem
-                      key={`comment-${comment.content}-${idx}`}
-                      user_name={comment.user_name}
-                      created_at={getTimeToString(comment.created_at)}
-                      content={comment.content}
-                      user_profile_image_id={comment.user_profile_image_id}
-                      comment_id={comment.comment_id}
-                      is_modified={comment.is_modified}
-                      is_mine={comment.is_mine}
-                      user_id={comment.user_id}
-                    />
-                    <ModalDialog isOpen={isModalOpen2} onClose={closeModal2}>
-                      <div className="comment-delete-modal-container">
-                        <h2>댓글을 삭제하시겠어요?</h2>
-                        <div className="comment-delete-modal-button-wrapper">
-                          <Button
-                            label={'취소'}
-                            variant={'cta-fixed-secondary'}
-                            style={{
-                              marginRight: '12px',
-                              background: '#5D5D6D',
-                            }}
-                            onClick={closeModal2}
-                          />
-                          <Button
-                            label={'확인'}
-                            variant={'cta-fixed'}
-                            onClick={() => {
-                              deleteCommentMutation.mutate(comment.comment_id);
-                            }}
-                          />
-                        </div>
-                      </div>
-                    </ModalDialog>
-                  </React.Fragment>
+                  <CommentItem
+                    key={comment.comment_id}
+                    user_name={comment.user_name}
+                    created_at={getTimeToString(comment.created_at)}
+                    content={comment.content}
+                    user_profile_image_id={comment.user_profile_image_id}
+                    comment_id={comment.comment_id}
+                    is_modified={comment.is_modified}
+                    is_mine={comment.is_mine}
+                    user_id={comment.user_id}
+                    hoveredComment={hoveredComment}
+                    isEditVisible={isEditVisible}
+                    onMouseEnter={handleCommentMouseEnter}
+                    onMouseLeave={handleCommentMouseLeave}
+                    onEditClick={handleCommentEditClick}
+                    onDeleteClick={() => {
+                      setDeletingCommentId(comment.comment_id);
+                      handleCommentDeleteClick();
+                    }}
+                    onStartEditing={handleCommentStartEditing}
+                  />
                 ),
               )
             ) : (
@@ -992,6 +914,32 @@ const WatchPage = (): ReactElement => {
                 아직 댓글이 없어요
               </p>
             )}
+            {/* Single modal instance outside the loop */}
+            <ModalDialog isOpen={isModalOpen2} onClose={closeModal2}>
+              <div className="comment-delete-modal-container">
+                <h2>댓글을 삭제하시겠어요?</h2>
+                <div className="comment-delete-modal-button-wrapper">
+                  <Button
+                    label={'취소'}
+                    variant={'cta-fixed-secondary'}
+                    style={{
+                      marginRight: '12px',
+                      background: '#5D5D6D',
+                    }}
+                    onClick={closeModal2}
+                  />
+                  <Button
+                    label={'확인'}
+                    variant={'cta-fixed'}
+                    onClick={() => {
+                      if (deletingCommentId) {
+                        deleteCommentMutation.mutate(deletingCommentId);
+                      }
+                    }}
+                  />
+                </div>
+              </div>
+            </ModalDialog>
           </div>
         </div>
         {isMobile && (
@@ -1002,7 +950,7 @@ const WatchPage = (): ReactElement => {
         {!isMobile && (
           <>
             <Webcam
-              style={{ borderRadius: '8px', marginBottom: '24px' }}
+              style={WEBCAM_STYLE}
               audio={false}
               ref={webcamRef}
               screenshotFormat="image/jpeg"
@@ -1020,23 +968,14 @@ const WatchPage = (): ReactElement => {
               <div className="graph-container">
                 <ResponsiveBar
                   data={myGraphData}
-                  keys={['happy', 'sad', 'surprise', 'angry', 'neutral']}
+                  keys={EMOTIONS as unknown as string[]}
                   indexBy="id"
                   padding={0.3}
                   layout="horizontal"
                   valueScale={{ type: 'linear' }}
                   indexScale={{ type: 'band', round: true }}
-                  colors={[
-                    '#FF4D8D',
-                    '#479CFF',
-                    '#92C624',
-                    '#FF6B4B',
-                    '#393946',
-                  ]}
-                  borderColor={{
-                    from: 'color',
-                    modifiers: [['darker', 1.6]],
-                  }}
+                  colors={BAR_CHART_COLORS}
+                  borderColor={BAR_CHART_BORDER_COLOR}
                   axisTop={null}
                   axisRight={null}
                   axisBottom={null}
@@ -1045,27 +984,18 @@ const WatchPage = (): ReactElement => {
                   enableLabel={false}
                   labelSkipWidth={12}
                   labelSkipHeight={12}
-                  labelTextColor={{
-                    from: 'color',
-                    modifiers: [['darker', 2.3]],
-                  }}
-                  margin={{ top: -10, bottom: -10 }}
+                  labelTextColor={BAR_CHART_LABEL_TEXT_COLOR}
+                  margin={BAR_CHART_MARGIN}
                   legends={[]}
                   role="application"
                   ariaLabel="Nivo bar chart demo"
-                  barAriaLabel={(e) =>
-                    e.id +
-                    ': ' +
-                    e.formattedValue +
-                    ' in country: ' +
-                    e.indexValue
-                  }
+                  barAriaLabel={(e) => `${e.id}: ${e.formattedValue}%`}
                 />
               </div>
               <div className="graph-detail-container">
-                {emotionByEmotionText.map((e) => (
+                {EMOTION_BY_EMOTION_TEXT.map((e) => (
                   <GraphDetailDataItem
-                    key={uuidv4()}
+                    key={e.emotion}
                     graphData={myGraphData}
                     emotion={e.emotion}
                     emotionText={e.emotionText}
@@ -1084,23 +1014,14 @@ const WatchPage = (): ReactElement => {
               <div className="graph-container">
                 <ResponsiveBar
                   data={othersGraphData}
-                  keys={['happy', 'sad', 'surprise', 'angry', 'neutral']}
+                  keys={EMOTIONS as unknown as string[]}
                   indexBy="id"
                   padding={0.3}
                   layout="horizontal"
                   valueScale={{ type: 'linear' }}
                   indexScale={{ type: 'band', round: true }}
-                  colors={[
-                    '#FF4D8D',
-                    '#479CFF',
-                    '#92C624',
-                    '#FF6B4B',
-                    '#393946',
-                  ]}
-                  borderColor={{
-                    from: 'color',
-                    modifiers: [['darker', 1.6]],
-                  }}
+                  colors={BAR_CHART_COLORS}
+                  borderColor={BAR_CHART_BORDER_COLOR}
                   axisTop={null}
                   axisRight={null}
                   axisBottom={null}
@@ -1109,27 +1030,18 @@ const WatchPage = (): ReactElement => {
                   enableLabel={false}
                   labelSkipWidth={12}
                   labelSkipHeight={12}
-                  labelTextColor={{
-                    from: 'color',
-                    modifiers: [['darker', 2.3]],
-                  }}
-                  margin={{ top: -10, bottom: -10 }}
+                  labelTextColor={BAR_CHART_LABEL_TEXT_COLOR}
+                  margin={BAR_CHART_MARGIN}
                   legends={[]}
                   role="application"
                   ariaLabel="Nivo bar chart demo"
-                  barAriaLabel={(e) =>
-                    e.id +
-                    ': ' +
-                    e.formattedValue +
-                    ' in country: ' +
-                    e.indexValue
-                  }
+                  barAriaLabel={(e) => `${e.id}: ${e.formattedValue}%`}
                 />
               </div>
               <div className="graph-detail-container">
-                {emotionByEmotionText.map((e) => (
+                {EMOTION_BY_EMOTION_TEXT.map((e) => (
                   <GraphDetailDataItem
-                    key={uuidv4()}
+                    key={e.emotion}
                     graphData={othersGraphData}
                     emotion={e.emotion}
                     emotionText={e.emotionText}
@@ -1156,6 +1068,7 @@ const WatchPage = (): ReactElement => {
                 videoMostEmotionPercentage={v.dominant_emotion_per}
                 style={{ marginBottom: '24px' }}
                 type={'small-emoji'}
+                priority={index === 0}
               />
             ))}
           </div>

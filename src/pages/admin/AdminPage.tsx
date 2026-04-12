@@ -19,6 +19,7 @@ import './adminpage.scss';
 const opts: Options = {
   width: 560,
   height: 316,
+  host: 'https://www.youtube-nocookie.com',
   playerVars: {
     color: 'white',
     rel: 0,
@@ -137,8 +138,8 @@ const MainPage = (): ReactElement => {
             {currentSelectedUrl ? (
               <YouTube
                 videoId={currentSelectedUrl}
-                style={{ marginBottom: '20px' }} // defaults -> {}
-                opts={opts} // defaults -> {}
+                style={{ marginBottom: '20px' }}
+                opts={opts}
               />
             ) : (
               <div

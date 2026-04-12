@@ -45,7 +45,7 @@ const MainPage = (): ReactElement => {
           <TextInput
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
-            placeholder="찾고 싶은 영상을 검색해보세요"
+            placeholder="찾고 싶은 영상을 검색해보세요…"
             variant="default"
             style={{
               width: '100%',
@@ -58,6 +58,7 @@ const MainPage = (): ReactElement => {
           />
           <button
             type="submit"
+            aria-label="검색"
             style={{
               position: 'absolute',
               right: '16px',

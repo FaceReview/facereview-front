@@ -50,11 +50,32 @@ export default defineConfig({
       },
     },
   },
+  esbuild: {
+    // Strip console.log/warn and debugger in production builds (keep console.error for debugging)
+    drop: ['debugger'],
+    pure: ['console.log', 'console.warn'],
+  },
   build: {
     outDir: 'build',
     rollupOptions: {
       output: {
-        // manualChunks removed to fix circular dependency/loading errors
+        manualChunks: {
+          // Separate heavy chart libraries into their own chunk
+          'vendor-nivo': ['@nivo/bar', '@nivo/line', '@nivo/pie', '@nivo/core'],
+          // Separate swiper into its own chunk
+          'vendor-swiper': ['swiper'],
+          // Separate routing library
+          'vendor-router': ['react-router-dom'],
+          // Separate data-fetching library
+          'vendor-query': ['@tanstack/react-query'],
+          // WatchPage-specific heavy libraries
+          'vendor-socket': ['socket.io-client'],
+          'vendor-youtube': ['react-youtube'],
+          'vendor-webcam': ['react-webcam'],
+          // Utilities used in specific pages
+          'vendor-uuid': ['uuid'],
+          'vendor-helmet': ['react-helmet-async'],
+        },
       },
     },
   },

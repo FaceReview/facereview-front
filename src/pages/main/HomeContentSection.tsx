@@ -1,13 +1,13 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
 import {
   getAllVideo,
   getPersonalRecommendedVideo,
   getVideoList,
 } from 'api/youtube';
 import VideoItem from 'components/VideoItem/VideoItem';
-import { ReactElement, useCallback, useEffect, useState } from 'react';
+import { ReactElement, useCallback, useMemo, useState } from 'react';
 import { useAuthStorage } from 'store/authStore';
-import { EmotionType, VideoDataType } from 'types';
+import { EmotionType } from 'types';
 import VideoCarousel from 'components/VideoCarousel/VideoCarousel';
 
 import { updateRequestVideoList } from 'api/request';
@@ -32,19 +32,39 @@ const HomeContentSection = (): ReactElement => {
   );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [registerInput, setRegisterInput] = useState('');
-  const [registeringVideoId, setRegisteringVideoId] = useState('');
   const [registeredVideoIds, setRegisteredVideoIds] = useState<string[]>([]);
-  const [isRegisterMatched, setIsRegisterMatched] = useState(false);
 
-  // Infinite Scroll items
-  const [allVideo, setAllVideo] = useState<VideoDataType[]>([]);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
+  // React Query: personal recommended videos
+  const { data: personalRecommendedVideo = [] } = useQuery({
+    queryKey: ['personalRecommended'],
+    queryFn: () => getPersonalRecommendedVideo(),
+    enabled: is_sign_in,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
 
-  const [personalRecommendedVideo, serPersonalRecommendedVideo] = useState<
-    VideoDataType[]
-  >([]);
+  // React Query: infinite scroll for all videos
+  const {
+    data: allVideoData,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+  } = useInfiniteQuery({
+    queryKey: ['allVideos', selectedEmotion],
+    queryFn: ({ pageParam = 1 }) =>
+      getAllVideo({ page: pageParam, size: 20, emotion: selectedEmotion }),
+    getNextPageParam: (lastPage, allPages) => {
+      if (lastPage.length < 20) return undefined;
+      return allPages.length + 1;
+    },
+    initialPageParam: 1,
+  });
+
+  const allVideo = useMemo(
+    () => allVideoData?.pages.flatMap((page) => page) || [],
+    [allVideoData],
+  );
+
   // Fetch ALL category data
   const { data: allCategoryList = [] } = useQuery({
     queryKey: ['videos', 'all'],
@@ -71,14 +91,11 @@ const HomeContentSection = (): ReactElement => {
   };
 
   const getThumbnailUrl = (videoId: string) =>
-    `http://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
+    `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
 
   const handleChipClick = (emotion: 'all' | EmotionType) => {
     if (selectedEmotion !== emotion) {
       setSelectedEmotion(emotion);
-      setPage(1);
-      setAllVideo([]);
-      setHasMore(true);
     }
   };
 
@@ -89,28 +106,17 @@ const HomeContentSection = (): ReactElement => {
   const closeModal = () => {
     document.body.style.overflow = 'auto';
     setIsModalOpen(false);
-    setIsRegisterMatched(false);
     setRegisterInput('');
-    setRegisteringVideoId('');
     setRegisteredVideoIds([]);
   };
 
-  const extractVideoId = useCallback(
-    (input?: string) => {
-      const target = input || registerInput;
-      const match = target.match(
-        /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?/\s]{11})/,
-      );
+  const extractVideoId = (input: string): string | null => {
+    const match = input.match(
+      /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?/\s]{11})/,
+    );
+    return match?.[1] ?? null;
+  };
 
-      if (match && match[1]) {
-        setRegisteringVideoId(match[1]);
-        setIsRegisterMatched(true);
-      } else {
-        setIsRegisterMatched(false);
-      }
-    },
-    [registerInput],
-  );
   const handleRegisterButtonClick = () => {
     if (registeredVideoIds.length > 0) {
       registeredVideoIds.map((videoId) =>
@@ -125,75 +131,35 @@ const HomeContentSection = (): ReactElement => {
 
   const location = useLocation();
 
-  useEffect(() => {
-    if (is_sign_in && location.search.includes('code')) {
-      const code = location.search.split('=')[1];
-      extractVideoId(code);
-    }
-  }, [is_sign_in, location, extractVideoId]);
+  // Derive videoId from registerInput or URL code parameter (no useEffect needed)
+  const { registeringVideoId, isRegisterMatched } = useMemo(() => {
+    // Priority: registerInput > URL code parameter
+    const source =
+      registerInput ||
+      (is_sign_in && location.search.includes('code')
+        ? location.search.split('=')[1] || ''
+        : '');
 
-  // Infinite Scroll Effect
-  useEffect(() => {
-    const fetchVideos = async () => {
-      setIsLoading(true);
-      try {
-        const SIZE = 20;
-        const data = await getAllVideo({
-          page,
-          size: SIZE,
-          emotion: selectedEmotion,
-        });
-
-        if (data.length < SIZE) {
-          setHasMore(false);
-        }
-
-        setAllVideo((prev) => {
-          if (page === 1) return data;
-          return [...prev, ...data];
-        });
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setIsLoading(false);
-      }
+    const videoId = extractVideoId(source);
+    return {
+      registeringVideoId: videoId || '',
+      isRegisterMatched: !!videoId,
     };
+  }, [registerInput, is_sign_in, location.search]);
 
-    fetchVideos();
-  }, [page, selectedEmotion]);
-
-  // Intersection Observer
+  // Intersection Observer for infinite scroll
   const onIntersect: IntersectionObserverCallback = useCallback(
     ([entry]) => {
-      if (entry.isIntersecting && hasMore && !isLoading) {
-        setPage((prev) => prev + 1);
+      if (entry.isIntersecting && hasNextPage && !isFetchingNextPage) {
+        fetchNextPage();
       }
     },
-    [hasMore, isLoading],
+    [hasNextPage, isFetchingNextPage, fetchNextPage],
   );
 
   const { targetRef } = useIntersectionObserver({
     onIntersect,
   });
-
-  useEffect(() => {
-    if (is_sign_in) {
-      getPersonalRecommendedVideo()
-        .then((res) => {
-          serPersonalRecommendedVideo(res);
-        })
-        .catch((err) => {
-          console.log(
-            'ERROR /home/user-customized-list ----------------------',
-            err,
-          );
-        });
-    }
-  }, [is_sign_in]);
-
-  useEffect(() => {
-    extractVideoId();
-  }, [extractVideoId, registerInput]);
 
   return (
     <>
@@ -207,7 +173,7 @@ const HomeContentSection = (): ReactElement => {
             {user_name}님이 좋아할{` `} {isMobile && <br />}
             오늘의 영상들을 골라봤어요.
           </h2>
-          <h4
+          <h3
             className={
               isMobile
                 ? 'subtitle font-title-mini'
@@ -216,13 +182,11 @@ const HomeContentSection = (): ReactElement => {
             시청 기록과 감정을 분석해서{` `}
             {isMobile && <br />}
             가장 좋아할 영상을 준비했어요.
-          </h4>
+          </h3>
           <div className="video-container">
-          <div className="genre-video-container">
-            <VideoCarousel
-              videos={personalRecommendedVideo}
-            />
-          </div>
+            <div className="genre-video-container">
+              <VideoCarousel videos={personalRecommendedVideo} />
+            </div>
           </div>
         </div>
       ) : null}
@@ -245,7 +209,13 @@ const HomeContentSection = (): ReactElement => {
               onClick={handleGenrePrev}
               aria-label="이전 장르">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path
+                  d="M15 18l-6-6 6-6"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
               </svg>
             </button>
             <button
@@ -254,19 +224,25 @@ const HomeContentSection = (): ReactElement => {
               onClick={handleGenreNext}
               aria-label="다음 장르">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                <path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path
+                  d="M9 18l6-6-6-6"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
               </svg>
             </button>
           </div>
         </div>
-        <h4
+        <h3
           className={
             isMobile ? 'subtitle font-title-mini' : 'subtitle font-title-small'
           }>
           유저들의 감정데이터를 분석해{` `}
           {isMobile && <br />}
           추천 영상을 준비했어요.
-        </h4>
+        </h3>
         <div className="genre-video-container">
           <VideoCarousel videos={currentGenreVideos} />
         </div>
@@ -340,7 +316,7 @@ const HomeContentSection = (): ReactElement => {
                     variant="underline"
                     onChange={(e) => setRegisterInput(e.target.value)}
                     placeholder={
-                      'ex) https://www.youtube.com/watch?v=3rfONMofiho'
+                      'ex) https://www.youtube.com/watch?v=3rfONMofiho…'
                     }
                   />
                 </div>
@@ -350,7 +326,7 @@ const HomeContentSection = (): ReactElement => {
                   <img
                     className="main-page-modal-thumbnail-registering"
                     src={getThumbnailUrl(registeringVideoId)}
-                    alt=""
+                    alt="등록할 영상 썸네일"
                   />
                 ) : (
                   <div className="main-page-modal-thumbnail-empty">
@@ -367,13 +343,14 @@ const HomeContentSection = (): ReactElement => {
                     key={v || i}
                     className="main-page-modal-thumbnail-registered"
                     src={getThumbnailUrl(v)}
-                    alt=""
+                    alt="등록된 영상 썸네일"
                   />
                 ))}
               </div>
               <Button
                 label={''}
                 variant={'add'}
+                aria-label="영상 추가"
                 style={{ position: 'absolute', bottom: '128px' }}
                 onClick={() => {
                   setRegisteredVideoIds((prevIds) => [
@@ -381,8 +358,6 @@ const HomeContentSection = (): ReactElement => {
                     registeringVideoId,
                   ]);
                   setRegisterInput('');
-                  setRegisteringVideoId('');
-                  setIsRegisterMatched(false);
                 }}
                 disabled={!isRegisterMatched}
               />
@@ -425,6 +400,24 @@ const HomeContentSection = (): ReactElement => {
                 {Array.from({ length: 4 }).map((_, i) => (
                   <VideoCardSkeleton
                     key={`skeleton-${i}`}
+                    width={isMobile ? window.innerWidth - 32 : 280}
+                    style={
+                      isMobile
+                        ? { marginTop: '14px', marginBottom: '14px' }
+                        : {
+                            marginRight: (i + 1) % 4 === 0 ? 0 : '26px',
+                            marginBottom: '56px',
+                          }
+                    }
+                  />
+                ))}
+              </>
+            )}
+            {isFetchingNextPage && (
+              <>
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <VideoCardSkeleton
+                    key={`more-skeleton-${i}`}
                     width={isMobile ? window.innerWidth - 32 : 280}
                     style={
                       isMobile
