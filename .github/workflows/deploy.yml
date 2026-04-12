@@ -12,10 +12,14 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
+    # 🔥 Node 24 환경 미리 적용 (미래 대응)
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
     steps:
       # 1. 소스 코드 내려받기
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       # 2. .env 파일 생성
       # 서버에서 Docker build 할 때 Vite가 이 내용을 읽어서 빌드합니다.
