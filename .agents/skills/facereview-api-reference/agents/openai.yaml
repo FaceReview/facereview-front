@@ -1,0 +1,4 @@
+interface:
+  display_name: "FaceReview API Reference"
+  short_description: "FaceReview API contract reference"
+  default_prompt: "Use $facereview-api-reference to verify a FaceReview API contract from the live OpenAPI spec before changing frontend code."
