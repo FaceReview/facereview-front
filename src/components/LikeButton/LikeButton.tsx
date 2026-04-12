@@ -28,6 +28,8 @@ const LikeButton = ({
         className={'like-image'}
         src={isActive ? likeFilled : likeEmpty}
         alt="like button"
+        width={24}
+        height={24}
       />
       <p className="font-label-small like-text">{label}</p>
     </button>

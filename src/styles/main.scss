@@ -2,7 +2,7 @@
 @use 'base/reset';
 @use 'base/typography';
 
-@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css');
+// Pretendard font is loaded via <link preload> in index.html (non-render-blocking)
 
 html,
 body {
