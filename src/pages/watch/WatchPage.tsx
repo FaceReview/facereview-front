@@ -33,7 +33,7 @@ import {
   sendNewComment,
 } from 'api/watch';
 import {
-  getDistributionToGraphData,
+  getScaledTimelineGraphData,
   getTimeToString,
   mapNumberToEmotion,
 } from 'utils/index';
@@ -303,59 +303,10 @@ const WatchPage = (): ReactElement => {
       videoData?.timeline_data &&
       Object.keys(videoData.timeline_data).length > 0
     ) {
-      const dist = getDistributionToGraphData(videoData.timeline_data).filter(
-        (series) => series.data.length > 0,
+      return getScaledTimelineGraphData(
+        videoData.timeline_data,
+        videoData.duration,
       );
-
-      if (dist.length === 0) {
-        return [];
-      }
-
-      const duration = videoData.duration || 100;
-      const allXValues = dist.flatMap((series) =>
-        series.data
-          .map((point) =>
-            typeof point.x === 'number' ? point.x : Number(point.x),
-          )
-          .filter((x) => Number.isFinite(x)),
-      );
-      const maxGraphX =
-        allXValues.length > 0 ? Math.max(...allXValues) : duration;
-      const shouldNormalizeToDuration = maxGraphX > duration && maxGraphX > 1;
-
-      return dist.map((d) => {
-        let newData = d.data.map((point) => {
-          const rawX =
-            typeof point.x === 'number' ? point.x : Number(point.x) || 0;
-          const normalizedX = shouldNormalizeToDuration
-            ? ((rawX - 1) / (maxGraphX - 1)) * duration
-            : rawX;
-
-          return {
-            x: Math.min(Math.max(normalizedX, 0), duration),
-            y: point.y,
-          };
-        });
-
-        newData = newData.sort((a, b) => a.x - b.x);
-
-        if (newData.length === 0) {
-          newData = [{ x: 0, y: 0 }];
-        } else {
-          const firstPoint = newData[0];
-
-          if (firstPoint.x !== 0) {
-            newData = [{ x: 0, y: firstPoint.y }, ...newData];
-          } else {
-            newData[0] = { x: 0, y: firstPoint.y };
-          }
-        }
-
-        return {
-          ...d,
-          data: newData,
-        };
-      });
     }
     return [];
   }, [videoData]);

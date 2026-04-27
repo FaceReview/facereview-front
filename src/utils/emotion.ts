@@ -75,3 +75,79 @@ export const getDistributionToGraphData = (
     };
   });
 };
+
+export type ScaledGraphDistributionDataType = {
+  id: EmotionType;
+  data: { x: number; y: number }[];
+};
+
+export const getScaledTimelineGraphData = (
+  dist: VideoDistributionDataType,
+  duration = 100,
+): ScaledGraphDistributionDataType[] => {
+  const graphData = getDistributionToGraphData(dist).filter(
+    (series) => series.data.length > 0,
+  );
+
+  if (graphData.length === 0) {
+    return [];
+  }
+
+  const graphDuration =
+    Number.isFinite(duration) && duration > 0 ? duration : 100;
+  const allXValues = graphData.flatMap((series) =>
+    series.data
+      .map((point) =>
+        typeof point.x === 'number' ? point.x : Number(point.x),
+      )
+      .filter((x) => Number.isFinite(x)),
+  );
+
+  if (allXValues.length === 0) {
+    return [];
+  }
+
+  const minGraphX = Math.min(...allXValues);
+  const maxGraphX = Math.max(...allXValues);
+  const hasXRange = maxGraphX > minGraphX;
+
+  return graphData.map((series) => {
+    let newData = series.data
+      .map((point) => {
+        const pointX =
+          typeof point.x === 'number' ? point.x : Number(point.x);
+        const rawX = Number.isFinite(pointX) ? pointX : minGraphX;
+        const scaledX = hasXRange
+          ? ((rawX - minGraphX) / (maxGraphX - minGraphX)) * graphDuration
+          : 0;
+
+        return {
+          x: Math.min(Math.max(scaledX, 0), graphDuration),
+          y: point.y,
+        };
+      })
+      .sort((a, b) => a.x - b.x);
+
+    if (newData.length === 0) {
+      newData = [{ x: 0, y: 0 }];
+    } else {
+      const firstPoint = newData[0];
+      const lastPoint = newData[newData.length - 1];
+
+      if (firstPoint.x !== 0) {
+        newData = [{ x: 0, y: firstPoint.y }, ...newData];
+      } else {
+        newData[0] = { x: 0, y: firstPoint.y };
+      }
+
+      if (lastPoint.x !== graphDuration) {
+        newData = [...newData, { x: graphDuration, y: lastPoint.y }];
+      }
+    }
+
+    return {
+      ...series,
+      data: newData,
+    };
+  });
+};

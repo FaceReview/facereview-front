@@ -203,6 +203,10 @@
       width: 380px;
       height: 214px;
       border-radius: 12px;
+
+      & + .main-page-modal-thumbnail-registering {
+        margin-top: 36px;
+      }
     }
 
     .main-page-modal-thumbnail-registered {

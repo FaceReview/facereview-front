@@ -1,4 +1,4 @@
-import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
+import { useQuery, useInfiniteQuery, useMutation } from '@tanstack/react-query';
 import {
   getAllVideo,
   getPersonalRecommendedVideo,
@@ -19,13 +19,74 @@ import VideoCardSkeleton from 'components/Skeleton/VideoCardSkeleton';
 import SomeIcon from 'components/SomeIcon/SomeIcon';
 import TextInput from 'components/TextInput/TextInput';
 import { CATEGORIES, CATEGORY_ITEMS, EMOTIONS } from 'constants/index';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import useIntersectionObserver from 'hooks/useIntersectionObserver';
 import useMediaQuery from 'hooks/useMediaQuery';
+import { toast } from 'react-toastify';
+
+const YOUTUBE_VIDEO_ID_PATTERN = /^[A-Za-z0-9_-]{11}$/;
+
+const getUniqueVideoIds = (videoIds: string[]) => Array.from(new Set(videoIds));
+
+const extractVideoId = (input: string): string | null => {
+  const value = input.trim();
+
+  if (YOUTUBE_VIDEO_ID_PATTERN.test(value)) {
+    return value;
+  }
+
+  try {
+    const url = new URL(
+      value.startsWith('http://') || value.startsWith('https://')
+        ? value
+        : `https://${value}`,
+    );
+    const host = url.hostname.replace(/^www\./, '');
+
+    if (host === 'youtu.be') {
+      const videoId = url.pathname.split('/').filter(Boolean)[0];
+      return videoId && YOUTUBE_VIDEO_ID_PATTERN.test(videoId)
+        ? videoId
+        : null;
+    }
+
+    if (host.endsWith('youtube.com')) {
+      const watchVideoId = url.searchParams.get('v');
+      if (watchVideoId && YOUTUBE_VIDEO_ID_PATTERN.test(watchVideoId)) {
+        return watchVideoId;
+      }
+
+      const pathVideoId = url.pathname
+        .split('/')
+        .filter(Boolean)
+        .find((segment) => YOUTUBE_VIDEO_ID_PATTERN.test(segment));
+
+      return pathVideoId ?? null;
+    }
+  } catch {
+    const fallbackMatch = value.match(
+      /(?:v=|youtu\.be\/|shorts\/|embed\/)([A-Za-z0-9_-]{11})/,
+    );
+    return fallbackMatch?.[1] ?? null;
+  }
+
+  return null;
+};
+
+const extractVideoIds = (input: string): string[] => {
+  const ids = input
+    .split(/[\s,]+/)
+    .map(extractVideoId)
+    .filter((videoId): videoId is string => !!videoId);
+
+  return getUniqueVideoIds(ids);
+};
 
 const HomeContentSection = (): ReactElement => {
   const isMobile = useMediaQuery('(max-width: 1200px)');
   const { is_sign_in, user_name } = useAuthStorage();
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const [selectedEmotion, setSelectedEmotion] = useState<'all' | EmotionType>(
     'all',
@@ -93,6 +154,10 @@ const HomeContentSection = (): ReactElement => {
   const getThumbnailUrl = (videoId: string) =>
     `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
 
+  const registerVideoMutation = useMutation({
+    mutationFn: updateRequestVideoList,
+  });
+
   const handleChipClick = (emotion: 'all' | EmotionType) => {
     if (selectedEmotion !== emotion) {
       setSelectedEmotion(emotion);
@@ -100,6 +165,12 @@ const HomeContentSection = (): ReactElement => {
   };
 
   const openModal = () => {
+    if (!is_sign_in) {
+      toast.warn('로그인이 필요합니다', { toastId: 'need sign in' });
+      navigate('/auth/1');
+      return;
+    }
+
     document.body.style.overflow = 'hidden';
     setIsModalOpen(true);
   };
@@ -108,44 +179,63 @@ const HomeContentSection = (): ReactElement => {
     setIsModalOpen(false);
     setRegisterInput('');
     setRegisteredVideoIds([]);
+    registerVideoMutation.reset();
   };
 
-  const extractVideoId = (input: string): string | null => {
-    const match = input.match(
-      /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?/\s]{11})/,
+  const locationCode = new URLSearchParams(location.search).get('code') || '';
+
+  // Derive videoIds from registerInput or URL code parameter (no useEffect needed)
+  const { registeringVideoIds, isRegisterMatched } = useMemo(() => {
+    // Priority: registerInput > URL code parameter
+    const source = registerInput || (is_sign_in ? locationCode : '');
+    const videoIds = extractVideoIds(source);
+
+    return {
+      registeringVideoIds: videoIds,
+      isRegisterMatched: videoIds.length > 0,
+    };
+  }, [registerInput, is_sign_in, locationCode]);
+
+  const videoIdsToSubmit = useMemo(
+    () => getUniqueVideoIds([...registeredVideoIds, ...registeringVideoIds]),
+    [registeredVideoIds, registeringVideoIds],
+  );
+
+  const handleAddVideoIds = () => {
+    if (!isRegisterMatched) {
+      return;
+    }
+
+    setRegisteredVideoIds((prevIds) =>
+      getUniqueVideoIds([...prevIds, ...registeringVideoIds]),
     );
-    return match?.[1] ?? null;
+    setRegisterInput('');
   };
 
-  const handleRegisterButtonClick = () => {
-    if (registeredVideoIds.length > 0) {
-      registeredVideoIds.map((videoId) =>
-        updateRequestVideoList({ youtube_url: videoId })
-          .then(() => {})
-          .catch((error) => {
-            console.log(error);
-          }),
-      );
+  const handleRegisterButtonClick = async () => {
+    if (!is_sign_in) {
+      toast.warn('로그인이 필요합니다', { toastId: 'need sign in' });
+      navigate('/auth/1');
+      return;
+    }
+
+    if (videoIdsToSubmit.length === 0) {
+      toast.warn('추가할 영상 링크를 입력해주세요.');
+      return;
+    }
+
+    try {
+      const result = await registerVideoMutation.mutateAsync({
+        youtube_url_list: videoIdsToSubmit,
+      });
+
+      toast.success(result.message || '영상 추천 요청이 등록되었습니다.');
+      closeModal();
+    } catch (error) {
+      console.log(error);
+      toast.error('영상 추천 요청에 실패했습니다.');
     }
   };
-
-  const location = useLocation();
-
-  // Derive videoId from registerInput or URL code parameter (no useEffect needed)
-  const { registeringVideoId, isRegisterMatched } = useMemo(() => {
-    // Priority: registerInput > URL code parameter
-    const source =
-      registerInput ||
-      (is_sign_in && location.search.includes('code')
-        ? location.search.split('=')[1] || ''
-        : '');
-
-    const videoId = extractVideoId(source);
-    return {
-      registeringVideoId: videoId || '',
-      isRegisterMatched: !!videoId,
-    };
-  }, [registerInput, is_sign_in, location.search]);
 
   // Intersection Observer for infinite scroll
   const onIntersect: IntersectionObserverCallback = useCallback(
@@ -323,11 +413,14 @@ const HomeContentSection = (): ReactElement => {
               </div>
               <div className="main-page-modal-thumbnail-container">
                 {isRegisterMatched ? (
-                  <img
-                    className="main-page-modal-thumbnail-registering"
-                    src={getThumbnailUrl(registeringVideoId)}
-                    alt="등록할 영상 썸네일"
-                  />
+                  registeringVideoIds.map((videoId) => (
+                    <img
+                      key={`registering-${videoId}`}
+                      className="main-page-modal-thumbnail-registering"
+                      src={getThumbnailUrl(videoId)}
+                      alt="등록할 영상 썸네일"
+                    />
+                  ))
                 ) : (
                   <div className="main-page-modal-thumbnail-empty">
                     <img
@@ -352,23 +445,18 @@ const HomeContentSection = (): ReactElement => {
                 variant={'add'}
                 aria-label="영상 추가"
                 style={{ position: 'absolute', bottom: '128px' }}
-                onClick={() => {
-                  setRegisteredVideoIds((prevIds) => [
-                    ...prevIds,
-                    registeringVideoId,
-                  ]);
-                  setRegisterInput('');
-                }}
-                disabled={!isRegisterMatched}
+                onClick={handleAddVideoIds}
+                disabled={!isRegisterMatched || registerVideoMutation.isPending}
               />
               <div className="video-register-modal-button-wrapper">
                 <Button
-                  label={'확인'}
+                  label={registerVideoMutation.isPending ? '등록 중...' : '확인'}
                   variant={'cta-full'}
-                  onClick={() => {
-                    handleRegisterButtonClick();
-                    closeModal();
-                  }}
+                  onClick={handleRegisterButtonClick}
+                  disabled={
+                    videoIdsToSubmit.length === 0 ||
+                    registerVideoMutation.isPending
+                  }
                 />
               </div>
             </div>
