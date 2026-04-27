@@ -21,7 +21,7 @@ import { toast } from 'react-toastify';
 import { getEmotionSummary, getRecentVideo } from 'api/youtube';
 import { useLogout } from 'hooks/useLogout';
 import { EmotionType, VideoWatchedType } from 'types/index';
-import { getDistributionToGraphData, mapNumberToEmotion } from 'utils/index';
+import { getScaledTimelineGraphData, mapNumberToEmotion } from 'utils/index';
 import { ResponsiveLine } from '@nivo/line';
 import useMediaQuery from 'hooks/useMediaQuery';
 import {
@@ -107,57 +107,10 @@ const MyPage = () => {
         .map((video) => {
           let graphData: { id: string; data: { x: number; y: number }[] }[] = [];
           if (video.timeline_data && Object.keys(video.timeline_data).length > 0) {
-            const dist = getDistributionToGraphData(video.timeline_data).filter(
-              (series) => series.data.length > 0,
+            graphData = getScaledTimelineGraphData(
+              video.timeline_data,
+              video.duration,
             );
-
-            if (dist.length > 0) {
-              const duration = video.duration || 100;
-              const allXValues = dist.flatMap((series) =>
-                series.data
-                  .map((point) =>
-                    typeof point.x === 'number' ? point.x : Number(point.x),
-                  )
-                  .filter((x) => Number.isFinite(x)),
-              );
-              const maxGraphX =
-                allXValues.length > 0 ? Math.max(...allXValues) : duration;
-              const shouldNormalizeToDuration = maxGraphX > duration && maxGraphX > 1;
-
-              graphData = dist.map((d) => {
-                let newData = d.data.map((point) => {
-                  const rawX =
-                    typeof point.x === 'number' ? point.x : Number(point.x) || 0;
-                  const normalizedX = shouldNormalizeToDuration
-                    ? ((rawX - 1) / (maxGraphX - 1)) * duration
-                    : rawX;
-
-                  return {
-                    x: Math.min(Math.max(normalizedX, 0), duration),
-                    y: point.y,
-                  };
-                });
-
-                newData = newData.sort((a, b) => a.x - b.x);
-
-                if (newData.length === 0) {
-                  newData = [{ x: 0, y: 0 }];
-                } else {
-                  const firstPoint = newData[0];
-
-                  if (firstPoint.x !== 0) {
-                    newData = [{ x: 0, y: firstPoint.y }, ...newData];
-                  } else {
-                    newData[0] = { x: 0, y: firstPoint.y };
-                  }
-                }
-
-                return {
-                  ...d,
-                  data: newData,
-                };
-              });
-            }
           }
 
           return {
