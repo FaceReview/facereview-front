@@ -1,4 +1,4 @@
-import { tutorialComplete } from 'api/auth';
+import { completeTutorial } from 'api/auth';
 import tutorial1 from 'assets/img/tutorial1.gif';
 import tutorial2 from 'assets/img/tutorial2.gif';
 import tutorial3 from 'assets/img/tutorial3.gif';
@@ -17,30 +17,34 @@ const TUTORIAL_TEXT = [
   '영상을 많이 볼수록 내가 좋아할만한 영상을 더 정확히 추천받을 수 있어요.',
 ];
 const TUTORIAL_IMG = [null, tutorial1, tutorial2, tutorial3];
+const TUTORIAL_ALT = [
+  '',
+  '추천 영상 기능 설명 이미지',
+  '실시간 표정 기록 기능 설명 이미지',
+  '맞춤 추천 기능 설명 이미지',
+];
 
-const AuthPage = (): ReactElement => {
+const TutorialPage = (): ReactElement => {
   const isMobile = useMediaQuery('(max-width: 1200px)');
   const { step } = useParams();
   const navigate = useNavigate();
 
-  const currentStep = +(step || 1);
+  const currentStep = Number(step ?? 1);
   const nextButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    setTimeout(() => {
-      nextButtonRef.current?.focus();
-    }, 100);
+    nextButtonRef.current?.focus();
   }, [currentStep]);
 
   const handleSkipClick = async () => {
-    tutorialComplete()
-      .then(() => {
-        toast.success('튜토리얼 완료');
-      })
-      .catch(() => {})
-      .finally(() => {
-        navigate('/');
-      });
+    try {
+      await completeTutorial();
+      toast.success('튜토리얼 완료');
+    } catch (err) {
+      console.error('Failed to complete tutorial:', err);
+    } finally {
+      navigate('/');
+    }
   };
 
   const handleContinueClick = () => {
@@ -59,7 +63,7 @@ const AuthPage = (): ReactElement => {
             <div className="visual-wrapper">
               <img
                 src={TUTORIAL_IMG[currentStep] ?? ''}
-                alt="튜토리얼 이미지"
+                alt={TUTORIAL_ALT[currentStep] ?? '튜토리얼 이미지'}
               />
             </div>
           </div>
@@ -77,7 +81,7 @@ const AuthPage = (): ReactElement => {
               <div className="visual-wrapper">
                 <img
                   src={TUTORIAL_IMG[currentStep] ?? ''}
-                  alt="튜토리얼 이미지"
+                  alt={TUTORIAL_ALT[currentStep] ?? '튜토리얼 이미지'}
                 />
               </div>
               <StepIndicator step={currentStep} maxStep={3} />{' '}
@@ -104,4 +108,4 @@ const AuthPage = (): ReactElement => {
   );
 };
 
-export default AuthPage;
+export default TutorialPage;
