@@ -11,7 +11,8 @@ RUN corepack enable && corepack prepare yarn@4.12.0 --activate
 RUN echo 'nodeLinker: node-modules' > .yarnrc.yml
 
 # Install dependencies (cached layer)
-COPY package.json yarn.lock .yarnrc.yml ./
+# .yarnrc.yml is created by the RUN echo above; only copy files from the host context.
+COPY package.json yarn.lock ./
 RUN yarn install --immutable
 
 # Build application
