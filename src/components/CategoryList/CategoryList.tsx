@@ -14,20 +14,9 @@ const CategoryList = ({
   onChange,
   maxSelection,
 }: CategoryListPropType): ReactElement => {
-  const categoryByName = CATEGORY_ITEMS.reduce(
-    (acc, item) => {
-      acc[item.id] = `${item.emoji} ${item.label}`;
-      return acc;
-    },
-    {} as Record<CategoryType, string>,
-  );
-
-  const categories = CATEGORY_ITEMS.map((item) => item.id);
-
   const handleCategoryClick = (category: CategoryType) => {
     if (selected.includes(category)) {
-      const popedCategoryList = selected.filter((item) => item !== category);
-      onChange(popedCategoryList);
+      onChange(selected.filter((item) => item !== category));
       return;
     }
     if (maxSelection !== undefined) {
@@ -37,21 +26,21 @@ const CategoryList = ({
       }
       if (selected.length >= maxSelection) return;
     }
-    const pushedCategoryList = [...selected, category];
-    onChange(pushedCategoryList);
+    onChange([...selected, category]);
   };
 
   return (
     <div className="categories-container">
-      {categories.map((category) => (
+      {CATEGORY_ITEMS.map((item) => (
         <button
-          key={category}
+          key={item.id}
           type="button"
-          className={`category-item ${
-            selected.includes(category) ? 'selected' : null
+          aria-pressed={selected.includes(item.id)}
+          className={`category-item font-label-medium ${
+            selected.includes(item.id) ? 'selected' : ''
           }`}
-          onClick={() => handleCategoryClick(category)}>
-          <p className="font-label-medium">{categoryByName[category]}</p>
+          onClick={() => handleCategoryClick(item.id)}>
+          <p className="font-label-medium">{`${item.emoji} ${item.label}`}</p>
         </button>
       ))}
     </div>

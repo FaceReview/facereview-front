@@ -12,19 +12,19 @@ const Spinner = ({ className, size }: SpinnerProps) => {
     const loadingEndElement = document.getElementById('loading-end');
 
     if (loadingStartElement) {
-      loadingStartElement.innerHTML = '<p class="srOnly">로딩중...</p>';
+      loadingStartElement.textContent = '로딩중...';
       loadingStartElement.setAttribute('role', 'alert');
     }
 
     return () => {
       if (loadingStartElement) {
-        loadingStartElement.innerHTML = '';
+        loadingStartElement.textContent = '';
         loadingStartElement.removeAttribute('role');
       }
       if (loadingEndElement) {
-        loadingEndElement.innerHTML = '<p class="srOnly">로딩완료</p>';
+        loadingEndElement.textContent = '로딩완료';
         setTimeout(() => {
-          loadingEndElement.innerHTML = '';
+          loadingEndElement.textContent = '';
         }, 1000);
       }
     };

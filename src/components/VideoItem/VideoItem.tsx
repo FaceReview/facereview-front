@@ -69,6 +69,13 @@ const VideoItem = memo(
       navigation(`/watch/${videoUuid}`);
     };
 
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        handleClick();
+      }
+    };
+
     const handleVideoReady = (e: YouTubeEvent<YouTubePlayer>) => {
       e.target.mute();
       setVideo(e.target);
@@ -94,7 +101,10 @@ const VideoItem = memo(
       <div
         className="video-item-container"
         style={{ ...style, width: `${width ? width : 280}px` }}
+        role="link"
+        tabIndex={0}
         onClick={handleClick}
+        onKeyDown={handleKeyDown}
         onMouseOver={handleMouseHover}
         onMouseOut={handleMouseOut}>
         <div

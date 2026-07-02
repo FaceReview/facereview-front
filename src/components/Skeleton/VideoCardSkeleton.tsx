@@ -10,12 +10,15 @@ const VideoCardSkeleton = ({
   width,
   style,
 }: VideoCardSkeletonProps): ReactElement => {
-  const finalWidth = width ? width : 280;
+  const finalWidth = width ?? 280;
   const height = finalWidth * (9 / 16);
 
   return (
     <div
       className="video-card-skeleton"
+      role="status"
+      aria-busy="true"
+      aria-label="영상 정보 불러오는 중"
       style={{ ...style, width: `${finalWidth}px` }}>
       <div
         className="thumbnail-skeleton"

@@ -21,7 +21,7 @@ const AlertMessages = {
 const AuthPage = () => {
   const navigate = useNavigate();
   const { step } = useParams();
-  const currentStep = +(step || 1);
+  const currentStep = Number(step ?? 1);
   const { setUserInfo } = useAuthStorage();
 
   const [email, setEmail] = useState('');
@@ -167,13 +167,16 @@ const AuthPage = () => {
         password: password,
         name: nickname,
         favorite_genres: categories,
-      }).then((res) => {
-        if (res.status === 201 || res.status === 200) {
-          toast.success('가입되었어요', { toastId: 'signUp complete' });
-          // Auto login logic could be added here similar to signIn if desired
-          navigate('/auth');
-        }
-      });
+      })
+        .then((res) => {
+          if (res.status === 201 || res.status === 200) {
+            toast.success('가입되었어요', { toastId: 'signUp complete' });
+            navigate('/auth');
+          }
+        })
+        .catch(() => {
+          toast.error('회원가입에 실패했어요', { toastId: 'signUp fail' });
+        });
     }
   };
 
@@ -187,7 +190,7 @@ const AuthPage = () => {
     return '다음';
   };
 
-  const isConfirmButtonVisible = () => {
+  const isConfirmButtonVisible = (): boolean => {
     if (currentStep === 1 && emailAlertMessage === ' ') {
       return true;
     }
@@ -210,6 +213,7 @@ const AuthPage = () => {
     ) {
       return true;
     }
+    return false;
   };
 
   const categoryAlertMessage =
@@ -322,7 +326,7 @@ const AuthPage = () => {
               </div>
               <div className="input-item-container">
                 <label
-                  htmlFor="authNickname"
+                  htmlFor="authCategory"
                   className="input-label font-title-mini">
                   관심 카테고리 (필수)
                 </label>

@@ -1,30 +1,35 @@
-import React, { ReactElement } from "react";
-import UploadButtonImage from "assets/img/uploadButton.png";
+import { ReactElement } from 'react';
+import UploadButtonImage from 'assets/img/uploadButton.png';
 
-import "./uploadbutton.scss";
+import './uploadbutton.scss';
 
 type UploadButtonPropsType = {
   style?: React.CSSProperties;
   isDisabled?: boolean;
   onClick?: () => void;
+  'aria-label'?: string;
 };
 
 const UploadButton = ({
   style,
   isDisabled,
   onClick,
+  ...restProps
 }: UploadButtonPropsType): ReactElement => {
   return (
     <button
-      className={`upload-button ${isDisabled ? "disabled" : null}`}
+      type="button"
+      className={`upload-button ${isDisabled ? 'disabled' : ''}`}
       style={style}
-      onClick={isDisabled ? () => {} : onClick}
-    >
+      disabled={isDisabled}
+      onClick={onClick}
+      {...restProps}>
       <div className="dim"></div>
       <img
         className="upload-button-image"
         src={UploadButtonImage}
-        alt="업로드"
+        alt=""
+        aria-hidden="true"
       />
     </button>
   );

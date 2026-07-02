@@ -5,6 +5,7 @@ import VideoItem from 'components/VideoItem/VideoItem';
 import VideoCardSkeleton from 'components/Skeleton/VideoCardSkeleton';
 import useMediaQuery from 'hooks/useMediaQuery';
 import useIntersectionObserver from 'hooks/useIntersectionObserver';
+import useWindowSize from 'hooks/useWindowSize';
 
 type SearchResultsSectionProps = {
   query: string;
@@ -14,6 +15,7 @@ const SearchResultsSection = ({
   query,
 }: SearchResultsSectionProps): ReactElement => {
   const isMobile = useMediaQuery('(max-width: 1200px)');
+  const windowWidth = useWindowSize();
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useInfiniteQuery({
@@ -38,7 +40,7 @@ const SearchResultsSection = ({
 
   const onIntersect: IntersectionObserverCallback = useCallback(
     ([entry]) => {
-      if (entry.isIntersecting && hasNextPage && !isFetchingNextPage) {
+      if (entry?.isIntersecting && hasNextPage && !isFetchingNextPage) {
         fetchNextPage();
       }
     },
@@ -67,7 +69,7 @@ const SearchResultsSection = ({
               {Array.from({ length: 8 }).map((_, i) => (
                 <VideoCardSkeleton
                   key={`search-loading-${i}`}
-                  width={isMobile ? window.innerWidth - 32 : 280}
+                  width={isMobile ? windowWidth - 32 : 280}
                   style={
                     isMobile
                       ? { marginBottom: '24px' }
@@ -82,7 +84,7 @@ const SearchResultsSection = ({
                 <VideoItem
                   type="small-emoji"
                   key={`${v.youtube_url}-${i}`}
-                  width={isMobile ? window.innerWidth - 32 : 280}
+                  width={isMobile ? windowWidth - 32 : 280}
                   videoId={v.youtube_url}
                   videoUuid={v.uuid ?? v.id ?? v.video_id}
                   videoTitle={v.title}
@@ -100,7 +102,7 @@ const SearchResultsSection = ({
                   {Array.from({ length: 4 }).map((_, i) => (
                     <VideoCardSkeleton
                       key={`search-more-${i}`}
-                      width={isMobile ? window.innerWidth - 32 : 280}
+                      width={isMobile ? windowWidth - 32 : 280}
                       style={
                         isMobile
                           ? { marginBottom: '24px' }
@@ -114,6 +116,7 @@ const SearchResultsSection = ({
             </>
           ) : (
             <div
+              role="status"
               style={{
                 color: 'white',
                 padding: '40px 0',

@@ -44,7 +44,7 @@ const CommentItem = React.memo(
         }}
         onMouseLeave={onMouseLeave}>
         <ProfileIcon
-          type={'icon-small'}
+          type="icon-small"
           color={mapNumberToEmotion(user_profile_image_id)}
           style={profileIconStyle}
         />
@@ -71,22 +71,24 @@ const CommentItem = React.memo(
             )}
             <div
               className={`comment-edit-container ${
-                isEditVisible === comment_id && 'visible'
+                isEditVisible === comment_id ? 'visible' : ''
               }`}>
-              <div
+              <button
+                type="button"
                 className="comment-modify-text"
                 onClick={() => {
                   onStartEditing(comment_id);
                 }}>
                 <div className="comment-modify-dim"></div>
                 수정
-              </div>
-              <div
+              </button>
+              <button
+                type="button"
                 className="comment-delete-text"
                 onClick={onDeleteClick}>
                 <div className="comment-delete-dim"></div>
                 삭제
-              </div>
+              </button>
             </div>
           </div>
         </div>

@@ -16,7 +16,7 @@ type HeaderPropsType = {
 const Header = ({ isMyPage }: HeaderPropsType): ReactElement => {
   const isMobile = useMediaQuery('(max-width : 1200px)');
   const navigate = useNavigate();
-  const { is_sign_in } = useAuthStorage();
+  const is_sign_in = useAuthStorage((state) => state.is_sign_in);
   const user_profile = useAuthStorage((state) => state.user_profile);
   const { handleLogout } = useLogout();
 
@@ -37,25 +37,18 @@ const Header = ({ isMyPage }: HeaderPropsType): ReactElement => {
         </Link>
         {is_sign_in ? (
           isMyPage && isMobile ? (
-            <div
+            <button
+              type="button"
               className="header-logout-button-mobile"
               onClick={handleLogoutClick}>
               <h3 className="font-label-small">로그아웃</h3>
-            </div>
+            </button>
           ) : (
             <button
               type="button"
               className="header-profile-icon-button"
-              onClick={() => {
-                // The original code had navigate("/my");
-                // The provided change was syntactically incorrect.
-                // Assuming the intent was to replace the onClick content,
-                // but without a clear valid replacement,
-                // and given the instruction to make it syntactically correct,
-                // I'm restoring the original onClick behavior.
-                // If the user intended a different valid action, it should be specified clearly.
-                navigate('/my');
-              }}>
+              aria-label="마이페이지로 이동"
+              onClick={() => navigate('/my')}>
               <ProfileIcon
                 type={isMobile ? 'icon-small' : 'icon-medium'}
                 color={mapNumberToEmotion(user_profile)}

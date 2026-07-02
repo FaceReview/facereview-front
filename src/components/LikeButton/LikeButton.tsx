@@ -21,13 +21,17 @@ const LikeButton = ({
   return (
     <button
       type="button"
-      className={`like-button`}
+      className="like-button"
       style={style}
-      onClick={isDisabled ? () => {} : onClick}>
+      onClick={onClick}
+      disabled={isDisabled}
+      aria-pressed={isActive}
+      aria-label={isActive ? '좋아요 취소' : '좋아요'}>
       <img
-        className={'like-image'}
+        className="like-image"
         src={isActive ? likeFilled : likeEmpty}
-        alt="like button"
+        alt=""
+        aria-hidden="true"
         width={24}
         height={24}
       />
