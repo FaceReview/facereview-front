@@ -1,10 +1,4 @@
-import { CategoryType } from 'types';
-
-export const CATEGORY_ITEMS: {
-  id: CategoryType;
-  label: string;
-  emoji: string;
-}[] = [
+export const CATEGORY_ITEMS = [
   { id: 'drama', label: '드라마', emoji: '🎭' },
   { id: 'eating', label: '먹방', emoji: '🍽️' },
   { id: 'travel', label: '여행', emoji: '✈️' },
@@ -21,9 +15,13 @@ export const CATEGORY_ITEMS: {
   { id: 'exercise', label: '운동', emoji: '🏋️‍♂️' },
   { id: 'vlog', label: '브이로그', emoji: '📷' },
   { id: 'etc', label: '기타', emoji: '🎸' },
-];
+] as const;
 
-export const CATEGORIES: CategoryType[] = CATEGORY_ITEMS.map((item) => item.id);
+export type CategoryType = (typeof CATEGORY_ITEMS)[number]['id'];
+
+export const CATEGORIES: CategoryType[] = CATEGORY_ITEMS.map(
+  (item) => item.id,
+);
 
 export const EMOTIONS = [
   'happy',

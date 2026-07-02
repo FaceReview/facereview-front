@@ -21,7 +21,7 @@ import UploadButton from 'components/UploadButton/UploadButton';
 import { ResponsiveBar } from '@nivo/bar';
 import { EmotionType, VideoDetailType } from 'types';
 import { getRelatedVideo, getVideoDetail } from 'api/youtube';
-import Devider from 'components/Devider/Devider';
+import Divider from 'components/Divider/Divider';
 import { useAuthStorage } from 'store/authStore';
 import { toast } from 'react-toastify';
 import {
@@ -49,8 +49,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import GraphDetailDataItem from 'components/GraphDetailDataItem/GraphDetailDataItem';
 import CommentItem from 'components/CommentItem/CommentItem';
 
-let disconnectTimer: NodeJS.Timeout | null = null;
-
 // Hoisted module-level constants to avoid re-creation on every render
 const EMOTION_BY_EMOTION_TEXT = EMOTIONS.map((emotion) => ({
   emotion,
@@ -68,6 +66,7 @@ const PROFILE_ICON_STYLE = { marginRight: '12px' };
 const WatchPage = (): ReactElement => {
   const isMobile = useMediaQuery('(max-width: 1200px)');
   const [modifyingComment, setModifyingComment] = useState<string>('');
+  const disconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { id } = useParams();
   const navigate = useNavigate();
   const opts = useMemo(
@@ -320,46 +319,27 @@ const WatchPage = (): ReactElement => {
 
   useEffect(() => {
     if (is_sign_in) {
-      if (disconnectTimer) {
-        clearTimeout(disconnectTimer);
-        disconnectTimer = null;
+      if (disconnectTimerRef.current) {
+        clearTimeout(disconnectTimerRef.current);
+        disconnectTimerRef.current = null;
       }
 
       if (!socket.connected) {
         socket.connect();
       }
 
-      // Socket Debug Listeners
-      const onConnect = () => {
-        console.log('✅ Socket connected:', socket.id);
-      };
-      const onDisconnect = () => {
-        console.log('❌ Socket disconnected');
-      };
       const onConnectError = (err: Error) =>
-        console.error('⚠️ Socket connection error:', err);
+        console.error('Socket connection error:', err);
 
-      socket.on('connect', onConnect);
-      socket.on('disconnect', onDisconnect);
       socket.on('connect_error', onConnectError);
-
-      // Catch-all listener for debugging
-      socket.onAny((event, ...args) => {
-        console.log(`📩 Socket received event: ${event}`, args);
-      });
     }
-
-    // Main distribution data is now part of video detail (timeline_data)
 
     return () => {
       if (is_sign_in) {
-        socket.off('connect');
-        socket.off('disconnect');
         socket.off('connect_error');
-        socket.offAny(); // Clean up
 
         // Debounce socket disconnect to prevent "WebSocket is closed before the connection is established" in StrictMode
-        disconnectTimer = setTimeout(() => {
+        disconnectTimerRef.current = setTimeout(() => {
           socket.disconnect();
         }, 300);
       }
@@ -383,16 +363,6 @@ const WatchPage = (): ReactElement => {
       if (!capturedImage) return;
 
       const currentTime = await video?.getCurrentTime();
-      // const formattedCurrentTime = getCurrentTimeString(currentTime || 0); // Not needed for payload, strictly
-
-      console.log(`[Socket] Sending watch_frame (time: ${currentTime})`, {
-        video_view_log_id: videoViewLogId,
-        youtube_running_time: parseFloat((currentTime || 0).toFixed(2)),
-        image_length: capturedImage?.length,
-        duration: videoData.duration,
-        user_id: user_id,
-        video_id: videoData.video_id, // Internal UUID
-      });
 
       socket.emit(
         'watch_frame',
@@ -418,12 +388,7 @@ const WatchPage = (): ReactElement => {
             };
           };
         }) => {
-          // console.log('[Socket] watch_frame response:', response);
           if (response?.status === 'success' && response?.response) {
-            console.log(
-              '[Socket] Updating graph data with:',
-              response.response,
-            );
             const { user_emotion, average_emotion } = response.response;
 
             setCurrentMyEmotion(user_emotion.most_emotion);
@@ -492,18 +457,11 @@ const WatchPage = (): ReactElement => {
   const handleCommentStartEditing = (commentId: string) => {
     setIsEditVisible(null);
     setEditingcommentindex(commentId);
-  };
-
-  useEffect(() => {
-    // Moved this useEffect outside of CommentItem
-    if (editingcommentindex !== null) {
-      commentList.map(
-        (item, i) =>
-          item.comment_id === editingcommentindex &&
-          setModifyingComment(commentList[i].content),
-      );
+    const target = commentList.find((item) => item.comment_id === commentId);
+    if (target) {
+      setModifyingComment(target.content);
     }
-  }, [editingcommentindex, commentList]);
+  };
 
   const renderMobileContainer = () => {
     return (
@@ -545,7 +503,7 @@ const WatchPage = (): ReactElement => {
               margin={BAR_CHART_MARGIN}
               legends={[]}
               role="application"
-              ariaLabel="Nivo bar chart demo"
+              ariaLabel="실시간 감정 분석 차트"
               barAriaLabel={(e) => `${e.id}: ${e.formattedValue}%`}
             />
           </div>
@@ -593,7 +551,7 @@ const WatchPage = (): ReactElement => {
               margin={BAR_CHART_MARGIN}
               legends={[]}
               role="application"
-              ariaLabel="Nivo bar chart demo"
+              ariaLabel="실시간 감정 분석 차트"
               barAriaLabel={(e) => `${e.id}: ${e.formattedValue}%`}
             />
           </div>
@@ -742,12 +700,12 @@ const WatchPage = (): ReactElement => {
               </p>
             </div>
           </div>
-          {isMobile && <Devider />}
+          {isMobile && <Divider />}
         </div>
 
         {isMobile && renderMobileContainer()}
         {isMobile && (
-          <Devider style={{ width: '100vw', marginLeft: '-16px' }} />
+          <Divider style={{ width: '100vw', marginLeft: '-16px' }} />
         )}
 
         <div className="comment-container">
@@ -763,9 +721,11 @@ const WatchPage = (): ReactElement => {
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
                 placeholder={'영상에 대한 의견을 남겨보아요'}
+                aria-label="댓글 입력"
               />
               <UploadButton
                 onClick={handleCommentSubmit}
+                aria-label="댓글 등록"
                 style={{
                   marginLeft: '12px',
                   display: comment.length > 0 ? 'block' : 'none',
@@ -810,15 +770,18 @@ const WatchPage = (): ReactElement => {
                         style={{ marginBottom: '16px' }}
                       />
                       <div className="comment-modifying-button-wrapper">
-                        <div
+                        <button
+                          type="button"
                           className="comment-modifying-cancel font-label-small"
                           onClick={() => {
                             setEditingcommentindex(null);
                           }}>
                           취소
-                        </div>
-                        <div
+                        </button>
+                        <button
+                          type="button"
                           className="comment-modifying-save font-label-small"
+                          disabled={modifyingComment.length === 0}
                           onClick={() => {
                             if (editingcommentindex !== null) {
                               modifyCommentMutation.mutate({
@@ -826,13 +789,9 @@ const WatchPage = (): ReactElement => {
                                 content: modifyingComment,
                               });
                             }
-                          }}
-                          style={{
-                            pointerEvents:
-                              modifyingComment.length > 0 ? 'auto' : 'none',
                           }}>
                           저장
-                        </div>
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -894,7 +853,7 @@ const WatchPage = (): ReactElement => {
           </div>
         </div>
         {isMobile && (
-          <Devider style={{ width: '100vw', marginLeft: '-16px' }} />
+          <Divider style={{ width: '100vw', marginLeft: '-16px' }} />
         )}
       </div>
       <div className="side-container">
@@ -939,7 +898,7 @@ const WatchPage = (): ReactElement => {
                   margin={BAR_CHART_MARGIN}
                   legends={[]}
                   role="application"
-                  ariaLabel="Nivo bar chart demo"
+                  ariaLabel="실시간 감정 분석 차트"
                   barAriaLabel={(e) => `${e.id}: ${e.formattedValue}%`}
                 />
               </div>
@@ -985,7 +944,7 @@ const WatchPage = (): ReactElement => {
                   margin={BAR_CHART_MARGIN}
                   legends={[]}
                   role="application"
-                  ariaLabel="Nivo bar chart demo"
+                  ariaLabel="실시간 감정 분석 차트"
                   barAriaLabel={(e) => `${e.id}: ${e.formattedValue}%`}
                 />
               </div>

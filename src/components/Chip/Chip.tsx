@@ -13,6 +13,23 @@ type ChipPropsType = {
   onClick: () => void;
 };
 
+const FONT_OF_TYPE = {
+  'category-big': 'font-label-large',
+  'category-small': 'font-label-medium',
+} as const;
+
+const LABEL_OF_CHOOSE: Record<
+  Exclude<ChipPropsType['choose'], 'plus'>,
+  string
+> = {
+  all: '전체',
+  happy: `${EMOTION_EMOJIS.happy} ${EMOTION_LABELS.happy}`,
+  surprise: `${EMOTION_EMOJIS.surprise} ${EMOTION_LABELS.surprise}`,
+  angry: `${EMOTION_EMOJIS.angry} ${EMOTION_LABELS.angry}`,
+  sad: `${EMOTION_EMOJIS.sad} ${EMOTION_LABELS.sad}`,
+  neutral: `${EMOTION_EMOJIS.neutral} ${EMOTION_LABELS.neutral}`,
+};
+
 const Chip = ({
   type,
   choose,
@@ -20,28 +37,24 @@ const Chip = ({
   isSelected,
   onClick,
 }: ChipPropsType): ReactElement => {
-  const fontOfType = {
-    'category-big': 'font-label-large',
-    'category-small': 'font-label-medium',
-  };
-  const labelOfChoose = {
-    all: '전체',
-    happy: `${EMOTION_EMOJIS.happy} ${EMOTION_LABELS.happy}`,
-    surprise: `${EMOTION_EMOJIS.surprise} ${EMOTION_LABELS.surprise}`,
-    angry: `${EMOTION_EMOJIS.angry} ${EMOTION_LABELS.angry}`,
-    sad: `${EMOTION_EMOJIS.sad} ${EMOTION_LABELS.sad}`,
-    neutral: `${EMOTION_EMOJIS.neutral} ${EMOTION_LABELS.neutral}`,
-    plus: <img className="plus-icon" src={plusIcon} alt="plusIcon" />,
-  };
-
-  // Create a class string based on the type and emotion
-  const chipClass = `chip ${type} ${choose} ${fontOfType[type]} ${
+  const isPlus = choose === 'plus';
+  const chipClass = `chip ${type} ${choose} ${FONT_OF_TYPE[type]} ${
     isSelected ? 'selected' : ''
   }`;
 
   return (
-    <button type="button" className={chipClass} style={style} onClick={onClick}>
-      {labelOfChoose[choose]}
+    <button
+      type="button"
+      className={chipClass}
+      style={style}
+      onClick={onClick}
+      aria-pressed={isSelected}
+      aria-label={isPlus ? '영상 추가' : LABEL_OF_CHOOSE[choose]}>
+      {isPlus ? (
+        <img className="plus-icon" src={plusIcon} alt="" aria-hidden="true" />
+      ) : (
+        LABEL_OF_CHOOSE[choose]
+      )}
     </button>
   );
 };

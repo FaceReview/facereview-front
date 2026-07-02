@@ -1,22 +1,21 @@
 import { ReactElement, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import useMediaQuery from 'hooks/useMediaQuery';
 import TextInput from 'components/TextInput/TextInput';
 import SearchResultsSection from './SearchResultsSection';
 import HomeContentSection from './HomeContentSection';
 import './mainpage.scss';
 
 const MainPage = (): ReactElement => {
-  const isMobile = useMediaQuery('(max-width: 1200px)');
   const [searchParams, setSearchParams] = useSearchParams();
-  const searchQuery = searchParams.get('q');
-  const [keyword, setKeyword] = useState(searchQuery || '');
-
+  const searchQuery = searchParams.get('q') ?? '';
+  const [keyword, setKeyword] = useState(searchQuery);
   const [prevSearchQuery, setPrevSearchQuery] = useState(searchQuery);
 
+  // Adjust local state when the URL search param changes (e.g. browser back/forward).
+  // This is React's documented pattern for resetting state on prop change.
   if (searchQuery !== prevSearchQuery) {
     setPrevSearchQuery(searchQuery);
-    setKeyword(searchQuery || '');
+    setKeyword(searchQuery);
   }
 
   const handleSearch = (e: React.FormEvent) => {
@@ -34,10 +33,10 @@ const MainPage = (): ReactElement => {
         className="search-section"
         style={{
           marginBottom: '56px',
-          padding: isMobile ? '0' : '0',
+          padding: '0',
           display: 'flex',
           justifyContent: 'flex-start',
-          marginTop: isMobile ? '0px' : '0px',
+          marginTop: '0px',
         }}>
         <form
           onSubmit={handleSearch}
@@ -47,6 +46,7 @@ const MainPage = (): ReactElement => {
             onChange={(e) => setKeyword(e.target.value)}
             placeholder="찾고 싶은 영상을 검색해보세요…"
             variant="default"
+            aria-label="영상 검색"
             style={{
               width: '100%',
               borderRadius: '100px',

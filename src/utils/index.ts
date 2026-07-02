@@ -1,8 +1,12 @@
 export * from './emotion';
 
-export const getTimeToString = (time: string) => {
+export const getTimeToString = (time: string): string => {
   const currentDate = new Date();
-  const date = new Date(time + 'Z');
+  const date = new Date(time.endsWith('Z') ? time : `${time}Z`);
+
+  if (Number.isNaN(date.getTime())) {
+    return '';
+  }
 
   const timeDiff = currentDate.getTime() - date.getTime();
   const timeDiffSec = timeDiff / 1000;
@@ -31,25 +35,21 @@ export const getTimeToString = (time: string) => {
   return minuteDiff + '분 전';
 };
 
-export const getTimeArrFromDuration = (duration: string) => {
-  let temp = duration.slice(2);
-  let hour = 0,
-    minute = 0,
-    second = 0;
+const ISO_DURATION_PATTERN = /^PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$/;
 
-  const hourSplit = temp.split('H');
-  if (hourSplit.length !== 1) {
-    hour = +hourSplit[0];
-    temp = hourSplit[1];
-  }
+/**
+ * Parses an ISO 8601 duration (e.g. "PT1H2M3S") into a tuple [hour, minute, second].
+ * Returns [0, 0, 0] when the input cannot be parsed.
+ */
+export const getTimeArrFromDuration = (
+  duration: string,
+): [number, number, number] => {
+  const match = ISO_DURATION_PATTERN.exec(duration);
+  if (!match) return [0, 0, 0];
 
-  const minuteSplit = temp.split('M');
-  if (minuteSplit.length !== 1) {
-    minute = +minuteSplit[0];
-    temp = minuteSplit[1];
-  }
-
-  second = +temp.slice(0, -1);
+  const hour = match[1] ? parseInt(match[1], 10) : 0;
+  const minute = match[2] ? parseInt(match[2], 10) : 0;
+  const second = match[3] ? parseInt(match[3], 10) : 0;
 
   return [hour, minute, second];
 };

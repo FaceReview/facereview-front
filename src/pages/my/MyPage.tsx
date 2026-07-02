@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import './mypage.scss';
@@ -6,7 +6,7 @@ import './mypage.scss';
 import Button from 'components/Button/Button';
 import Chip from 'components/Chip/Chip';
 import ProfileIcon from 'components/ProfileIcon/ProfileIcon';
-import Devider from 'components/Devider/Devider';
+import Divider from 'components/Divider/Divider';
 import SomeIcon from 'components/SomeIcon/SomeIcon';
 
 import { ResponsivePie } from '@nivo/pie';
@@ -24,6 +24,7 @@ import { EmotionType, VideoWatchedType } from 'types/index';
 import { getScaledTimelineGraphData, mapNumberToEmotion } from 'utils/index';
 import { ResponsiveLine } from '@nivo/line';
 import useMediaQuery from 'hooks/useMediaQuery';
+import useWindowSize from 'hooks/useWindowSize';
 import {
   EMOTION_COLORS,
   EMOTION_EMOJIS,
@@ -51,16 +52,18 @@ const INITIAL_DONUT_DATA = EMOTIONS.map((emotion) => ({
 
 const INITIAL_EMOTION_TIME = { happy: 0, sad: 0, surprise: 0, angry: 0, neutral: 0 };
 
+const EMOTION_COLOR_LIST = EMOTIONS.map((e) => EMOTION_COLORS[e]);
+const LINE_CHART_MARGIN = { top: 2, right: 0, bottom: 2, left: 0 };
+
 const MyPage = () => {
-  const {
-    is_sign_in,
-    user_name,
-    user_profile,
-    is_verify_email_done,
-    setVerifyEmailDone,
-  } = useAuthStorage();
+  const is_sign_in = useAuthStorage((s) => s.is_sign_in);
+  const user_name = useAuthStorage((s) => s.user_name);
+  const user_profile = useAuthStorage((s) => s.user_profile);
+  const is_verify_email_done = useAuthStorage((s) => s.is_verify_email_done);
+  const setVerifyEmailDone = useAuthStorage((s) => s.setVerifyEmailDone);
 
   const isMobile = useMediaQuery('(max-width: 1200px)');
+  const windowWidth = useWindowSize();
 
   const navigate = useNavigate();
   const { handleLogout } = useLogout();
@@ -157,7 +160,7 @@ const MyPage = () => {
     }
   };
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
@@ -238,7 +241,7 @@ const MyPage = () => {
               )}
             </div>
           </div>
-          <Devider />
+          <Divider />
         </div>
 
         <div className="my-page-watched-contents-container">
@@ -285,7 +288,7 @@ const MyPage = () => {
                       key={`videoItem${v.youtube_url}${v.dominant_emotion_per}_${i}`}>
                       <VideoItem
                         type="big-emoji"
-                        width={isMobile ? window.innerWidth - 32 : 360}
+                        width={isMobile ? windowWidth - 32 : 360}
                         videoId={v.youtube_url}
                         videoUuid={v.video_id}
                         videoTitle={v.title}
@@ -302,8 +305,8 @@ const MyPage = () => {
                         {v.graphData.length > 0 && (
                           <ResponsiveLine
                             data={v.graphData}
-                            colors={EMOTIONS.map((e) => EMOTION_COLORS[e])}
-                            margin={{ top: 2, right: 0, bottom: 2, left: 0 }}
+                            colors={EMOTION_COLOR_LIST}
+                            margin={LINE_CHART_MARGIN}
                             xScale={{ type: 'linear', min: 0, max: v.duration || 100 }}
                             yScale={{
                               type: 'linear',
@@ -366,12 +369,12 @@ const MyPage = () => {
                     innerRadius={0.7}
                     enableArcLabels={false}
                     enableArcLinkLabels={false}
-                    tooltip={() => <></>}
+                    tooltip={() => null}
                     isInteractive={false}
                   />
                 ) : (
                   <ResponsivePie
-                    colors={EMOTIONS.map((e) => EMOTION_COLORS[e])}
+                    colors={EMOTION_COLOR_LIST}
                     data={donutGraphData}
                     sortByValue={false}
                     margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
@@ -384,7 +387,7 @@ const MyPage = () => {
                     innerRadius={0.7}
                     enableArcLabels={false}
                     enableArcLinkLabels={false}
-                    tooltip={() => <></>}
+                    tooltip={() => null}
                   />
                 )}
               </div>

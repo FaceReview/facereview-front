@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { EMOTIONS } from 'constants/index';
 import { toast } from 'react-toastify';
 import Button from 'components/Button/Button';
@@ -13,29 +13,26 @@ import { updateProfile } from 'api/auth';
 import { mapEmotionToNumber, mapNumberToEmotion } from 'utils/index';
 import CategoryList from 'components/CategoryList/CategoryList';
 import useMediaQuery from 'hooks/useMediaQuery';
+import useWindowSize from 'hooks/useWindowSize';
 
 const EditPage = () => {
   const isMobile = useMediaQuery('(max-width: 1200px)');
-  const {
-    user_name,
-    setUserName,
-    setUserProfile,
-    user_favorite_genres,
-    setUserFavoriteGenres,
-  } = useAuthStorage();
-  const user_profile = useAuthStorage((state) => state.user_profile);
+  const windowWidth = useWindowSize();
+  const setUserName = useAuthStorage((s) => s.setUserName);
+  const setUserProfile = useAuthStorage((s) => s.setUserProfile);
+  const setUserFavoriteGenres = useAuthStorage((s) => s.setUserFavoriteGenres);
+  const user_name = useAuthStorage((s) => s.user_name);
+  const user_profile = useAuthStorage((s) => s.user_profile);
+  const user_favorite_genres = useAuthStorage((s) => s.user_favorite_genres);
   const navigate = useNavigate();
   const [nickName, setNickName] = useState(user_name);
   const [selectedCategories, setSelectedCategories] = useState<CategoryType[]>(
     user_favorite_genres as CategoryType[],
   );
-  const [profileColor, setProfileColor] = useState<EmotionType>(
-    mapNumberToEmotion(user_profile),
-  );
   const [selectedColor, setSelectedColor] = useState<EmotionType>(
     mapNumberToEmotion(user_profile),
   );
-  const [localProfileColor, setLocalProfileColor] = useState<EmotionType>(
+  const [committedColor, setCommittedColor] = useState<EmotionType>(
     mapNumberToEmotion(user_profile),
   );
 
@@ -54,15 +51,13 @@ const EditPage = () => {
     setIsModalOpen(false);
   };
   const handleModalCheck = () => {
-    setProfileColor(selectedColor);
-
     updateProfile({
       name: nickName,
       profile_image_id: mapEmotionToNumber(selectedColor),
-      favorite_genres: selectedCategories as string[], // Ensure string[] type
+      favorite_genres: selectedCategories as string[],
     })
       .then((res) => {
-        setLocalProfileColor(selectedColor);
+        setCommittedColor(selectedColor);
         if (res.status === 200) {
           setUserProfile({ user_profile: mapEmotionToNumber(selectedColor) });
           toast.success('프로필사진이 변경되었어요', {
@@ -71,7 +66,8 @@ const EditPage = () => {
         }
       })
       .catch((error) => {
-        console.log(error);
+        console.error(error);
+        toast.error('프로필사진 변경에 실패했어요');
       });
 
     setIsModalOpen(false);
@@ -80,7 +76,7 @@ const EditPage = () => {
   const handleEditButtonClick = () => {
     updateProfile({
       name: nickName,
-      profile_image_id: mapEmotionToNumber(profileColor), // Use current profile color
+      profile_image_id: mapEmotionToNumber(committedColor),
       favorite_genres: selectedCategories as string[],
     })
       .then((res) => {
@@ -94,13 +90,10 @@ const EditPage = () => {
         }
       })
       .catch((error) => {
-        console.log(error);
+        console.error(error);
+        toast.error('회원정보 수정에 실패했어요');
       });
   };
-
-  useEffect(() => {
-    setProfileColor(selectedColor);
-  }, [selectedColor]);
 
   return (
     <>
@@ -109,7 +102,7 @@ const EditPage = () => {
         <div className="edit-page-user-container">
           <ProfileIcon
             type={'icon-large'}
-            color={localProfileColor}
+            color={committedColor}
             isEditable={true}
             onEditClick={openModal}
           />
@@ -150,7 +143,9 @@ const EditPage = () => {
           </ModalDialog>
           <div className="edit-page-edit-container">
             <div className="edit-page-input-container">
-              <label htmlFor="editNickName font-title-mini">닉네임</label>
+              <label htmlFor="editNickName" className="font-title-mini">
+                닉네임
+              </label>
               <TextInput
                 id={'editNickName'}
                 value={nickName}
@@ -159,7 +154,7 @@ const EditPage = () => {
                 style={
                   isMobile
                     ? {
-                        width: window.innerWidth - 32,
+                        width: windowWidth - 32,
                         marginTop: '16px',
                         marginBottom: '24px',
                       }
@@ -178,7 +173,8 @@ const EditPage = () => {
             </div>
             <div className="edit-page-category-wrapper">
               <label
-                htmlFor="editNickName font-title-mini"
+                htmlFor="editCategory"
+                className="font-title-mini"
                 style={{ marginBottom: '20px' }}>
                 관심사 (필수)
               </label>
@@ -202,7 +198,7 @@ const EditPage = () => {
           variant="cta-full"
           style={
             isMobile
-              ? { width: window.innerWidth - 32, marginTop: '16px' }
+              ? { width: windowWidth - 32, marginTop: '16px' }
               : { width: '380px', marginTop: '16px' }
           }
           disabled={nickName.length < 2 || selectedCategories.length < 1}

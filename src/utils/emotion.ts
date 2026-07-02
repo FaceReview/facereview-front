@@ -17,7 +17,7 @@ export const mapEmotionToNumber = (emotion: EmotionType): number => {
     sad: 3,
     angry: 4,
   };
-  return mapping[emotion] ?? 0;
+  return mapping[emotion];
 };
 
 export const mapNumberToEmotion = (num: number): EmotionType => {
@@ -107,8 +107,17 @@ export const getScaledTimelineGraphData = (
     return [];
   }
 
-  const minGraphX = Math.min(...allXValues);
-  const maxGraphX = Math.max(...allXValues);
+  const firstX = allXValues[0];
+  if (firstX === undefined) return [];
+
+  const minGraphX = allXValues.reduce(
+    (min, v) => (v < min ? v : min),
+    firstX,
+  );
+  const maxGraphX = allXValues.reduce(
+    (max, v) => (v > max ? v : max),
+    firstX,
+  );
   const hasXRange = maxGraphX > minGraphX;
 
   return graphData.map((series) => {
@@ -133,14 +142,15 @@ export const getScaledTimelineGraphData = (
     } else {
       const firstPoint = newData[0];
       const lastPoint = newData[newData.length - 1];
-
-      if (firstPoint.x !== 0) {
+      if (!firstPoint || !lastPoint) {
+        newData = [{ x: 0, y: 0 }];
+      } else if (firstPoint.x !== 0) {
         newData = [{ x: 0, y: firstPoint.y }, ...newData];
       } else {
         newData[0] = { x: 0, y: firstPoint.y };
       }
 
-      if (lastPoint.x !== graphDuration) {
+      if (lastPoint && lastPoint.x !== graphDuration) {
         newData = [...newData, { x: graphDuration, y: lastPoint.y }];
       }
     }

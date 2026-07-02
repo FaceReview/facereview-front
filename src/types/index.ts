@@ -1,20 +1,5 @@
-export type CategoryType =
-  | 'drama'
-  | 'eating'
-  | 'travel'
-  | 'cook'
-  | 'show'
-  | 'information'
-  | 'game'
-  | 'sports'
-  | 'music'
-  | 'animal'
-  | 'beauty'
-  | 'comedy'
-  | 'horror'
-  | 'exercise'
-  | 'vlog'
-  | 'etc';
+export type { CategoryType } from 'constants/index';
+
 export type EmotionType = 'happy' | 'surprise' | 'sad' | 'angry' | 'neutral';
 export type UserInfoType = {
   user_role: boolean;
@@ -90,7 +75,7 @@ export type VideoRelatedType = {
   duration?: number;
 };
 
-export type ReqeustedVideoType = {
+export type RequestedVideoType = {
   request_id: string;
   youtube_url: string;
   created_at: string;

@@ -1,4 +1,7 @@
 import axios from 'axios';
+import { refreshToken } from './auth';
+import { useAuthStorage } from 'store/authStore';
+import HeaderToken from './HeaderToken';
 
 const api = axios.create({
   baseURL: '/api',
@@ -7,15 +10,6 @@ const api = axios.create({
     'Content-Type': 'application/json',
   },
 });
-
-api.interceptors.request.use(
-  (config) => {
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  },
-);
 
 const MAX_RETRY_COUNT = 3;
 
@@ -36,14 +30,19 @@ const processQueue = (error: unknown, token: string | null = null) => {
   failedQueue = [];
 };
 
+api.interceptors.request.use(
+  (config) => config,
+  (error) => Promise.reject(error),
+);
+
 api.interceptors.response.use(
-  (response) => {
-    return response;
-  },
+  (response) => response,
   async (error) => {
     const originalRequest = error.config;
 
+    // Reissue endpoint failures should not trigger another reissue.
     if (originalRequest.url?.includes('/v2/auth/reissue')) {
+      window.dispatchEvent(new Event('auth:unauthorized'));
       return Promise.reject(error);
     }
 
@@ -56,9 +55,7 @@ api.interceptors.response.use(
             originalRequest.headers['Authorization'] = `Bearer ${token}`;
             return api(originalRequest);
           })
-          .catch((err) => {
-            return Promise.reject(err);
-          });
+          .catch((err) => Promise.reject(err));
       }
 
       originalRequest._retry = true;
@@ -73,10 +70,6 @@ api.interceptors.response.use(
       }
 
       try {
-        const { refreshToken } = await import('./auth');
-        const { useAuthStorage } = await import('store/authStore');
-        const HeaderToken = (await import('./HeaderToken')).default;
-
         const { data } = await refreshToken();
         const { access_token } = data;
 
@@ -107,30 +100,5 @@ export const youtubeApi = axios.create({
   baseURL: 'https://www.googleapis.com/',
   timeout: 30000,
 });
-
-youtubeApi.interceptors.request.use(
-  (config) => {
-    // console.log("🔮 [Req config]", config, "\n");
-    return config;
-  },
-  (error) => {
-    // console.log("🧨 [Req ERROR]", error, "\n");
-    return Promise.reject(error);
-  },
-);
-
-youtubeApi.interceptors.response.use(
-  (response) => {
-    // console.log("🔮 [Res]", response, "\n");
-    return response;
-  },
-  (error) => {
-    // console.log("🧨 [Res ERROR]", error, "\n");
-    if (error.status === 408) {
-      // noop
-    }
-    return Promise.reject(error);
-  },
-);
 
 export default api;

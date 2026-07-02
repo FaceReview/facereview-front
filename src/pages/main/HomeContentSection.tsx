@@ -22,6 +22,7 @@ import { CATEGORIES, CATEGORY_ITEMS, EMOTIONS } from 'constants/index';
 import { useLocation, useNavigate } from 'react-router-dom';
 import useIntersectionObserver from 'hooks/useIntersectionObserver';
 import useMediaQuery from 'hooks/useMediaQuery';
+import useWindowSize from 'hooks/useWindowSize';
 import { toast } from 'react-toastify';
 
 const YOUTUBE_VIDEO_ID_PATTERN = /^[A-Za-z0-9_-]{11}$/;
@@ -84,7 +85,9 @@ const extractVideoIds = (input: string): string[] => {
 
 const HomeContentSection = (): ReactElement => {
   const isMobile = useMediaQuery('(max-width: 1200px)');
-  const { is_sign_in, user_name } = useAuthStorage();
+  const windowWidth = useWindowSize();
+  const is_sign_in = useAuthStorage((s) => s.is_sign_in);
+  const user_name = useAuthStorage((s) => s.user_name);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -232,7 +235,7 @@ const HomeContentSection = (): ReactElement => {
       toast.success(result.message || '영상 추천 요청이 등록되었습니다.');
       closeModal();
     } catch (error) {
-      console.log(error);
+      console.error(error);
       toast.error('영상 추천 요청에 실패했습니다.');
     }
   };
@@ -240,7 +243,7 @@ const HomeContentSection = (): ReactElement => {
   // Intersection Observer for infinite scroll
   const onIntersect: IntersectionObserverCallback = useCallback(
     ([entry]) => {
-      if (entry.isIntersecting && hasNextPage && !isFetchingNextPage) {
+      if (entry?.isIntersecting && hasNextPage && !isFetchingNextPage) {
         fetchNextPage();
       }
     },
@@ -467,7 +470,7 @@ const HomeContentSection = (): ReactElement => {
               <VideoItem
                 type="small-emoji"
                 key={v.youtube_url || i}
-                width={isMobile ? window.innerWidth - 32 : 280}
+                width={isMobile ? windowWidth - 32 : 280}
                 videoId={v.youtube_url}
                 videoUuid={v.uuid ?? v.id ?? v.video_id}
                 videoTitle={v.title}
@@ -488,7 +491,7 @@ const HomeContentSection = (): ReactElement => {
                 {Array.from({ length: 4 }).map((_, i) => (
                   <VideoCardSkeleton
                     key={`skeleton-${i}`}
-                    width={isMobile ? window.innerWidth - 32 : 280}
+                    width={isMobile ? windowWidth - 32 : 280}
                     style={
                       isMobile
                         ? { marginTop: '14px', marginBottom: '14px' }
@@ -506,7 +509,7 @@ const HomeContentSection = (): ReactElement => {
                 {Array.from({ length: 4 }).map((_, i) => (
                   <VideoCardSkeleton
                     key={`more-skeleton-${i}`}
-                    width={isMobile ? window.innerWidth - 32 : 280}
+                    width={isMobile ? windowWidth - 32 : 280}
                     style={
                       isMobile
                         ? { marginTop: '14px', marginBottom: '14px' }

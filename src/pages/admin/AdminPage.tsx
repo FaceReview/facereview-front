@@ -1,5 +1,4 @@
 import { ReactElement, useEffect, useState } from 'react';
-import { v4 as uuidv4 } from 'uuid';
 import YouTube from 'react-youtube';
 import { approveVideoRequest } from 'api/admin';
 import { getRequestedVideoList } from 'api/request';
@@ -9,7 +8,7 @@ import CategoryList from 'components/CategoryList/CategoryList';
 import {
   CategoryType,
   RegisterVideoDataType,
-  ReqeustedVideoType,
+  RequestedVideoType,
 } from 'types/index';
 import { getTimeArrFromDuration } from 'utils/index';
 import { Options } from 'youtube-player/dist/types';
@@ -27,9 +26,9 @@ const opts: Options = {
   },
 };
 
-const MainPage = (): ReactElement => {
+const AdminPage = (): ReactElement => {
   const [draftRequestedVideoList, setDraftRequestedVideoList] = useState<
-    ReqeustedVideoType[]
+    RequestedVideoType[]
   >([]);
   const [currentSelectedUrl, setCurrentSelectedUrl] = useState('');
   const [currentVideoData, setCurrentVideoData] =
@@ -46,8 +45,7 @@ const MainPage = (): ReactElement => {
     CategoryType[]
   >([]);
 
-  const handleSubmitClick = () => {
-    // Find the request ID associated with the current URL
+  const handleSubmitClick = async () => {
     const selectedRequest = draftRequestedVideoList.find(
       (d) => d.youtube_url === currentSelectedUrl,
     );
@@ -57,28 +55,26 @@ const MainPage = (): ReactElement => {
       return;
     }
 
-    approveVideoRequest({
-      request_id: selectedRequest.request_id,
-      category: currentVideoCategoryList[0],
-    })
-      .then(() => {
-        getRequestedVideoList()
-          .then((res) => {
-            setCurrentVideoCategoryList([]);
-            if (res.length > 0) {
-              setCurrentSelectedUrl(res[0].youtube_url);
-            } else {
-              setCurrentSelectedUrl('');
-            }
-            setDraftRequestedVideoList(res);
-          })
-          .catch((err) => {
-            console.log(err);
-          });
-      })
-      .catch((err) => {
-        console.log(err);
+    if (!currentVideoCategoryList[0]) {
+      return;
+    }
+
+    try {
+      await approveVideoRequest({
+        request_id: selectedRequest.request_id,
+        category: currentVideoCategoryList[0],
       });
+      const res = await getRequestedVideoList();
+      setCurrentVideoCategoryList([]);
+      if (res.length > 0) {
+        setCurrentSelectedUrl(res[0]?.youtube_url ?? '');
+      } else {
+        setCurrentSelectedUrl('');
+      }
+      setDraftRequestedVideoList(res);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   useEffect(() => {
@@ -88,21 +84,23 @@ const MainPage = (): ReactElement => {
       .then((res) => {
         if (!res.items || res.items.length === 0) return;
 
+        const item = res.items[0];
+        if (!item) return;
+
         const [hour, minute, second] = getTimeArrFromDuration(
-          res.items[0].contentDetails.duration,
+          item.contentDetails.duration,
         );
-        const temp = {
-          video_url: res.items[0].id,
-          title: res.items[0].snippet.title,
-          channel_name: res.items[0].snippet.channelTitle,
+        setCurrentVideoData({
+          video_url: item.id,
+          title: item.snippet.title,
+          channel_name: item.snippet.channelTitle,
           length_hour: hour,
           length_minute: minute,
           length_second: second,
           category: '',
-        };
-        setCurrentVideoData(temp);
+        });
       })
-      .catch(() => {});
+      .catch((err) => console.error(err));
   }, [currentSelectedUrl]);
 
   const handleCategoryChange = (newCategories: CategoryType[]) => {
@@ -118,12 +116,10 @@ const MainPage = (): ReactElement => {
       .then((res) => {
         setDraftRequestedVideoList(res);
         if (res.length > 0) {
-          setCurrentSelectedUrl(res[0].youtube_url);
+          setCurrentSelectedUrl(res[0]?.youtube_url ?? '');
         }
       })
-      .catch((err) => {
-        console.log(err);
-      });
+      .catch((err) => console.error(err));
   }, []);
 
   return (
@@ -138,6 +134,7 @@ const MainPage = (): ReactElement => {
             {currentSelectedUrl ? (
               <YouTube
                 videoId={currentSelectedUrl}
+                title="관리자 영상 미리보기"
                 style={{ marginBottom: '20px' }}
                 opts={opts}
               />
@@ -176,16 +173,17 @@ const MainPage = (): ReactElement => {
         </div>
         <div className="request-video-container">
           {draftRequestedVideoList.map((d) => (
-            <div
-              key={uuidv4()}
+            <button
+              type="button"
+              key={d.request_id}
               className={`draft-url-item ${
-                d.youtube_url === currentSelectedUrl ? 'active' : null
+                d.youtube_url === currentSelectedUrl ? 'active' : ''
               }`}
               onClick={() => setCurrentSelectedUrl(d.youtube_url)}>
               <p className="font-label-medium draft-url-text">
                 {d.youtube_url}
               </p>
-            </div>
+            </button>
           ))}
         </div>
       </div>
@@ -193,4 +191,4 @@ const MainPage = (): ReactElement => {
   );
 };
 
-export default MainPage;
+export default AdminPage;
