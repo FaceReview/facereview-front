@@ -23,6 +23,7 @@ interface AuthState {
     user_profile,
     user_tutorial,
     user_favorite_genres,
+    is_verify_email_done,
   }: {
     is_admin: boolean;
     is_sign_in: boolean;
@@ -47,27 +48,41 @@ interface AuthState {
   clearAuth: () => void;
 }
 
+const resetAuthState = (): Omit<
+  AuthState,
+  | 'setToken'
+  | 'setUserInfo'
+  | 'setUserAnnounced'
+  | 'setUserName'
+  | 'setUserProfile'
+  | 'setUserFavoriteGenres'
+  | 'setTempToken'
+  | 'setVerifyEmailDone'
+  | 'clearAuth'
+> => ({
+  is_admin: false,
+  is_sign_in: false,
+  user_id: '',
+  user_name: '',
+  user_profile: 0,
+  user_tutorial: 0,
+  user_announced: false,
+  user_favorite_genres: [],
+  is_verify_email_done: false,
+  access_token: '',
+});
+
 export const useAuthStorage = create<AuthState>()(
   devtools(
     persist(
       (set) => ({
-        is_admin: false,
-        is_sign_in: false,
-        user_id: '',
-        user_name: '',
-        user_profile: 0,
-        user_tutorial: 0,
-        user_announced: false,
-        user_favorite_genres: [],
-        is_verify_email_done: false,
-        access_token: '',
+        ...resetAuthState(),
         setToken: ({ access_token }) =>
           set(() => ({
             access_token: access_token,
           })),
         setUserInfo: ({
           is_admin,
-
           access_token,
           user_id,
           user_name,
@@ -105,36 +120,26 @@ export const useAuthStorage = create<AuthState>()(
           })),
         setTempToken: ({ access_token }) =>
           set(() => ({
-            is_admin: false,
-            is_sign_in: false,
-            user_id: '',
-            user_name: '',
-            user_profile: 0,
-            user_tutorial: 0,
-            is_verify_email_done: false,
+            ...resetAuthState(),
             access_token: access_token,
           })),
         setVerifyEmailDone: (status) =>
           set(() => ({
             is_verify_email_done: status,
           })),
-        clearAuth: () =>
-          set(() => ({
-            is_admin: false,
-            is_sign_in: false,
-            user_id: '',
-            user_name: '',
-            user_profile: 0,
-            user_tutorial: 0,
-            user_announced: false,
-            user_favorite_genres: [],
-            is_verify_email_done: false,
-            access_token: '',
-          })),
+        clearAuth: () => set(() => resetAuthState()),
       }),
-
       {
         name: 'auth-storage',
+        // Persist only the sign-in flag and non-sensitive profile info.
+        // access_token stays in memory and is restored via refreshToken() on mount.
+        partialize: (state) => ({
+          is_sign_in: state.is_sign_in,
+          user_id: state.user_id,
+          user_name: state.user_name,
+          user_profile: state.user_profile,
+          user_favorite_genres: state.user_favorite_genres,
+        }),
         onRehydrateStorage: () => (state) => {
           if (state?.access_token) {
             HeaderToken.set(state.access_token);
