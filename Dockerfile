@@ -17,6 +17,10 @@ RUN yarn install --immutable
 
 # Build application
 COPY . .
+
+# Vite inlines VITE_* vars at build time — inject via build-arg.
+ARG VITE_YOUTUBE_API_KEY
+ENV VITE_YOUTUBE_API_KEY=$VITE_YOUTUBE_API_KEY
 RUN yarn build
 
 # 2. Run Stage

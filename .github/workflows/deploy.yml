@@ -72,8 +72,11 @@ jobs:
 
             echo "=== 2. Docker 이미지 새로 빌드 ==="
             # --no-cache: 캐시 없이 처음부터 빌드 (최신 코드 반영 확실하게)
+            # --build-arg: Vite가 빌드 시점에 import.meta.env로 인라인할 값 주입
             # 만약 빌드 중 에러가 나면 set -e 덕분에 여기서 스크립트가 멈춥니다.
-            docker build --no-cache -t facereview-front-image .
+            docker build --no-cache \
+              --build-arg VITE_YOUTUBE_API_KEY=${{ secrets.VITE_YOUTUBE_API_KEY }} \
+              -t facereview-front-image .
 
             echo "=== 3. Docker 컨테이너 실행 ==="
             # 호스트 5002번 <-> 컨테이너 80번 연결
