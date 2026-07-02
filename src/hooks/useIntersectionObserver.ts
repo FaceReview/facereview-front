@@ -7,25 +7,28 @@ interface UseIntersectionObserverProps {
   onIntersect: IntersectionObserverCallback;
 }
 
-const useIntersectionObserver = ({
+const useIntersectionObserver = <T extends Element = HTMLDivElement>({
   root,
   rootMargin = '0px',
   threshold = 0,
   onIntersect,
 }: UseIntersectionObserverProps) => {
-  const targetRef = useRef<HTMLDivElement>(null);
+  const targetRef = useRef<T>(null);
 
   useEffect(() => {
+    const target = targetRef.current;
+    if (!target) return;
+
     const observer = new IntersectionObserver(onIntersect, {
       root,
       rootMargin,
       threshold,
     });
-    const target = targetRef.current;
-    if (target) observer.observe(target);
+    observer.observe(target);
 
     return () => {
-      if (target) observer.unobserve(target);
+      observer.unobserve(target);
+      observer.disconnect();
     };
   }, [root, rootMargin, threshold, onIntersect]);
 

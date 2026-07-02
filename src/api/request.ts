@@ -1,31 +1,21 @@
-import { ReqeustedVideoType } from 'types/index';
+import { RequestedVideoType } from 'types/index';
 import api from './index';
 
 export const getRequestedVideoList = async () => {
-  try {
-    const url = '/v2/admin/video-requests';
-    const { data } = await api.get<ReqeustedVideoType[]>(url);
+  const url = '/v2/admin/video-requests';
+  const { data } = await api.get<RequestedVideoType[]>(url);
 
-    return data;
-  } catch (error) {
-    console.log(error);
-    throw error;
-  }
+  return data;
 };
 
 export const updateRequestVideoList = async (props: {
   youtube_url_list: string[];
 }) => {
-  try {
-    const url = '/v2/home/video/recommend';
-    const { data } = await api.post<{
-      result?: string;
-      message?: string;
-    }>(url, props);
+  const url = '/v2/home/video/recommend';
+  const { data } = await api.post<{
+    result?: string;
+    message?: string;
+  }>(url, props);
 
-    return data;
-  } catch (error) {
-    console.log(error);
-    throw error;
-  }
+  return data;
 };

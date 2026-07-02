@@ -1,15 +1,21 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
+
+const getWindowWidth = () =>
+  typeof window !== 'undefined' ? window.innerWidth : 0;
 
 const useWindowSize = () => {
-  const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth);
+  const [windowWidth, setWindowWidth] = useState<number>(getWindowWidth());
 
   useEffect(() => {
+    let frame = 0;
     const handleResize = () => {
-      setWindowWidth(window.innerWidth);
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => setWindowWidth(window.innerWidth));
     };
-    window.addEventListener("resize", handleResize);
+    window.addEventListener('resize', handleResize, { passive: true });
     return () => {
-      window.removeEventListener("resize", handleResize);
+      cancelAnimationFrame(frame);
+      window.removeEventListener('resize', handleResize);
     };
   }, []);
 
