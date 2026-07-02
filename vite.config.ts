@@ -6,7 +6,7 @@ import path from 'path';
 
 const VENDOR_CHUNKS: Record<string, string[]> = {
   'vendor-react': ['react', 'react-dom'],
-  'vendor-nivo': ['@nivo/bar', '@nivo/line', '@nivo/pie', '@nivo/core'],
+  // 'vendor-nivo': ['@nivo/bar', '@nivo/line', '@nivo/pie', '@nivo/core'],
   'vendor-swiper': ['swiper'],
   'vendor-router': ['react-router-dom'],
   'vendor-query': ['@tanstack/react-query'],
