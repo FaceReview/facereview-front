@@ -14,7 +14,7 @@ const VENDOR_CHUNKS: Record<string, string[]> = {
   'vendor-youtube': ['react-youtube'],
   'vendor-webcam': ['react-webcam'],
   'vendor-uuid': ['uuid'],
-  'vendor-helmet': ['react-helmet-async'],
+  // 'vendor-helmet': ['react-helmet-async'],
 };
 
 export default defineConfig(({ mode }) => ({
