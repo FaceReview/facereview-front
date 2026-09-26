@@ -21,6 +21,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v5
 
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v4
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci-homeserver
+          ping: ${{ vars.TS_UBUNTU_HOST }}
+
       # 2. .env 파일 생성
       # 서버에서 Docker build 할 때 Vite가 이 내용을 읽어서 빌드합니다.
       - name: Create .env file
@@ -33,10 +41,10 @@ jobs:
       - name: Copy files to Server
         uses: appleboy/scp-action@v0.1.7
         with:
-          host: ${{ secrets.HOST }}
+          host: ${{ vars.TS_UBUNTU_HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.KEY }}
-          port: ${{ secrets.PORT }}
+          port: 22
           source: '.'
           target: '/home/winterholic/projects/services/new-facereview-front'
           rm: true # 전송 전 서버 폴더를 비워 깨끗한 상태 유지
@@ -45,10 +53,10 @@ jobs:
       - name: SSH & Docker Deploy
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.HOST }}
+          host: ${{ vars.TS_UBUNTU_HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.KEY }}
-          port: ${{ secrets.PORT }}
+          port: 22
           script: |
             # [중요] 스크립트 실행 중 에러 발생 시 즉시 중단 (GitHub Actions 실패 처리)
             set -e
