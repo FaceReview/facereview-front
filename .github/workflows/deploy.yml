@@ -21,28 +21,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v5
 
-      - name: Check Tailscale settings
-        env:
-          TS_OAUTH_CLIENT_ID: ${{ secrets.TS_OAUTH_CLIENT_ID }}
-          TS_OAUTH_SECRET: ${{ secrets.TS_OAUTH_SECRET }}
-          TS_CI_TAG: ${{ vars.TS_CI_TAG }}
-          TS_UBUNTU_HOST: ${{ vars.TS_UBUNTU_HOST }}
-        run: |
-          for name in TS_OAUTH_CLIENT_ID TS_OAUTH_SECRET TS_CI_TAG TS_UBUNTU_HOST; do
-            if [ -z "${!name}" ]; then
-              echo "::error::Missing GitHub Actions setting: $name"
-              exit 1
-            fi
-          done
-
-      - name: Connect to Tailscale
-        uses: tailscale/github-action@v4
-        with:
-          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
-          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
-          tags: ${{ vars.TS_CI_TAG }}
-          ping: ${{ vars.TS_UBUNTU_HOST }}
-
       # 2. .env 파일 생성
       # 서버에서 Docker build 할 때 Vite가 이 내용을 읽어서 빌드합니다.
       - name: Create .env file
@@ -55,10 +33,10 @@ jobs:
       - name: Copy files to Server
         uses: appleboy/scp-action@v0.1.7
         with:
-          host: ${{ vars.TS_UBUNTU_HOST }}
+          host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.KEY }}
-          port: 22
+          port: ${{ secrets.PORT }}
           source: '.'
           target: '/home/winterholic/projects/services/new-facereview-front'
           rm: true # 전송 전 서버 폴더를 비워 깨끗한 상태 유지
@@ -67,10 +45,10 @@ jobs:
       - name: SSH & Docker Deploy
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ vars.TS_UBUNTU_HOST }}
+          host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.KEY }}
-          port: 22
+          port: ${{ secrets.PORT }}
           script: |
             # [중요] 스크립트 실행 중 에러 발생 시 즉시 중단 (GitHub Actions 실패 처리)
             set -e
